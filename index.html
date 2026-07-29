@@ -158,6 +158,13 @@
                     </div>
                     <span class="text-4xl group-hover:animate-bounce-hover">✅</span>
                 </button>
+                <button onclick="startTierraImage()" class="group flex items-center justify-between bg-gradient-to-r from-teal-400 to-teal-500 p-4 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform text-left w-full">
+                    <div>
+                        <h3 class="text-xl font-bold">6. Etiqueta las Capas 🖼️</h3>
+                        <p class="text-teal-100 mt-1 text-sm">Completa el esquema visual.</p>
+                    </div>
+                    <span class="text-4xl group-hover:animate-bounce-hover">🏷️</span>
+                </button>
             </div>
         </div>
 
@@ -167,6 +174,7 @@
         <div id="view-tierra-words" class="view-section"></div>
         <div id="view-tierra-sort" class="view-section"></div>
         <div id="view-tierra-tf" class="view-section"></div>
+        <div id="view-tierra-image" class="view-section"></div>
 
         <!-- ==========================================
              APP 2: SPACE MISSION (INGLÉS)
@@ -331,6 +339,7 @@
             if(originId === 'tierra-words') restartAction = "startTierraWords()";
             if(originId === 'tierra-sort') restartAction = "startTierraSort()";
             if(originId === 'tierra-tf') restartAction = "startTierraTF()";
+            if(originId === 'tierra-image') restartAction = "startTierraImage()";
             if(originId === 'espacio-memory') restartAction = "startSpaceMemory()";
             if(originId === 'espacio-ordinals') restartAction = "startSpaceOrdinals()";
             if(originId === 'espacio-gear') restartAction = "startSpaceGear()";
@@ -718,6 +727,191 @@
                 if(tTFState.currentQ >= 5) sounds.tierra_win();
                 renderTierraTF();
             }, 1500);
+        }
+
+        // --- Tierra: Imagen Interactiva (Etiqueta las Capas) ---
+        const tImgCorrect = {
+            slot1: "Corteza",
+            slot2: "Manto",
+            slot3: "Núcleo externo",
+            slot4: "Núcleo interno"
+        };
+        let tImgState = {
+            selectedTag: null,
+            placed: { slot1: null, slot2: null, slot3: null, slot4: null },
+            available: [],
+            isChecked: false,
+            isCorrect: false
+        };
+
+        function startTierraImage() {
+            tImgState = {
+                selectedTag: null,
+                placed: { slot1: null, slot2: null, slot3: null, slot4: null },
+                available: ["Manto", "Corteza", "Núcleo interno", "Núcleo externo"].sort(() => Math.random() - 0.5),
+                isChecked: false,
+                isCorrect: false
+            };
+            showView('tierra-image');
+            renderTierraImage();
+        }
+
+        function renderTierraImage() {
+            const container = document.getElementById('view-tierra-image');
+            let html = `
+                <div class="max-w-3xl mx-auto bg-white p-4 md:p-8 rounded-3xl shadow-xl border-4 border-teal-300 text-center animate-fade-in-up w-full">
+                    <h2 class="text-2xl font-black text-teal-600 mb-2 drop-shadow-sm">6. Etiqueta la Estructura</h2>
+                    <p class="text-slate-500 mb-6 font-medium text-sm sm:text-base">Toca un nombre abajo y luego toca el número donde corresponde en el dibujo.</p>
+
+                    <!-- CONTENEDOR DIBUJO SVG -->
+                    <div class="relative w-full max-w-sm mx-auto mb-8">
+                        <svg viewBox="0 0 420 400" class="w-full h-auto drop-shadow-xl">
+                            <!-- Fondo Suave -->
+                            <circle cx="200" cy="200" r="195" fill="#f0f9ff" opacity="0.6"/>
+                            
+                            <!-- MITAD IZQUIERDA (Globo Terráqueo) -->
+                            <!-- Océanos -->
+                            <path d="M 200,40 A 160,160 0 0,0 200,360 Z" fill="#3b82f6" />
+                            <!-- Continentes simulados -->
+                            <path d="M 180,60 Q 130,70 110,120 Q 150,150 180,120 Z" fill="#22c55e" />
+                            <path d="M 190,180 Q 130,200 120,280 Q 170,340 195,310 Z" fill="#22c55e" />
+                            <path d="M 90,170 Q 40,190 55,260 Q 100,240 115,190 Z" fill="#22c55e" />
+
+                            <!-- MITAD DERECHA (Corte transversal - Capas) -->
+                            <!-- 1. Corteza -->
+                            <path d="M 200,40 A 160,160 0 0,1 200,360 Z" fill="#8b4513" />
+                            <!-- 2. Manto -->
+                            <path d="M 200,50 A 150,150 0 0,1 200,350 Z" fill="#ea580c" />
+                            <!-- 3. Núcleo Externo -->
+                            <path d="M 200,110 A 90,90 0 0,1 200,290 Z" fill="#f97316" />
+                            <!-- 4. Núcleo Interno -->
+                            <path d="M 200,155 A 45,45 0 0,1 200,245 Z" fill="#facc15" />
+
+                            <!-- LINEAS Y NUMEROS -->
+                            <!-- Línea 1 (Corteza) -->
+                            <polyline points="295,95 340,50 375,50" stroke="#334155" stroke-width="3" fill="none" />
+                            <circle cx="375" cy="50" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
+                            <text x="375" y="56" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">1</text>
+
+                            <!-- Línea 2 (Manto) -->
+                            <polyline points="315,160 350,130 375,130" stroke="#334155" stroke-width="3" fill="none" />
+                            <circle cx="375" cy="130" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
+                            <text x="375" y="136" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">2</text>
+
+                            <!-- Línea 3 (Núcleo Ext) -->
+                            <polyline points="265,225 310,230 375,230" stroke="#334155" stroke-width="3" fill="none" />
+                            <circle cx="375" cy="230" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
+                            <text x="375" y="236" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">3</text>
+
+                            <!-- Línea 4 (Núcleo Int) -->
+                            <polyline points="215,225 260,300 375,300" stroke="#334155" stroke-width="3" fill="none" />
+                            <circle cx="375" cy="300" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
+                            <text x="375" y="306" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">4</text>
+                        </svg>
+                    </div>
+
+                    <!-- CAJAS DE DESTINO -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            `;
+
+            [1, 2, 3, 4].forEach(num => {
+                const slotKey = 'slot' + num;
+                const placedTag = tImgState.placed[slotKey];
+                const bgClass = placedTag ? 'bg-teal-50 border-teal-500 shadow-inner' : 'bg-slate-50 border-slate-300 hover:bg-slate-100';
+                
+                html += `
+                    <button onclick="placeTImgSlot('${slotKey}')" class="p-3 border-2 border-dashed rounded-xl flex items-center justify-start gap-3 transition-colors ${bgClass}">
+                        <span class="w-8 h-8 rounded-full bg-teal-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm">${num}</span>
+                        <span class="font-bold ${placedTag ? 'text-teal-700' : 'text-slate-400'} text-sm sm:text-lg flex-grow text-left">${placedTag || 'Toca para colocar aquí...'}</span>
+                        ${placedTag ? '<span class="text-xs text-red-400 hover:text-red-600">✖</span>' : ''}
+                    </button>
+                `;
+            });
+
+            html += `</div>
+                    <!-- ETIQUETAS DISPONIBLES -->
+                    <div class="bg-slate-100 p-4 rounded-2xl min-h-[80px] flex flex-wrap justify-center items-center gap-3 border-2 border-slate-200">
+            `;
+            
+            if (tImgState.available.length === 0) {
+                html += `<span class="text-slate-400 font-medium italic">¡Todas las etiquetas están en su lugar!</span>`;
+            } else {
+                tImgState.available.forEach(tag => {
+                    const isSelected = tImgState.selectedTag === tag;
+                    const styleClass = isSelected ? 'bg-orange-500 text-white border-orange-600 scale-110 shadow-lg' : 'bg-white text-slate-700 border-slate-300 hover:bg-orange-50 hover:border-orange-300 shadow-sm';
+                    html += `<button onclick="selectTImgTag('${tag}')" class="px-5 py-2 border-2 rounded-full font-bold text-sm sm:text-base transition-all transform ${styleClass}">${tag}</button>`;
+                });
+            }
+
+            html += `</div>`;
+
+            // CONTROLES DE COMPROBACIÓN
+            if (tImgState.available.length === 0 && !tImgState.isChecked) {
+                html += `<div class="mt-8"><button onclick="checkTierraImage()" class="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-8 py-3 rounded-full font-black text-xl shadow-lg hover:scale-105 transition-transform animate-pulse">Comprobar Esquema</button></div>`;
+            } else if (tImgState.isChecked) {
+                if (tImgState.isCorrect) {
+                    html += `<div class="mt-6 text-2xl font-black text-green-500 animate-bounce drop-shadow-md">¡Esquema Perfecto! 🎓</div>`;
+                    if(!tImgState.winTriggered){ 
+                        tImgState.winTriggered = true; 
+                        setTimeout(() => showResultScreen(4, 4, "Etiqueta las Capas", 'tierra-image', 'tierra'), 1500); 
+                    }
+                } else {
+                    html += `
+                        <div class="mt-6 text-xl font-bold text-red-500 drop-shadow-md">Algunas capas no están en su lugar correcto.</div>
+                        <button onclick="startTierraImage()" class="mt-4 bg-gradient-to-r from-teal-400 to-teal-500 text-white px-8 py-3 rounded-full font-black shadow-lg hover:scale-105 transition-transform">Intentar de nuevo</button>
+                    `;
+                }
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function selectTImgTag(tag) {
+            initAudio(); sounds.click();
+            tImgState.selectedTag = tImgState.selectedTag === tag ? null : tag;
+            renderTierraImage();
+        }
+
+        function placeTImgSlot(slotKey) {
+            initAudio();
+            
+            // Si hay un tag seleccionado para colocar
+            if (tImgState.selectedTag) {
+                sounds.click();
+                // Si el slot ya tenía algo, lo devolvemos a disponibles
+                if (tImgState.placed[slotKey]) {
+                    tImgState.available.push(tImgState.placed[slotKey]);
+                }
+                // Colocamos el nuevo tag y lo sacamos de disponibles
+                tImgState.placed[slotKey] = tImgState.selectedTag;
+                tImgState.available = tImgState.available.filter(t => t !== tImgState.selectedTag);
+                tImgState.selectedTag = null;
+            } 
+            // Si no hay tag seleccionado, pero tocamos un slot ocupado (para sacarlo)
+            else if (tImgState.placed[slotKey]) {
+                sounds.click();
+                tImgState.available.push(tImgState.placed[slotKey]);
+                tImgState.placed[slotKey] = null;
+            }
+            renderTierraImage();
+        }
+
+        function checkTierraImage() {
+            initAudio();
+            tImgState.isChecked = true;
+            tImgState.isCorrect = true;
+            
+            for (let slot in tImgCorrect) {
+                if (tImgState.placed[slot] !== tImgCorrect[slot]) {
+                    tImgState.isCorrect = false;
+                }
+            }
+            
+            if (tImgState.isCorrect) sounds.tierra_win();
+            else sounds.tierra_incorrect();
+            
+            renderTierraImage();
         }
 
         // ==========================================
