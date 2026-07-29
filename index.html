@@ -1,552 +1,529 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-// --- UTILIDAD PARA MANEJO DE SONIDOS ---
-const useSoundEffects = () => {
-  const [sounds, setSounds] = useState({});
-
-  useEffect(() => {
-    // Usamos audios libres de jsdelivr / github public content para asegurar que funcionen
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    
-    // Sintetizador básico para generar sonidos sin depender de archivos externos
-    const playTone = (frequency, type, duration, vol = 0.1) => {
-      try {
-        if (audioContext.state === 'suspended') audioContext.resume();
-        
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.type = type;
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-        
-        // Envolvente de volumen (Fade in / Fade out rápido)
-        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(vol, audioContext.currentTime + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + duration);
-      } catch (e) {
-        console.log("Silenciado o audio no soportado aún", e);
-      }
-    };
-
-    setSounds({
-      correct: () => {
-        // Sonido feliz: dos tonos ascendentes
-        playTone(440, 'sine', 0.1, 0.2); // A4
-        setTimeout(() => playTone(659.25, 'sine', 0.3, 0.2), 100); // E5
-      },
-      incorrect: () => {
-        // Sonido de error: tono grave descendente
-        playTone(300, 'sawtooth', 0.2, 0.1);
-        setTimeout(() => playTone(250, 'sawtooth', 0.3, 0.1), 150);
-      },
-      click: () => {
-        // Sonido de clic sutil
-        playTone(800, 'triangle', 0.05, 0.05);
-      },
-      win: () => {
-        // Acorde de victoria
-        playTone(523.25, 'sine', 0.5, 0.15); // C5
-        playTone(659.25, 'sine', 0.5, 0.15); // E5
-        playTone(783.99, 'sine', 0.5, 0.15); // G5
-        setTimeout(() => playTone(1046.50, 'sine', 0.8, 0.2), 300); // C6
-      }
-    });
-    
-    return () => audioContext.close();
-  }, []);
-
-  return sounds;
-};
-
-// --- DATOS EXTRAÍDOS FIELMENTE DE LAS GUÍAS ADJUNTAS ---
-const earthData = [
-  {
-    term: "Corteza",
-    def: "Es la capa más externa, delgada y superficial de la Tierra.",
-    clue: "Capa superficial de la Tierra",
-    options: ["Corteza", "Manto", "Núcleo Interno", "Suelo"]
-  },
-  {
-    term: "Placas",
-    def: "Grandes fragmentos de litósfera que se mueven sobre el manto.",
-    clue: "Fragmentos que se mueven",
-    options: ["Continentes", "Océanos", "Placas", "Rocas"]
-  },
-  {
-    term: "Manto",
-    def: "Capa intermedia, la más gruesa de la Tierra. Tiene un comportamiento plástico.",
-    clue: "Capa más gruesa",
-    options: ["Manto", "Litosfera", "Corteza", "Núcleo Externo"]
-  },
-  {
-    term: "Suelo",
-    def: "Capa superior de la Tierra que sustenta la vida vegetal y animal.",
-    clue: "Sustenta la vida",
-    options: ["Litosfera", "Suelo", "Corteza", "Placas"]
-  },
-  {
-    term: "Núcleo Externo",
-    def: "Capa de hierro y níquel en estado líquido, situada entre el manto y el núcleo interno.",
-    clue: "Capa fundida líquida",
-    options: ["Manto Inferior", "Núcleo Interno", "Núcleo Externo", "Litosfera"]
-  },
-  {
-    term: "Litosfera",
-    def: "Parte superior de la Tierra, compuesta por la corteza y parte del manto superior. Es la capa más rígida.",
-    clue: "La capa más rígida",
-    options: ["Litosfera", "Manto", "Núcleo Interno", "Corteza"]
-  },
-  {
-    term: "Núcleo Interno",
-    def: "Capa que se encuentra en el centro de la Tierra. Es la parte más profunda y está en estado sólido.",
-    clue: "Centro sólido de la Tierra",
-    options: ["Núcleo Externo", "Manto", "Núcleo Interno", "Suelo"]
-  },
-  {
-    term: "Líquido",
-    def: "Corresponde al estado de la materia en el que se encuentra el Núcleo Externo.",
-    clue: "Estado del núcleo externo",
-    options: ["Sólido", "Gaseoso", "Líquido", "Plasmático"]
-  },
-  {
-    term: "Hierro",
-    def: "Principal elemento por el cual se conforma el Núcleo Interno (hasta un 70%).",
-    clue: "Elemento principal del centro",
-    options: ["Cobre", "Níquel", "Hierro", "Oro"]
-  }
-];
-
-export default function App() {
-  const [currentView, setCurrentView] = useState('menu'); // menu, quiz, match, words
-  const sounds = useSoundEffects();
-
-  const handleNavClick = (view) => {
-    try {
-      sounds.click?.();
-    } catch (e) {
-      // Prevenir que un error de audio bloquee la navegación
-    }
-    setCurrentView(view);
-  };
-
-  return (
-    <div className="min-h-screen bg-blue-100 font-sans text-gray-800 selection:bg-orange-300">
-      {}
-      {/* HEADER */}
-      <header className="bg-gradient-to-r from-orange-400 to-red-500 p-4 md:p-6 shadow-md text-white text-center rounded-b-3xl mb-6 relative">
-        {currentView !== 'menu' && (
-          <button 
-            onClick={() => handleNavClick('menu')}
-            className="absolute left-4 top-4 bg-white/30 hover:bg-white/50 text-white px-4 py-2 rounded-full font-bold transition-colors z-50 cursor-pointer shadow-sm"
-          >
-            ← Volver
-          </button>
-        )}
-        <h1 className="text-2xl md:text-4xl font-extrabold tracking-wider drop-shadow-lg flex items-center justify-center gap-2 md:gap-3 mt-12 md:mt-0 relative z-10">
-          🌎 Misión: Capas de la Tierra 🌋
-        </h1>
-        <p className="text-sm md:text-base mt-2 font-medium relative z-10">¡Conviértete en una experta geóloga!</p>
-      </header>
-
-      {}
-      {/* MAIN CONTENT */}
-      <main className="container mx-auto px-4 pb-12 relative z-10">
-        {currentView === 'menu' && <MainMenu setView={handleNavClick} sounds={sounds} />}
-        {currentView === 'quiz' && <QuizGame sounds={sounds} />}
-        {currentView === 'match' && <MatchGame sounds={sounds} />}
-        {currentView === 'words' && <WordGame sounds={sounds} />}
-      </main>
-    </div>
-  );
-}
-
-//// --- MENU PRINCIPAL ---
-function MainMenu({ setView, sounds }) {
-  return (
-    <div className="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-xl text-center border-4 border-orange-300">
-      <h2 className="text-2xl font-bold text-orange-600 mb-6">¡Hola Antonella! ¿A qué jugamos hoy? 🚀</h2>
-      
-      <div className="grid gap-6 md:grid-cols-1">
-        <button 
-          onClick={() => setView('quiz')}
-          className="group flex items-center justify-between bg-gradient-to-r from-blue-400 to-blue-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform"
-        >
-          <div className="text-left">
-            <h3 className="text-2xl font-bold">1. Trivia Geológica 🧠</h3>
-            <p className="text-blue-100 mt-1">Responde las preguntas de alternativas.</p>
-          </div>
-          <span className="text-5xl group-hover:animate-bounce">❓</span>
-        </button>
-
-        <button 
-          onClick={() => setView('match')}
-          className="group flex items-center justify-between bg-gradient-to-r from-green-400 to-green-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform"
-        >
-          <div className="text-left">
-            <h3 className="text-2xl font-bold">2. Conecta las Capas 🧩</h3>
-            <p className="text-green-100 mt-1">Une cada concepto con su definición correcta.</p>
-          </div>
-          <span className="text-5xl group-hover:animate-bounce">🔗</span>
-        </button>
-
-        <button 
-          onClick={() => setView('words')}
-          className="group flex items-center justify-between bg-gradient-to-r from-purple-400 to-purple-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform"
-        >
-          <div className="text-left">
-            <h3 className="text-2xl font-bold">3. Palabra Oculta 🕵️‍♀️</h3>
-            <p className="text-purple-100 mt-1">Descubre la palabra secreta (como en el crucigrama).</p>
-          </div>
-          <span className="text-5xl group-hover:animate-bounce">🔤</span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-//// --- JUEGO 1: TRIVIA ---
-function QuizGame({ sounds }) {
-  const [currentQ, setCurrentQ] = useState(0);
-  const [score, setScore] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const [feedback, setFeedback] = useState(null); // 'correct', 'incorrect'
-  
-  // Barajar opciones al cargar pregunta
-  const [shuffledOptions, setShuffledOptions] = useState([]);
-  
-  const questions = earthData.map(item => ({
-    q: item.def,
-    a: item.term,
-    options: item.options
-  }));
-
-  useEffect(() => {
-    if (currentQ < questions.length) {
-      const opts = [...questions[currentQ].options].sort(() => Math.random() - 0.5);
-      setShuffledOptions(opts);
-    }
-  }, [currentQ]);
-
-  const handleAnswer = (selected) => {
-    if (feedback) return; // Prevent multiple clicks
-
-    const isCorrect = selected === questions[currentQ].a;
-    if (isCorrect) {
-      sounds.correct?.();
-      setScore(s => s + 1);
-      setFeedback('correct');
-    } else {
-      sounds.incorrect?.();
-      setFeedback('incorrect');
-    }
-
-    setTimeout(() => {
-      setFeedback(null);
-      if (currentQ + 1 < questions.length) {
-        setCurrentQ(q => q + 1);
-      } else {
-        sounds.win?.();
-        setShowResult(true);
-      }
-    }, 1500);
-  };
-
-  if (showResult) {
-    return <ResultScreen score={score} total={questions.length} title="Trivia Geológica" sounds={sounds} />;
-  }
-
-  const currentData = questions[currentQ];
-
-  return (
-    <div className="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-blue-300 text-center">
-      <div className="flex justify-between items-center mb-6 text-blue-500 font-bold">
-        <span>Pregunta {currentQ + 1} de {questions.length}</span>
-        <span>Puntos: {score} ⭐</span>
-      </div>
-
-      <div className="bg-blue-50 p-6 rounded-2xl mb-8 min-h-[120px] flex items-center justify-center border-2 border-blue-200">
-        <h3 className="text-xl md:text-2xl font-semibold text-gray-700">"{currentData?.q}"</h3>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {shuffledOptions.map((opt, i) => {
-          let btnClass = "bg-gray-100 hover:bg-blue-100 text-gray-700 border-2 border-gray-200";
-          if (feedback) {
-            if (opt === currentData.a) btnClass = "bg-green-500 text-white border-green-600 animate-pulse";
-            else if (opt !== currentData.a) btnClass = "bg-red-200 text-red-800 border-red-300 opacity-50";
-          }
-          
-          return (
-            <button
-              key={i}
-              onClick={() => {
-                if(!feedback) sounds.click?.();
-                handleAnswer(opt);
-              }}
-              className={`p-4 rounded-xl text-lg font-bold transition-all transform active:scale-95 ${btnClass}`}
-            >
-              {opt}
-            </button>
-          )
-        })}
-      </div>
-      
-      {feedback === 'correct' && <div className="mt-6 text-2xl font-bold text-green-500 animate-bounce">¡Correcto! 🎉</div>}
-      {feedback === 'incorrect' && <div className="mt-6 text-2xl font-bold text-red-500 animate-bounce">¡Casi! Era {currentData.a} 😅</div>}
-    </div>
-  );
-}
-
-//// --- JUEGO 2: CONECTA LAS CAPAS (MATCHING) ---
-function MatchGame({ sounds }) {
-  const [terms, setTerms] = useState([]);
-  const [defs, setDefs] = useState([]);
-  const [selectedTerm, setSelectedTerm] = useState(null);
-  const [selectedDef, setSelectedDef] = useState(null);
-  const [matched, setMatched] = useState([]); // array de terms
-
-  useEffect(() => {
-    // Tomamos solo 5 al azar para que no sea muy largo
-    const shuffledData = [...earthData].sort(() => 0.5 - Math.random()).slice(0, 5);
-    setTerms(shuffledData.map(d => d.term).sort(() => 0.5 - Math.random()));
-    setDefs(shuffledData.map(d => ({ term: d.term, text: d.def })).sort(() => 0.5 - Math.random()));
-  }, []);
-
-  useEffect(() => {
-    if (selectedTerm && selectedDef) {
-      if (selectedTerm === selectedDef.term) {
-        // MATCH!
-        sounds.correct?.();
-        setMatched(prev => [...prev, selectedTerm]);
-        setSelectedTerm(null);
-        setSelectedDef(null);
-      } else {
-        // NO MATCH
-        sounds.incorrect?.();
-        setTimeout(() => {
-          setSelectedTerm(null);
-          setSelectedDef(null);
-        }, 800);
-      }
-    }
-  }, [selectedTerm, selectedDef, sounds]);
-
-  const isFinished = matched.length === terms.length && terms.length > 0;
-
-  useEffect(() => {
-     if(isFinished) {
-         sounds.win?.();
-     }
-  }, [isFinished, sounds]);
-
-  if (isFinished) {
-    return <ResultScreen score={5} total={5} title="Conecta las Capas" sounds={sounds} />;
-  }
-
-  return (
-    <div className="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-green-300">
-      <h2 className="text-2xl font-bold text-center text-green-600 mb-6">Toca un concepto y luego su definición</h2>
-      
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Columna Conceptos */}
-        <div className="flex-1 flex flex-col gap-3">
-          <h3 className="font-bold text-gray-500 text-center uppercase tracking-wide">Conceptos</h3>
-          {terms.map(t => {
-            const isMatched = matched.includes(t);
-            const isSelected = selectedTerm === t;
-            let styles = "bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200";
-            if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
-            else if (isSelected) styles = "bg-orange-400 border-orange-500 text-white scale-105 shadow-md";
-
-            return (
-              <button 
-                key={t}
-                disabled={isMatched}
-                onClick={() => {
-                   sounds.click?.();
-                   setSelectedTerm(t);
-                }}
-                className={`p-4 rounded-xl border-2 font-bold transition-all text-left md:text-center ${styles}`}
-              >
-                {t}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Columna Definiciones */}
-        <div className="flex-1 flex flex-col gap-3">
-           <h3 className="font-bold text-gray-500 text-center uppercase tracking-wide">Definiciones</h3>
-          {defs.map((d, i) => {
-            const isMatched = matched.includes(d.term);
-            const isSelected = selectedDef?.text === d.text;
-            let styles = "bg-blue-50 border-blue-200 text-gray-700 hover:bg-blue-100";
-            if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
-            else if (isSelected) styles = "bg-blue-300 border-blue-400 text-blue-900 scale-105 shadow-md";
-
-            return (
-              <button 
-                key={i}
-                disabled={isMatched}
-                onClick={() => {
-                    sounds.click?.();
-                    setSelectedDef(d)
-                }}
-                className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium transition-all text-left ${styles}`}
-              >
-                {d.text}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-//// --- JUEGO 3: PALABRA OCULTA (Tipo Ahorcado/Crucigrama) ---
-function WordGame({ sounds }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [guessedLetters, setGuessedLetters] = useState([]);
-  const [score, setScore] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-
-  // Usamos palabras del crucigrama (sin espacios, normalizadas)
-  const wordsData = earthData.filter(d => !d.term.includes(" ")).map(d => ({
-    word: d.term.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""), // Quitar tildes para el juego
-    clue: d.def
-  }));
-
-  const currentWordData = wordsData[currentIndex];
-  const wordLetters = currentWordData?.word.split('');
-  
-  const isWordGuessed = wordLetters?.every(letter => guessedLetters.includes(letter));
-
-  useEffect(() => {
-    if (isWordGuessed && currentWordData) {
-      sounds.correct?.();
-      setTimeout(() => {
-        setScore(s => s + 1);
-        if (currentIndex + 1 < wordsData.length) {
-          setCurrentIndex(i => i + 1);
-          setGuessedLetters([]);
-        } else {
-          sounds.win?.();
-          setShowResult(true);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos Capas de la Tierra</title>
+    <!-- Tailwind CSS para los estilos, igual que en la versión React -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados adicionales y animaciones */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #dbeafe; /* blue-100 */
+            color: #1f2937; /* gray-800 */
         }
-      }, 1500);
-    }
-  }, [isWordGuessed, currentWordData, currentIndex, wordsData.length, sounds]);
+        
+        ::selection {
+            background-color: #fdba74; /* orange-300 */
+        }
 
-  const handleGuess = (letter) => {
-    if (!guessedLetters.includes(letter) && !isWordGuessed) {
-      sounds.click?.();
-      
-      // Chequear si la letra es incorrecta
-      if(!wordLetters.includes(letter)){
-          sounds.incorrect?.();
-      }
+        .animate-bounce-hover:hover {
+            animation: bounce 1s infinite;
+        }
 
-      setGuessedLetters([...guessedLetters, letter]);
-    }
-  };
+        @keyframes pulse-correct {
+            0%, 100% { transform: scale(1); background-color: #22c55e; } /* green-500 */
+            50% { transform: scale(1.05); background-color: #4ade80; } /* green-400 */
+        }
 
-  if (showResult) {
-    return <ResultScreen score={score} total={wordsData.length} title="Palabra Oculta" sounds={sounds} />;
-  }
+        .animate-pulse-correct {
+            animation: pulse-correct 1s infinite;
+        }
 
-  const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+        .word-cell {
+            width: 3rem;
+            height: 3.5rem;
+            background-color: #f3f4f6;
+            border-bottom: 4px solid #9333ea;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #6b21a8;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
 
-  return (
-    <div className="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-purple-300 text-center">
-      <div className="flex justify-between items-center mb-4 text-purple-500 font-bold">
-        <span>Palabra {currentIndex + 1} de {wordsData.length}</span>
-        <span>Puntos: {score} ⭐</span>
-      </div>
+        @media (min-width: 768px) {
+            .word-cell {
+                width: 4rem;
+                height: 5rem;
+                font-size: 2.25rem;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative">
 
-      <div className="bg-purple-100 p-4 rounded-xl mb-8 border-2 border-purple-200">
-        <p className="text-purple-800 font-medium text-lg">Pista: {currentWordData?.clue}</p>
-      </div>
+    <!-- HEADER -->
+    <header class="bg-gradient-to-r from-orange-400 to-red-500 p-4 md:p-6 shadow-md text-white text-center rounded-b-3xl mb-6 relative">
+        <button id="back-btn" class="hidden absolute left-4 top-4 bg-white/30 hover:bg-white/50 text-white px-4 py-2 rounded-full font-bold transition-colors z-50 cursor-pointer shadow-sm">
+            ← Volver
+        </button>
+        <h1 class="text-2xl md:text-4xl font-extrabold tracking-wider drop-shadow-lg flex items-center justify-center gap-2 md:gap-3 mt-12 md:mt-0 relative z-10">
+            🌎 Misión: Capas de la Tierra 🌋
+        </h1>
+        <p class="text-sm md:text-base mt-2 font-medium relative z-10">¡Conviértete en una experta geóloga!</p>
+    </header>
 
-      {/* Casillas de la palabra */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10">
-        {wordLetters?.map((letter, i) => (
-          <div 
-            key={i} 
-            className="w-12 h-14 md:w-16 md:h-20 bg-gray-100 border-b-4 border-purple-600 rounded-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-purple-800 shadow-inner"
-          >
-            {guessedLetters.includes(letter) ? letter : ""}
-          </div>
-        ))}
-      </div>
+    <!-- MAIN CONTENT -->
+    <main class="container mx-auto px-4 pb-12 relative z-10" id="main-content">
+        <!-- Vistas de los juegos (se mostrarán u ocultarán por JS) -->
+        <div id="view-menu" class="view-section"></div>
+        <div id="view-quiz" class="view-section hidden"></div>
+        <div id="view-match" class="view-section hidden"></div>
+        <div id="view-words" class="view-section hidden"></div>
+        <div id="view-result" class="view-section hidden"></div>
+    </main>
 
-      {isWordGuessed && (
-        <div className="text-2xl font-bold text-green-500 animate-bounce mb-6">
-          ¡Excelente! 🎉
-        </div>
-      )}
+    <script>
+        // --- DATOS EXTRAÍDOS FIELMENTE DE LAS GUÍAS ---
+        const earthData = [
+            { term: "Corteza", def: "Es la capa más externa, delgada y superficial de la Tierra.", clue: "Capa superficial de la Tierra", options: ["Corteza", "Manto", "Núcleo Interno", "Suelo"] },
+            { term: "Placas", def: "Grandes fragmentos de litósfera que se mueven sobre el manto.", clue: "Fragmentos que se mueven", options: ["Continentes", "Océanos", "Placas", "Rocas"] },
+            { term: "Manto", def: "Capa intermedia, la más gruesa de la Tierra. Tiene un comportamiento plástico.", clue: "Capa más gruesa", options: ["Manto", "Litosfera", "Corteza", "Núcleo Externo"] },
+            { term: "Suelo", def: "Capa superior de la Tierra que sustenta la vida vegetal y animal.", clue: "Sustenta la vida", options: ["Litosfera", "Suelo", "Corteza", "Placas"] },
+            { term: "Núcleo Externo", def: "Capa de hierro y níquel en estado líquido, situada entre el manto y el núcleo interno.", clue: "Capa fundida líquida", options: ["Manto Inferior", "Núcleo Interno", "Núcleo Externo", "Litosfera"] },
+            { term: "Litosfera", def: "Parte superior de la Tierra, compuesta por la corteza y parte del manto superior. Es la capa más rígida.", clue: "La capa más rígida", options: ["Litosfera", "Manto", "Núcleo Interno", "Corteza"] },
+            { term: "Núcleo Interno", def: "Capa que se encuentra en el centro de la Tierra. Es la parte más profunda y está en estado sólido.", clue: "Centro sólido de la Tierra", options: ["Núcleo Externo", "Manto", "Núcleo Interno", "Suelo"] },
+            { term: "Líquido", def: "Corresponde al estado de la materia en el que se encuentra el Núcleo Externo.", clue: "Estado del núcleo externo", options: ["Sólido", "Gaseoso", "Líquido", "Plasmático"] },
+            { term: "Hierro", def: "Principal elemento por el cual se conforma el Núcleo Interno (hasta un 70%).", clue: "Elemento principal del centro", options: ["Cobre", "Níquel", "Hierro", "Oro"] }
+        ];
 
-      {/* Teclado */}
-      <div className="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">
-        {alphabet.map(letter => {
-          const isGuessed = guessedLetters.includes(letter);
-          const isCorrect = isGuessed && wordLetters?.includes(letter);
-          const isWrong = isGuessed && !wordLetters?.includes(letter);
-          
-          let btnColor = "bg-white border-gray-300 text-gray-700 hover:bg-purple-50";
-          if (isCorrect) btnColor = "bg-green-500 border-green-600 text-white";
-          if (isWrong) btnColor = "bg-gray-300 border-gray-400 text-gray-500 opacity-50";
+        // --- SISTEMA DE SONIDOS ---
+        let audioContext = null;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
 
-          return (
-            <button
-              key={letter}
-              onClick={() => handleGuess(letter)}
-              disabled={isGuessed || isWordGuessed}
-              className={`w-10 h-12 md:w-12 md:h-14 rounded-lg border-b-4 font-bold text-lg md:text-xl transition-colors ${btnColor}`}
-            >
-              {letter}
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  );
-}
+        function playTone(frequency, type, duration, vol = 0.1) {
+            try {
+                initAudio();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(vol, audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log("Audio no soportado o bloqueado", e);
+            }
+        }
 
-//// --- PANTALLA DE RESULTADOS ---
-function ResultScreen({ score, total, title, sounds }) {
-  const isPerfect = score === total;
-  
-  return (
-    <div className="max-w-lg mx-auto bg-white p-10 rounded-3xl shadow-xl text-center border-4 border-yellow-400 animate-fade-in-up">
-      <div className="text-6xl mb-4">{isPerfect ? '🏆' : '🌟'}</div>
-      <h2 className="text-3xl font-extrabold text-gray-800 mb-2">¡Misión Completada!</h2>
-      <p className="text-lg text-gray-600 mb-6">Has terminado el juego: <span className="font-bold text-blue-600">{title}</span></p>
-      
-      <div className="bg-yellow-100 rounded-2xl p-6 mb-8 border-2 border-yellow-300">
-        <p className="text-xl font-medium text-yellow-800">Tu puntaje es:</p>
-        <p className="text-5xl font-black text-yellow-600 mt-2">{score} / {total}</p>
-      </div>
+        const sounds = {
+            correct: () => { playTone(440, 'sine', 0.1, 0.2); setTimeout(() => playTone(659.25, 'sine', 0.3, 0.2), 100); },
+            incorrect: () => { playTone(300, 'sawtooth', 0.2, 0.1); setTimeout(() => playTone(250, 'sawtooth', 0.3, 0.1), 150); },
+            click: () => { playTone(800, 'triangle', 0.05, 0.05); },
+            win: () => { playTone(523.25, 'sine', 0.5, 0.15); playTone(659.25, 'sine', 0.5, 0.15); playTone(783.99, 'sine', 0.5, 0.15); setTimeout(() => playTone(1046.50, 'sine', 0.8, 0.2), 300); }
+        };
 
-      <p className="text-xl font-bold text-green-600 mb-8">
-        {isPerfect ? '¡Felicidades Antonella! Eres una experta en geología.' : '¡Buen trabajo! Sigue practicando para ser una experta.'}
-      </p>
+        // --- NAVEGACIÓN ---
+        const backBtn = document.getElementById('back-btn');
+        const views = document.querySelectorAll('.view-section');
 
-      <button 
-        onClick={() => {
-            sounds.click?.();
-            setTimeout(() => window.location.reload(), 100);
-        }}
-        className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-4 rounded-full font-bold text-xl shadow-lg hover:scale-105 transition-transform"
-      >
-        Jugar de Nuevo 🔄
-      </button>
-    </div>
-  );
-}
+        function showView(viewId) {
+            initAudio(); // Inicializar audio al interactuar
+            sounds.click();
+            views.forEach(v => v.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            
+            if (viewId === 'menu') {
+                backBtn.classList.add('hidden');
+            } else if (viewId !== 'result') {
+                backBtn.classList.remove('hidden');
+            }
+        }
+
+        backBtn.addEventListener('click', () => {
+            showView('menu');
+            // Resetear juegos si es necesario
+            resetQuiz();
+            resetMatch();
+            resetWords();
+        });
+
+        // --- RENDERIZAR MENÚ ---
+        function renderMenu() {
+            const menuHtml = `
+                <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-xl text-center border-4 border-orange-300">
+                    <h2 class="text-2xl font-bold text-orange-600 mb-6">¡Hola Antonella! ¿A qué jugamos hoy? 🚀</h2>
+                    <div class="grid gap-6 md:grid-cols-1">
+                        <button onclick="startQuiz()" class="group flex items-center justify-between bg-gradient-to-r from-blue-400 to-blue-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform">
+                            <div class="text-left">
+                                <h3 class="text-2xl font-bold">1. Trivia Geológica 🧠</h3>
+                                <p class="text-blue-100 mt-1">Responde las preguntas de alternativas.</p>
+                            </div>
+                            <span class="text-5xl animate-bounce-hover">❓</span>
+                        </button>
+                        <button onclick="startMatch()" class="group flex items-center justify-between bg-gradient-to-r from-green-400 to-green-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform">
+                            <div class="text-left">
+                                <h3 class="text-2xl font-bold">2. Conecta las Capas 🧩</h3>
+                                <p class="text-green-100 mt-1">Une cada concepto con su definición correcta.</p>
+                            </div>
+                            <span class="text-5xl animate-bounce-hover">🔗</span>
+                        </button>
+                        <button onclick="startWords()" class="group flex items-center justify-between bg-gradient-to-r from-purple-400 to-purple-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform">
+                            <div class="text-left">
+                                <h3 class="text-2xl font-bold">3. Palabra Oculta 🕵️‍♀️</h3>
+                                <p class="text-purple-100 mt-1">Descubre la palabra secreta (como en el crucigrama).</p>
+                            </div>
+                            <span class="text-5xl animate-bounce-hover">🔤</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('view-menu').innerHTML = menuHtml;
+            document.getElementById('view-menu').classList.remove('hidden');
+        }
+
+        // --- JUEGO 1: TRIVIA ---
+        let quizState = { currentQ: 0, score: 0, questions: [] };
+
+        function startQuiz() {
+            quizState.questions = earthData.map(item => ({
+                q: item.def, a: item.term, options: [...item.options].sort(() => Math.random() - 0.5)
+            }));
+            quizState.currentQ = 0;
+            quizState.score = 0;
+            showView('quiz');
+            renderQuiz();
+        }
+
+        function resetQuiz() { quizState = { currentQ: 0, score: 0, questions: [] }; }
+
+        function renderQuiz() {
+            const container = document.getElementById('view-quiz');
+            if (quizState.currentQ >= quizState.questions.length) {
+                showResultScreen(quizState.score, quizState.questions.length, "Trivia Geológica", 'quiz');
+                return;
+            }
+
+            const currentData = quizState.questions[quizState.currentQ];
+            
+            let html = `
+                <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-blue-300 text-center">
+                    <div class="flex justify-between items-center mb-6 text-blue-500 font-bold">
+                        <span>Pregunta ${quizState.currentQ + 1} de ${quizState.questions.length}</span>
+                        <span>Puntos: ${quizState.score} ⭐</span>
+                    </div>
+                    <div class="bg-blue-50 p-6 rounded-2xl mb-8 min-h-[120px] flex items-center justify-center border-2 border-blue-200">
+                        <h3 class="text-xl md:text-2xl font-semibold text-gray-700">"${currentData.q}"</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="quiz-options">
+            `;
+
+            currentData.options.forEach((opt, i) => {
+                html += `<button onclick="handleQuizAnswer('${opt}')" id="btn-opt-${i}" class="p-4 rounded-xl text-lg font-bold transition-all transform active:scale-95 bg-gray-100 hover:bg-blue-100 text-gray-700 border-2 border-gray-200">${opt}</button>`;
+            });
+
+            html += `</div><div id="quiz-feedback" class="mt-6 text-2xl font-bold h-8"></div></div>`;
+            container.innerHTML = html;
+        }
+
+        function handleQuizAnswer(selectedOpt) {
+            initAudio();
+            const currentData = quizState.questions[quizState.currentQ];
+            const isCorrect = selectedOpt === currentData.a;
+            const buttons = document.querySelectorAll('#quiz-options button');
+            const feedbackDiv = document.getElementById('quiz-feedback');
+
+            // Deshabilitar botones
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                sounds.correct();
+                quizState.score++;
+                feedbackDiv.innerHTML = `<span class="text-green-500 animate-bounce block">¡Correcto! 🎉</span>`;
+            } else {
+                sounds.incorrect();
+                feedbackDiv.innerHTML = `<span class="text-red-500 animate-bounce block">¡Casi! Era ${currentData.a} 😅</span>`;
+            }
+
+            buttons.forEach(btn => {
+                if (btn.innerText === currentData.a) {
+                    btn.className = "p-4 rounded-xl text-lg font-bold bg-green-500 text-white border-green-600 animate-pulse-correct";
+                } else if (btn.innerText === selectedOpt && !isCorrect) {
+                    btn.className = "p-4 rounded-xl text-lg font-bold bg-red-200 text-red-800 border-red-300 opacity-50";
+                }
+            });
+
+            setTimeout(() => {
+                quizState.currentQ++;
+                if (quizState.currentQ >= quizState.questions.length) {
+                    sounds.win();
+                }
+                renderQuiz();
+            }, 1500);
+        }
+
+        // --- JUEGO 2: CONECTA LAS CAPAS ---
+        let matchState = { terms: [], defs: [], selectedTerm: null, selectedDef: null, matched: [] };
+
+        function startMatch() {
+            const shuffledData = [...earthData].sort(() => 0.5 - Math.random()).slice(0, 5);
+            matchState.terms = shuffledData.map(d => d.term).sort(() => 0.5 - Math.random());
+            matchState.defs = shuffledData.map(d => ({ term: d.term, text: d.def })).sort(() => 0.5 - Math.random());
+            matchState.selectedTerm = null;
+            matchState.selectedDef = null;
+            matchState.matched = [];
+            showView('match');
+            renderMatch();
+        }
+
+        function resetMatch() { matchState = { terms: [], defs: [], selectedTerm: null, selectedDef: null, matched: [] }; }
+
+        function renderMatch() {
+            const container = document.getElementById('view-match');
+            
+            if (matchState.matched.length === matchState.terms.length && matchState.terms.length > 0) {
+                showResultScreen(5, 5, "Conecta las Capas", 'match');
+                return;
+            }
+
+            let html = `
+                <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-green-300">
+                    <h2 class="text-2xl font-bold text-center text-green-600 mb-6">Toca un concepto y luego su definición</h2>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <!-- Columna Conceptos -->
+                        <div class="flex-1 flex flex-col gap-3">
+                            <h3 class="font-bold text-gray-500 text-center uppercase tracking-wide">Conceptos</h3>
+            `;
+
+            matchState.terms.forEach(t => {
+                const isMatched = matchState.matched.includes(t);
+                const isSelected = matchState.selectedTerm === t;
+                let styles = "bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200 cursor-pointer";
+                if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
+                else if (isSelected) styles = "bg-orange-400 border-orange-500 text-white scale-105 shadow-md";
+
+                html += `<button ${isMatched ? 'disabled' : ''} onclick="handleMatchTerm('${t}')" class="p-4 rounded-xl border-2 font-bold transition-all text-left md:text-center ${styles}">${t}</button>`;
+            });
+
+            html += `</div><div class="flex-1 flex flex-col gap-3"><h3 class="font-bold text-gray-500 text-center uppercase tracking-wide">Definiciones</h3>`;
+
+            matchState.defs.forEach((d, i) => {
+                const isMatched = matchState.matched.includes(d.term);
+                const isSelected = matchState.selectedDef?.text === d.text;
+                let styles = "bg-blue-50 border-blue-200 text-gray-700 hover:bg-blue-100 cursor-pointer";
+                if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
+                else if (isSelected) styles = "bg-blue-300 border-blue-400 text-blue-900 scale-105 shadow-md";
+
+                html += `<button ${isMatched ? 'disabled' : ''} onclick="handleMatchDef(${i})" class="p-4 rounded-xl border-2 text-sm md:text-base font-medium transition-all text-left ${styles}">${d.text}</button>`;
+            });
+
+            html += `</div></div></div>`;
+            container.innerHTML = html;
+        }
+
+        function handleMatchTerm(t) {
+            initAudio(); sounds.click();
+            matchState.selectedTerm = t;
+            renderMatch();
+            checkMatch();
+        }
+
+        function handleMatchDef(index) {
+            initAudio(); sounds.click();
+            matchState.selectedDef = matchState.defs[index];
+            renderMatch();
+            checkMatch();
+        }
+
+        function checkMatch() {
+            if (matchState.selectedTerm && matchState.selectedDef) {
+                // Bloquear clics temporales
+                const buttons = document.querySelectorAll('#view-match button');
+                buttons.forEach(b => b.style.pointerEvents = 'none');
+
+                if (matchState.selectedTerm === matchState.selectedDef.term) {
+                    sounds.correct();
+                    matchState.matched.push(matchState.selectedTerm);
+                    matchState.selectedTerm = null;
+                    matchState.selectedDef = null;
+                    
+                    if (matchState.matched.length === matchState.terms.length) {
+                         setTimeout(() => { sounds.win(); renderMatch(); }, 500);
+                    } else {
+                        setTimeout(() => { renderMatch(); }, 500);
+                    }
+                } else {
+                    sounds.incorrect();
+                    setTimeout(() => {
+                        matchState.selectedTerm = null;
+                        matchState.selectedDef = null;
+                        renderMatch();
+                    }, 800);
+                }
+            }
+        }
+
+        // --- JUEGO 3: PALABRA OCULTA ---
+        let wordsState = { currentIndex: 0, guessedLetters: [], score: 0, wordsData: [] };
+
+        function startWords() {
+            wordsState.wordsData = earthData.filter(d => !d.term.includes(" ")).map(d => ({
+                word: d.term.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+                clue: d.def
+            }));
+            wordsState.currentIndex = 0;
+            wordsState.guessedLetters = [];
+            wordsState.score = 0;
+            showView('words');
+            renderWords();
+        }
+
+        function resetWords() { wordsState = { currentIndex: 0, guessedLetters: [], score: 0, wordsData: [] }; }
+
+        function renderWords() {
+            const container = document.getElementById('view-words');
+            
+            if (wordsState.currentIndex >= wordsState.wordsData.length) {
+                showResultScreen(wordsState.score, wordsState.wordsData.length, "Palabra Oculta", 'words');
+                return;
+            }
+
+            const currentData = wordsState.wordsData[wordsState.currentIndex];
+            const wordLetters = currentData.word.split('');
+            const isWordGuessed = wordLetters.every(letter => wordsState.guessedLetters.includes(letter));
+
+            let html = `
+                <div class="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-purple-300 text-center">
+                    <div class="flex justify-between items-center mb-4 text-purple-500 font-bold">
+                        <span>Palabra ${wordsState.currentIndex + 1} de ${wordsState.wordsData.length}</span>
+                        <span>Puntos: ${wordsState.score} ⭐</span>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-xl mb-8 border-2 border-purple-200">
+                        <p class="text-purple-800 font-medium text-lg">Pista: ${currentData.clue}</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap justify-center gap-2 mb-10">
+            `;
+
+            wordLetters.forEach(letter => {
+                const showLetter = wordsState.guessedLetters.includes(letter);
+                html += `<div class="word-cell">${showLetter ? letter : ""}</div>`;
+            });
+
+            html += `</div>`;
+
+            if (isWordGuessed) {
+                html += `<div class="text-2xl font-bold text-green-500 animate-bounce mb-6">¡Excelente! 🎉</div>`;
+                // Autonavigate to next word
+                setTimeout(() => {
+                    wordsState.score++;
+                    wordsState.currentIndex++;
+                    wordsState.guessedLetters = [];
+                    if (wordsState.currentIndex >= wordsState.wordsData.length) { sounds.win(); }
+                    renderWords();
+                }, 1500);
+            }
+
+            html += `<div class="flex flex-wrap justify-center gap-2 max-w-xl mx-auto" id="keyboard">`;
+            
+            const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+            alphabet.forEach(letter => {
+                const isGuessed = wordsState.guessedLetters.includes(letter);
+                const isCorrect = isGuessed && wordLetters.includes(letter);
+                const isWrong = isGuessed && !wordLetters.includes(letter);
+                
+                let btnColor = "bg-white border-gray-300 text-gray-700 hover:bg-purple-50 cursor-pointer";
+                if (isCorrect) btnColor = "bg-green-500 border-green-600 text-white";
+                if (isWrong) btnColor = "bg-gray-300 border-gray-400 text-gray-500 opacity-50";
+
+                html += `<button ${isGuessed || isWordGuessed ? 'disabled' : ''} onclick="handleWordGuess('${letter}')" class="w-10 h-12 md:w-12 md:h-14 rounded-lg border-b-4 font-bold text-lg md:text-xl transition-colors ${btnColor}">${letter}</button>`;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        function handleWordGuess(letter) {
+            if (wordsState.guessedLetters.includes(letter)) return;
+            
+            initAudio();
+            const currentData = wordsState.wordsData[wordsState.currentIndex];
+            const wordLetters = currentData.word.split('');
+            const isWordGuessed = wordLetters.every(l => wordsState.guessedLetters.includes(l));
+            
+            if (isWordGuessed) return;
+
+            wordsState.guessedLetters.push(letter);
+            
+            if (wordLetters.includes(letter)) {
+                sounds.click();
+                
+                // Check if this was the winning letter
+                const nowGuessed = wordLetters.every(l => wordsState.guessedLetters.includes(l));
+                if (nowGuessed) {
+                    sounds.correct();
+                }
+            } else {
+                sounds.incorrect();
+            }
+            
+            renderWords();
+        }
+
+        // --- PANTALLA DE RESULTADOS ---
+        function showResultScreen(score, total, title, originGame) {
+            const isPerfect = score === total;
+            const container = document.getElementById('view-result');
+            backBtn.classList.add('hidden'); // Ocultar botón volver en resultados
+
+            let btnAction = `showView('menu')`;
+            if (originGame === 'quiz') btnAction = `startQuiz()`;
+            if (originGame === 'match') btnAction = `startMatch()`;
+            if (originGame === 'words') btnAction = `startWords()`;
+            
+            container.innerHTML = `
+                <div class="max-w-lg mx-auto bg-white p-10 rounded-3xl shadow-xl text-center border-4 border-yellow-400 animate-fade-in-up">
+                    <div class="text-6xl mb-4">${isPerfect ? '🏆' : '🌟'}</div>
+                    <h2 class="text-3xl font-extrabold text-gray-800 mb-2">¡Misión Completada!</h2>
+                    <p class="text-lg text-gray-600 mb-6">Has terminado el juego: <span class="font-bold text-blue-600">${title}</span></p>
+                    
+                    <div class="bg-yellow-100 rounded-2xl p-6 mb-8 border-2 border-yellow-300">
+                        <p class="text-xl font-medium text-yellow-800">Tu puntaje es:</p>
+                        <p class="text-5xl font-black text-yellow-600 mt-2">${score} / ${total}</p>
+                    </div>
+
+                    <p class="text-xl font-bold text-green-600 mb-8">
+                        ${isPerfect ? '¡Felicidades Antonella! Eres una experta en geología.' : '¡Buen trabajo! Sigue practicando para ser una experta.'}
+                    </p>
+
+                    <button onclick="${btnAction}" class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-4 rounded-full font-bold text-xl shadow-lg hover:scale-105 transition-transform mr-2 mb-2 cursor-pointer">
+                        Jugar de Nuevo 🔄
+                    </button>
+                    
+                    <button onclick="showView('menu')" class="bg-gray-200 text-gray-700 px-8 py-4 rounded-full font-bold text-xl shadow-lg hover:bg-gray-300 transition-colors cursor-pointer">
+                        Ir al Menú
+                    </button>
+                </div>
+            `;
+            
+            views.forEach(v => v.classList.add('hidden'));
+            container.classList.remove('hidden');
+        }
+
+        // --- INICIALIZAR LA APLICACIÓN ---
+        renderMenu();
+
+    </script>
+</body>
+</html>
