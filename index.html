@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juegos Capas de la Tierra</title>
-    <!-- Tailwind CSS para los estilos, igual que en la versión React -->
+    <!-- Tailwind CSS para los estilos -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilos personalizados adicionales y animaciones */
         body {
             font-family: system-ui, -apple-system, sans-serif;
             background-color: #dbeafe; /* blue-100 */
             color: #1f2937; /* gray-800 */
+            overflow-x: hidden;
         }
         
         ::selection {
@@ -31,6 +31,15 @@
             animation: pulse-correct 1s infinite;
         }
 
+        @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in-up {
+            animation: fade-in-up 0.5s ease-out forwards;
+        }
+
         .word-cell {
             width: 3rem;
             height: 3.5rem;
@@ -44,6 +53,7 @@
             font-weight: 800;
             color: #6b21a8;
             box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+            transition: all 0.3s ease;
         }
 
         @media (min-width: 768px) {
@@ -53,14 +63,33 @@
                 font-size: 2.25rem;
             }
         }
+
+        .draggable-layer {
+            cursor: grab;
+        }
+        
+        .draggable-layer:active {
+            cursor: grabbing;
+            transform: scale(1.02);
+        }
+
+        .drop-zone {
+            transition: all 0.2s ease;
+        }
+        
+        .drop-zone.drag-over {
+            background-color: #dcfce7; /* green-100 */
+            border-color: #22c55e; /* green-500 */
+            transform: scale(1.02);
+        }
     </style>
 </head>
-<body class="min-h-screen relative">
+<body class="min-h-screen relative flex flex-col">
 
     <!-- HEADER -->
     <header class="bg-gradient-to-r from-orange-400 to-red-500 p-4 md:p-6 shadow-md text-white text-center rounded-b-3xl mb-6 relative">
-        <button id="back-btn" class="hidden absolute left-4 top-4 bg-white/30 hover:bg-white/50 text-white px-4 py-2 rounded-full font-bold transition-colors z-50 cursor-pointer shadow-sm">
-            ← Volver
+        <button id="back-btn" class="hidden absolute left-4 top-4 bg-white/30 hover:bg-white/50 text-white px-4 py-2 rounded-full font-bold transition-colors z-50 cursor-pointer shadow-sm flex items-center gap-2">
+            <span>←</span> <span class="hidden md:inline">Volver</span>
         </button>
         <h1 class="text-2xl md:text-4xl font-extrabold tracking-wider drop-shadow-lg flex items-center justify-center gap-2 md:gap-3 mt-12 md:mt-0 relative z-10">
             🌎 Misión: Capas de la Tierra 🌋
@@ -69,27 +98,41 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="container mx-auto px-4 pb-12 relative z-10" id="main-content">
+    <main class="container mx-auto px-4 pb-12 relative z-10 flex-grow" id="main-content">
         <!-- Vistas de los juegos (se mostrarán u ocultarán por JS) -->
         <div id="view-menu" class="view-section"></div>
         <div id="view-quiz" class="view-section hidden"></div>
         <div id="view-match" class="view-section hidden"></div>
         <div id="view-words" class="view-section hidden"></div>
+        <div id="view-order" class="view-section hidden"></div>
+        <div id="view-tf" class="view-section hidden"></div>
         <div id="view-result" class="view-section hidden"></div>
     </main>
 
     <script>
         // --- DATOS EXTRAÍDOS FIELMENTE DE LAS GUÍAS ---
         const earthData = [
-            { term: "Corteza", def: "Es la capa más externa, delgada y superficial de la Tierra.", clue: "Capa superficial de la Tierra", options: ["Corteza", "Manto", "Núcleo Interno", "Suelo"] },
-            { term: "Placas", def: "Grandes fragmentos de litósfera que se mueven sobre el manto.", clue: "Fragmentos que se mueven", options: ["Continentes", "Océanos", "Placas", "Rocas"] },
-            { term: "Manto", def: "Capa intermedia, la más gruesa de la Tierra. Tiene un comportamiento plástico.", clue: "Capa más gruesa", options: ["Manto", "Litosfera", "Corteza", "Núcleo Externo"] },
-            { term: "Suelo", def: "Capa superior de la Tierra que sustenta la vida vegetal y animal.", clue: "Sustenta la vida", options: ["Litosfera", "Suelo", "Corteza", "Placas"] },
-            { term: "Núcleo Externo", def: "Capa de hierro y níquel en estado líquido, situada entre el manto y el núcleo interno.", clue: "Capa fundida líquida", options: ["Manto Inferior", "Núcleo Interno", "Núcleo Externo", "Litosfera"] },
-            { term: "Litosfera", def: "Parte superior de la Tierra, compuesta por la corteza y parte del manto superior. Es la capa más rígida.", clue: "La capa más rígida", options: ["Litosfera", "Manto", "Núcleo Interno", "Corteza"] },
-            { term: "Núcleo Interno", def: "Capa que se encuentra en el centro de la Tierra. Es la parte más profunda y está en estado sólido.", clue: "Centro sólido de la Tierra", options: ["Núcleo Externo", "Manto", "Núcleo Interno", "Suelo"] },
-            { term: "Líquido", def: "Corresponde al estado de la materia en el que se encuentra el Núcleo Externo.", clue: "Estado del núcleo externo", options: ["Sólido", "Gaseoso", "Líquido", "Plasmático"] },
-            { term: "Hierro", def: "Principal elemento por el cual se conforma el Núcleo Interno (hasta un 70%).", clue: "Elemento principal del centro", options: ["Cobre", "Níquel", "Hierro", "Oro"] }
+            { term: "Corteza", def: "Es la capa más externa, delgada y superficial de la Tierra.", clue: "Capa superficial de la Tierra", options: ["Corteza", "Manto", "Núcleo Interno", "Suelo"], isTrue: true },
+            { term: "Placas", def: "Grandes fragmentos de litósfera que se mueven sobre el manto.", clue: "Fragmentos que se mueven", options: ["Continentes", "Océanos", "Placas", "Rocas"], isTrue: true },
+            { term: "Manto", def: "Capa intermedia, la más gruesa de la Tierra. Tiene un comportamiento plástico.", clue: "Capa más gruesa", options: ["Manto", "Litosfera", "Corteza", "Núcleo Externo"], isTrue: true },
+            { term: "Suelo", def: "Capa superior de la Tierra que sustenta la vida vegetal y animal.", clue: "Sustenta la vida", options: ["Litosfera", "Suelo", "Corteza", "Placas"], isTrue: true },
+            { term: "Núcleo Externo", def: "Capa de hierro y níquel en estado líquido, situada entre el manto y el núcleo interno.", clue: "Capa fundida líquida", options: ["Manto Inferior", "Núcleo Interno", "Núcleo Externo", "Litosfera"], isTrue: true },
+            { term: "Litosfera", def: "Parte superior de la Tierra, compuesta por la corteza y parte del manto superior. Es la capa más rígida.", clue: "La capa más rígida", options: ["Litosfera", "Manto", "Núcleo Interno", "Corteza"], isTrue: true },
+            { term: "Núcleo Interno", def: "Capa que se encuentra en el centro de la Tierra. Es la parte más profunda y está en estado sólido.", clue: "Centro sólido de la Tierra", options: ["Núcleo Externo", "Manto", "Núcleo Interno", "Suelo"], isTrue: true },
+            { term: "Líquido", def: "Corresponde al estado de la materia en el que se encuentra el Núcleo Externo.", clue: "Estado del núcleo externo", options: ["Sólido", "Gaseoso", "Líquido", "Plasmático"], isTrue: true },
+            { term: "Hierro", def: "Principal elemento por el cual se conforma el Núcleo Interno (hasta un 70%).", clue: "Elemento principal del centro", options: ["Cobre", "Níquel", "Hierro", "Oro"], isTrue: true }
+        ];
+
+        // Datos específicos para Verdadero/Falso (mezcla de verdades y mentiras)
+        const tfData = [
+            { text: "El Manto es la capa más delgada de la Tierra.", isTrue: false },
+            { text: "La Corteza es la capa más externa y superficial.", isTrue: true },
+            { text: "El Núcleo Interno está en estado líquido.", isTrue: false },
+            { text: "El Núcleo Externo está compuesto de hierro y níquel líquido.", isTrue: true },
+            { text: "La Litosfera es la capa más rígida de la Tierra.", isTrue: true },
+            { text: "Las Placas son fragmentos inmóviles que no se mueven nunca.", isTrue: false },
+            { text: "El Hierro es el principal elemento del Núcleo Interno.", isTrue: true },
+            { text: "El Suelo no sustenta la vida vegetal.", isTrue: false }
         ];
 
         // --- SISTEMA DE SONIDOS ---
@@ -97,14 +140,20 @@
         
         function initAudio() {
             if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn("Audio Context no soportado");
+                    return;
+                }
             }
-            if (audioContext.state === 'suspended') {
+            if (audioContext && audioContext.state === 'suspended') {
                 audioContext.resume();
             }
         }
 
         function playTone(frequency, type, duration, vol = 0.1) {
+            if (!audioContext) return;
             try {
                 initAudio();
                 const oscillator = audioContext.createOscillator();
@@ -123,7 +172,7 @@
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + duration);
             } catch (e) {
-                console.log("Audio no soportado o bloqueado", e);
+                // Silenciar errores de audio si el navegador bloquea
             }
         }
 
@@ -137,54 +186,80 @@
         // --- NAVEGACIÓN ---
         const backBtn = document.getElementById('back-btn');
         const views = document.querySelectorAll('.view-section');
+        let currentGame = null;
 
         function showView(viewId) {
-            initAudio(); // Inicializar audio al interactuar
-            sounds.click();
+            initAudio(); 
+            if(viewId !== 'result') sounds.click();
+            
             views.forEach(v => v.classList.add('hidden'));
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
             
             if (viewId === 'menu') {
                 backBtn.classList.add('hidden');
+                currentGame = null;
             } else if (viewId !== 'result') {
                 backBtn.classList.remove('hidden');
+                currentGame = viewId;
+            } else {
+                backBtn.classList.add('hidden');
             }
         }
 
         backBtn.addEventListener('click', () => {
             showView('menu');
-            // Resetear juegos si es necesario
-            resetQuiz();
-            resetMatch();
-            resetWords();
+            // Resetear juegos para que empiecen limpios la próxima vez
+            if(currentGame === 'quiz') resetQuiz();
+            if(currentGame === 'match') resetMatch();
+            if(currentGame === 'words') resetWords();
+            if(currentGame === 'order') resetOrder();
+            if(currentGame === 'tf') resetTF();
         });
 
         // --- RENDERIZAR MENÚ ---
         function renderMenu() {
             const menuHtml = `
-                <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-xl text-center border-4 border-orange-300">
-                    <h2 class="text-2xl font-bold text-orange-600 mb-6">¡Hola Antonella! ¿A qué jugamos hoy? 🚀</h2>
-                    <div class="grid gap-6 md:grid-cols-1">
-                        <button onclick="startQuiz()" class="group flex items-center justify-between bg-gradient-to-r from-blue-400 to-blue-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform">
+                <div class="max-w-4xl mx-auto bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-3xl shadow-xl text-center border-4 border-orange-300">
+                    <h2 class="text-2xl md:text-3xl font-bold text-orange-600 mb-8 drop-shadow-sm">¡Hola! ¿Qué actividad exploraremos hoy? 🚀</h2>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <button onclick="startQuiz()" class="group flex items-center justify-between bg-gradient-to-r from-blue-400 to-blue-600 p-5 rounded-2xl text-white shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all">
                             <div class="text-left">
-                                <h3 class="text-2xl font-bold">1. Trivia Geológica 🧠</h3>
-                                <p class="text-blue-100 mt-1">Responde las preguntas de alternativas.</p>
+                                <h3 class="text-xl font-bold">1. Trivia Geológica</h3>
+                                <p class="text-blue-100 text-sm mt-1">Preguntas de alternativas.</p>
                             </div>
-                            <span class="text-5xl animate-bounce-hover">❓</span>
+                            <span class="text-4xl group-hover:animate-bounce">❓</span>
                         </button>
-                        <button onclick="startMatch()" class="group flex items-center justify-between bg-gradient-to-r from-green-400 to-green-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform">
+                        
+                        <button onclick="startMatch()" class="group flex items-center justify-between bg-gradient-to-r from-green-400 to-emerald-600 p-5 rounded-2xl text-white shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all">
                             <div class="text-left">
-                                <h3 class="text-2xl font-bold">2. Conecta las Capas 🧩</h3>
-                                <p class="text-green-100 mt-1">Une cada concepto con su definición correcta.</p>
+                                <h3 class="text-xl font-bold">2. Conecta las Capas</h3>
+                                <p class="text-green-100 text-sm mt-1">Une concepto y definición.</p>
                             </div>
-                            <span class="text-5xl animate-bounce-hover">🔗</span>
+                            <span class="text-4xl group-hover:animate-bounce">🔗</span>
                         </button>
-                        <button onclick="startWords()" class="group flex items-center justify-between bg-gradient-to-r from-purple-400 to-purple-500 p-6 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform">
+                        
+                        <button onclick="startWords()" class="group flex items-center justify-between bg-gradient-to-r from-purple-400 to-purple-600 p-5 rounded-2xl text-white shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all">
                             <div class="text-left">
-                                <h3 class="text-2xl font-bold">3. Palabra Oculta 🕵️‍♀️</h3>
-                                <p class="text-purple-100 mt-1">Descubre la palabra secreta (como en el crucigrama).</p>
+                                <h3 class="text-xl font-bold">3. Palabra Oculta</h3>
+                                <p class="text-purple-100 text-sm mt-1">Descubre la palabra secreta.</p>
                             </div>
-                            <span class="text-5xl animate-bounce-hover">🔤</span>
+                            <span class="text-4xl group-hover:animate-bounce">🔤</span>
+                        </button>
+
+                        <button onclick="startOrder()" class="group flex items-center justify-between bg-gradient-to-r from-amber-400 to-orange-500 p-5 rounded-2xl text-white shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all">
+                            <div class="text-left">
+                                <h3 class="text-xl font-bold">4. Ordena las Capas</h3>
+                                <p class="text-amber-100 text-sm mt-1">De la superficie al centro.</p>
+                            </div>
+                            <span class="text-4xl group-hover:animate-bounce">🍔</span>
+                        </button>
+
+                        <button onclick="startTF()" class="md:col-span-2 group flex items-center justify-between bg-gradient-to-r from-rose-400 to-red-500 p-5 rounded-2xl text-white shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all">
+                            <div class="text-left">
+                                <h3 class="text-xl font-bold">5. Verdadero o Falso</h3>
+                                <p class="text-rose-100 text-sm mt-1">Ronda rápida. ¿Mito o realidad?</p>
+                            </div>
+                            <span class="text-4xl group-hover:animate-bounce">✅❌</span>
                         </button>
                     </div>
                 </div>
@@ -197,7 +272,9 @@
         let quizState = { currentQ: 0, score: 0, questions: [] };
 
         function startQuiz() {
-            quizState.questions = earthData.map(item => ({
+            // Seleccionar 5 preguntas al azar para que no sea muy largo
+            const shuffledData = [...earthData].sort(() => 0.5 - Math.random()).slice(0, 5);
+            quizState.questions = shuffledData.map(item => ({
                 q: item.def, a: item.term, options: [...item.options].sort(() => Math.random() - 0.5)
             }));
             quizState.currentQ = 0;
@@ -218,10 +295,10 @@
             const currentData = quizState.questions[quizState.currentQ];
             
             let html = `
-                <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-blue-300 text-center">
+                <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-blue-300 text-center animate-fade-in-up">
                     <div class="flex justify-between items-center mb-6 text-blue-500 font-bold">
                         <span>Pregunta ${quizState.currentQ + 1} de ${quizState.questions.length}</span>
-                        <span>Puntos: ${quizState.score} ⭐</span>
+                        <span class="bg-blue-100 px-3 py-1 rounded-full text-blue-800">Puntos: ${quizState.score} ⭐</span>
                     </div>
                     <div class="bg-blue-50 p-6 rounded-2xl mb-8 min-h-[120px] flex items-center justify-center border-2 border-blue-200">
                         <h3 class="text-xl md:text-2xl font-semibold text-gray-700">"${currentData.q}"</h3>
@@ -230,10 +307,10 @@
             `;
 
             currentData.options.forEach((opt, i) => {
-                html += `<button onclick="handleQuizAnswer('${opt}')" id="btn-opt-${i}" class="p-4 rounded-xl text-lg font-bold transition-all transform active:scale-95 bg-gray-100 hover:bg-blue-100 text-gray-700 border-2 border-gray-200">${opt}</button>`;
+                html += `<button onclick="handleQuizAnswer('${opt}')" id="btn-opt-${i}" class="p-4 rounded-xl text-lg font-bold transition-all transform active:scale-95 bg-gray-100 hover:bg-blue-100 text-gray-700 border-2 border-gray-200 shadow-sm">${opt}</button>`;
             });
 
-            html += `</div><div id="quiz-feedback" class="mt-6 text-2xl font-bold h-8"></div></div>`;
+            html += `</div><div id="quiz-feedback" class="mt-6 text-2xl font-bold h-8 flex items-center justify-center"></div></div>`;
             container.innerHTML = html;
         }
 
@@ -244,21 +321,20 @@
             const buttons = document.querySelectorAll('#quiz-options button');
             const feedbackDiv = document.getElementById('quiz-feedback');
 
-            // Deshabilitar botones
             buttons.forEach(btn => btn.disabled = true);
 
             if (isCorrect) {
                 sounds.correct();
                 quizState.score++;
-                feedbackDiv.innerHTML = `<span class="text-green-500 animate-bounce block">¡Correcto! 🎉</span>`;
+                feedbackDiv.innerHTML = `<span class="text-green-500 animate-bounce">¡Correcto! 🎉</span>`;
             } else {
                 sounds.incorrect();
-                feedbackDiv.innerHTML = `<span class="text-red-500 animate-bounce block">¡Casi! Era ${currentData.a} 😅</span>`;
+                feedbackDiv.innerHTML = `<span class="text-red-500 animate-bounce">¡Casi! Era ${currentData.a} 😅</span>`;
             }
 
             buttons.forEach(btn => {
                 if (btn.innerText === currentData.a) {
-                    btn.className = "p-4 rounded-xl text-lg font-bold bg-green-500 text-white border-green-600 animate-pulse-correct";
+                    btn.className = "p-4 rounded-xl text-lg font-bold bg-green-500 text-white border-green-600 animate-pulse-correct shadow-md";
                 } else if (btn.innerText === selectedOpt && !isCorrect) {
                     btn.className = "p-4 rounded-xl text-lg font-bold bg-red-200 text-red-800 border-red-300 opacity-50";
                 }
@@ -266,18 +342,16 @@
 
             setTimeout(() => {
                 quizState.currentQ++;
-                if (quizState.currentQ >= quizState.questions.length) {
-                    sounds.win();
-                }
+                if (quizState.currentQ >= quizState.questions.length) { sounds.win(); }
                 renderQuiz();
-            }, 1500);
+            }, 1800);
         }
 
         // --- JUEGO 2: CONECTA LAS CAPAS ---
         let matchState = { terms: [], defs: [], selectedTerm: null, selectedDef: null, matched: [] };
 
         function startMatch() {
-            const shuffledData = [...earthData].sort(() => 0.5 - Math.random()).slice(0, 5);
+            const shuffledData = [...earthData].sort(() => 0.5 - Math.random()).slice(0, 4); // 4 pares para no saturar
             matchState.terms = shuffledData.map(d => d.term).sort(() => 0.5 - Math.random());
             matchState.defs = shuffledData.map(d => ({ term: d.term, text: d.def })).sort(() => 0.5 - Math.random());
             matchState.selectedTerm = null;
@@ -293,62 +367,50 @@
             const container = document.getElementById('view-match');
             
             if (matchState.matched.length === matchState.terms.length && matchState.terms.length > 0) {
-                showResultScreen(5, 5, "Conecta las Capas", 'match');
+                showResultScreen(matchState.matched.length, matchState.terms.length, "Conecta las Capas", 'match');
                 return;
             }
 
             let html = `
-                <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-green-300">
-                    <h2 class="text-2xl font-bold text-center text-green-600 mb-6">Toca un concepto y luego su definición</h2>
+                <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-emerald-300 animate-fade-in-up">
+                    <h2 class="text-xl md:text-2xl font-bold text-center text-emerald-600 mb-6">Toca un concepto y luego su definición</h2>
                     <div class="flex flex-col md:flex-row gap-6">
                         <!-- Columna Conceptos -->
                         <div class="flex-1 flex flex-col gap-3">
-                            <h3 class="font-bold text-gray-500 text-center uppercase tracking-wide">Conceptos</h3>
+                            <h3 class="font-bold text-gray-500 text-center uppercase tracking-wide text-sm">Conceptos</h3>
             `;
 
             matchState.terms.forEach(t => {
                 const isMatched = matchState.matched.includes(t);
                 const isSelected = matchState.selectedTerm === t;
-                let styles = "bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200 cursor-pointer";
-                if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
-                else if (isSelected) styles = "bg-orange-400 border-orange-500 text-white scale-105 shadow-md";
+                let styles = "bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200 cursor-pointer shadow-sm";
+                if (isMatched) styles = "bg-emerald-500 border-emerald-600 text-white opacity-50 cursor-not-allowed";
+                else if (isSelected) styles = "bg-orange-400 border-orange-500 text-white scale-[1.02] shadow-md ring-2 ring-orange-400 ring-offset-2";
 
                 html += `<button ${isMatched ? 'disabled' : ''} onclick="handleMatchTerm('${t}')" class="p-4 rounded-xl border-2 font-bold transition-all text-left md:text-center ${styles}">${t}</button>`;
             });
 
-            html += `</div><div class="flex-1 flex flex-col gap-3"><h3 class="font-bold text-gray-500 text-center uppercase tracking-wide">Definiciones</h3>`;
+            html += `</div><div class="flex-1 flex flex-col gap-3"><h3 class="font-bold text-gray-500 text-center uppercase tracking-wide text-sm">Definiciones</h3>`;
 
             matchState.defs.forEach((d, i) => {
                 const isMatched = matchState.matched.includes(d.term);
                 const isSelected = matchState.selectedDef?.text === d.text;
-                let styles = "bg-blue-50 border-blue-200 text-gray-700 hover:bg-blue-100 cursor-pointer";
-                if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
-                else if (isSelected) styles = "bg-blue-300 border-blue-400 text-blue-900 scale-105 shadow-md";
+                let styles = "bg-blue-50 border-blue-200 text-gray-700 hover:bg-blue-100 cursor-pointer shadow-sm";
+                if (isMatched) styles = "bg-emerald-500 border-emerald-600 text-white opacity-50 cursor-not-allowed";
+                else if (isSelected) styles = "bg-blue-400 border-blue-500 text-white scale-[1.02] shadow-md ring-2 ring-blue-400 ring-offset-2";
 
-                html += `<button ${isMatched ? 'disabled' : ''} onclick="handleMatchDef(${i})" class="p-4 rounded-xl border-2 text-sm md:text-base font-medium transition-all text-left ${styles}">${d.text}</button>`;
+                html += `<button ${isMatched ? 'disabled' : ''} onclick="handleMatchDef(${i})" class="p-4 rounded-xl border-2 text-sm font-medium transition-all text-left ${styles}">${d.text}</button>`;
             });
 
             html += `</div></div></div>`;
             container.innerHTML = html;
         }
 
-        function handleMatchTerm(t) {
-            initAudio(); sounds.click();
-            matchState.selectedTerm = t;
-            renderMatch();
-            checkMatch();
-        }
-
-        function handleMatchDef(index) {
-            initAudio(); sounds.click();
-            matchState.selectedDef = matchState.defs[index];
-            renderMatch();
-            checkMatch();
-        }
+        function handleMatchTerm(t) { initAudio(); sounds.click(); matchState.selectedTerm = t; renderMatch(); checkMatch(); }
+        function handleMatchDef(index) { initAudio(); sounds.click(); matchState.selectedDef = matchState.defs[index]; renderMatch(); checkMatch(); }
 
         function checkMatch() {
             if (matchState.selectedTerm && matchState.selectedDef) {
-                // Bloquear clics temporales
                 const buttons = document.querySelectorAll('#view-match button');
                 buttons.forEach(b => b.style.pointerEvents = 'none');
 
@@ -358,18 +420,19 @@
                     matchState.selectedTerm = null;
                     matchState.selectedDef = null;
                     
-                    if (matchState.matched.length === matchState.terms.length) {
-                         setTimeout(() => { sounds.win(); renderMatch(); }, 500);
-                    } else {
-                        setTimeout(() => { renderMatch(); }, 500);
-                    }
+                    if (matchState.matched.length === matchState.terms.length) { setTimeout(() => { sounds.win(); renderMatch(); }, 500); } 
+                    else { setTimeout(() => { renderMatch(); }, 500); }
                 } else {
                     sounds.incorrect();
+                    // Shake effect temporal
+                    const selectedBtns = document.querySelectorAll('#view-match button.scale-\\[1\\.02\\]');
+                    selectedBtns.forEach(btn => btn.classList.add('animate-pulse', 'bg-red-400', 'border-red-500'));
+                    
                     setTimeout(() => {
                         matchState.selectedTerm = null;
                         matchState.selectedDef = null;
                         renderMatch();
-                    }, 800);
+                    }, 1000);
                 }
             }
         }
@@ -378,7 +441,9 @@
         let wordsState = { currentIndex: 0, guessedLetters: [], score: 0, wordsData: [] };
 
         function startWords() {
-            wordsState.wordsData = earthData.filter(d => !d.term.includes(" ")).map(d => ({
+            // Seleccionar palabras sin espacios
+            const validWords = earthData.filter(d => !d.term.includes(" ")).slice(0, 4);
+            wordsState.wordsData = validWords.map(d => ({
                 word: d.term.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
                 clue: d.def
             }));
@@ -404,38 +469,37 @@
             const isWordGuessed = wordLetters.every(letter => wordsState.guessedLetters.includes(letter));
 
             let html = `
-                <div class="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-purple-300 text-center">
-                    <div class="flex justify-between items-center mb-4 text-purple-500 font-bold">
+                <div class="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-purple-300 text-center animate-fade-in-up">
+                    <div class="flex justify-between items-center mb-4 text-purple-600 font-bold">
                         <span>Palabra ${wordsState.currentIndex + 1} de ${wordsState.wordsData.length}</span>
-                        <span>Puntos: ${wordsState.score} ⭐</span>
+                        <span class="bg-purple-100 px-3 py-1 rounded-full text-purple-800">Puntos: ${wordsState.score} ⭐</span>
                     </div>
-                    <div class="bg-purple-100 p-4 rounded-xl mb-8 border-2 border-purple-200">
-                        <p class="text-purple-800 font-medium text-lg">Pista: ${currentData.clue}</p>
+                    <div class="bg-purple-50 p-4 rounded-xl mb-8 border-2 border-purple-200 shadow-sm">
+                        <p class="text-purple-800 font-medium text-lg">🔍 ${currentData.clue}</p>
                     </div>
                     
-                    <div class="flex flex-wrap justify-center gap-2 mb-10">
+                    <div class="flex flex-wrap justify-center gap-2 mb-10 min-h-[4rem]">
             `;
 
             wordLetters.forEach(letter => {
                 const showLetter = wordsState.guessedLetters.includes(letter);
-                html += `<div class="word-cell">${showLetter ? letter : ""}</div>`;
+                html += `<div class="word-cell ${showLetter ? 'scale-110 bg-purple-100 border-purple-500' : ''}">${showLetter ? letter : ""}</div>`;
             });
 
             html += `</div>`;
 
             if (isWordGuessed) {
-                html += `<div class="text-2xl font-bold text-green-500 animate-bounce mb-6">¡Excelente! 🎉</div>`;
-                // Autonavigate to next word
+                html += `<div class="text-2xl font-bold text-green-500 animate-bounce mb-6">¡Descubierta! 🎉</div>`;
                 setTimeout(() => {
                     wordsState.score++;
                     wordsState.currentIndex++;
                     wordsState.guessedLetters = [];
                     if (wordsState.currentIndex >= wordsState.wordsData.length) { sounds.win(); }
                     renderWords();
-                }, 1500);
+                }, 1800);
             }
 
-            html += `<div class="flex flex-wrap justify-center gap-2 max-w-xl mx-auto" id="keyboard">`;
+            html += `<div class="flex flex-wrap justify-center gap-1.5 md:gap-2 max-w-xl mx-auto" id="keyboard">`;
             
             const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
             alphabet.forEach(letter => {
@@ -443,11 +507,11 @@
                 const isCorrect = isGuessed && wordLetters.includes(letter);
                 const isWrong = isGuessed && !wordLetters.includes(letter);
                 
-                let btnColor = "bg-white border-gray-300 text-gray-700 hover:bg-purple-50 cursor-pointer";
-                if (isCorrect) btnColor = "bg-green-500 border-green-600 text-white";
-                if (isWrong) btnColor = "bg-gray-300 border-gray-400 text-gray-500 opacity-50";
+                let btnColor = "bg-gray-100 border-gray-300 text-gray-700 hover:bg-purple-100 cursor-pointer shadow-sm";
+                if (isCorrect) btnColor = "bg-green-500 border-green-600 text-white shadow-inner";
+                if (isWrong) btnColor = "bg-gray-300 border-gray-400 text-gray-400 opacity-50 cursor-not-allowed shadow-none";
 
-                html += `<button ${isGuessed || isWordGuessed ? 'disabled' : ''} onclick="handleWordGuess('${letter}')" class="w-10 h-12 md:w-12 md:h-14 rounded-lg border-b-4 font-bold text-lg md:text-xl transition-colors ${btnColor}">${letter}</button>`;
+                html += `<button ${isGuessed || isWordGuessed ? 'disabled' : ''} onclick="handleWordGuess('${letter}')" class="w-9 h-11 md:w-11 md:h-12 rounded-lg border-b-4 font-bold text-base md:text-lg transition-all active:scale-95 ${btnColor}">${letter}</button>`;
             });
 
             html += `</div></div>`;
@@ -456,8 +520,8 @@
 
         function handleWordGuess(letter) {
             if (wordsState.guessedLetters.includes(letter)) return;
-            
             initAudio();
+            
             const currentData = wordsState.wordsData[wordsState.currentIndex];
             const wordLetters = currentData.word.split('');
             const isWordGuessed = wordLetters.every(l => wordsState.guessedLetters.includes(l));
@@ -468,52 +532,232 @@
             
             if (wordLetters.includes(letter)) {
                 sounds.click();
-                
-                // Check if this was the winning letter
                 const nowGuessed = wordLetters.every(l => wordsState.guessedLetters.includes(l));
-                if (nowGuessed) {
-                    sounds.correct();
-                }
+                if (nowGuessed) { setTimeout(() => sounds.correct(), 100); }
             } else {
                 sounds.incorrect();
             }
-            
             renderWords();
+        }
+
+        // --- JUEGO 4: ORDENA LAS CAPAS (De fuera hacia adentro) ---
+        // El orden correcto de exterior a interior
+        const correctOrder = ["Corteza", "Manto", "Núcleo Externo", "Núcleo Interno"];
+        let orderState = { currentItems: [], isChecked: false, isCorrect: false };
+
+        function startOrder() {
+            // Desordenamos la lista inicialmente
+            orderState.currentItems = [...correctOrder].sort(() => Math.random() - 0.5);
+            orderState.isChecked = false;
+            orderState.isCorrect = false;
+            showView('order');
+            renderOrder();
+        }
+        
+        function resetOrder() { orderState = { currentItems: [], isChecked: false, isCorrect: false }; }
+
+        function renderOrder() {
+            const container = document.getElementById('view-order');
+            
+            let html = `
+                <div class="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-amber-300 text-center animate-fade-in-up">
+                    <h2 class="text-xl md:text-2xl font-bold text-amber-600 mb-2">Ordena las Capas</h2>
+                    <p class="text-gray-600 mb-6">Toca las flechas para mover las capas. Arriba va la más externa y abajo la más profunda.</p>
+                    
+                    <div class="flex flex-col gap-3 mb-8 px-4 relative">
+                        <!-- Indicadores visuales de profundidad -->
+                        <div class="absolute -left-2 top-0 bottom-0 w-2 bg-gradient-to-b from-blue-300 via-orange-400 to-red-600 rounded-full"></div>
+            `;
+
+            orderState.currentItems.forEach((item, index) => {
+                let bgColor = "bg-gray-100";
+                if(item === "Corteza") bgColor = "bg-blue-200 border-blue-400 text-blue-900";
+                if(item === "Manto") bgColor = "bg-orange-300 border-orange-500 text-orange-900";
+                if(item === "Núcleo Externo") bgColor = "bg-red-400 border-red-600 text-white";
+                if(item === "Núcleo Interno") bgColor = "bg-red-700 border-red-900 text-white";
+
+                html += `
+                    <div class="flex items-center justify-between p-3 rounded-xl border-2 shadow-sm transition-transform ${bgColor}">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-lg px-2">${index + 1}.</span>
+                            <span class="font-bold text-lg">${item}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="moveItem(${index}, -1)" ${index === 0 || orderState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-white/50 hover:bg-white text-gray-800 rounded-lg flex items-center justify-center font-bold text-xl disabled:opacity-30 transition-colors shadow-sm">↑</button>
+                            <button onclick="moveItem(${index}, 1)" ${index === orderState.currentItems.length - 1 || orderState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-white/50 hover:bg-white text-gray-800 rounded-lg flex items-center justify-center font-bold text-xl disabled:opacity-30 transition-colors shadow-sm">↓</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+
+            if (orderState.isChecked) {
+                if (orderState.isCorrect) {
+                    html += `<div class="text-2xl font-bold text-green-500 animate-bounce mb-6">¡Orden Perfecto! 🏆</div>`;
+                    setTimeout(() => showResultScreen(1, 1, "Ordena las Capas", 'order'), 2000);
+                } else {
+                    html += `<div class="text-xl font-bold text-red-500 mb-6">Aún no está correcto. ¡Intenta otra vez!</div>`;
+                    html += `<button onclick="retryOrder()" class="bg-amber-500 text-white px-6 py-3 rounded-full font-bold shadow-md hover:bg-amber-600">Reintentar</button>`;
+                }
+            } else {
+                html += `<button onclick="checkOrder()" class="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-8 py-3 rounded-full font-bold text-xl shadow-lg hover:scale-105 transition-transform w-full md:w-auto">Comprobar Orden</button>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function moveItem(index, direction) {
+            initAudio(); sounds.click();
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= orderState.currentItems.length) return;
+            
+            const items = [...orderState.currentItems];
+            const temp = items[index];
+            items[index] = items[newIndex];
+            items[newIndex] = temp;
+            
+            orderState.currentItems = items;
+            renderOrder();
+        }
+
+        function checkOrder() {
+            initAudio();
+            const isCorrect = JSON.stringify(orderState.currentItems) === JSON.stringify(correctOrder);
+            orderState.isChecked = true;
+            orderState.isCorrect = isCorrect;
+            
+            if (isCorrect) { sounds.win(); } 
+            else { sounds.incorrect(); }
+            
+            renderOrder();
+        }
+
+        function retryOrder() {
+            orderState.isChecked = false;
+            renderOrder();
+        }
+
+        // --- JUEGO 5: VERDADERO O FALSO ---
+        let tfState = { currentQ: 0, score: 0, questions: [], feedback: null };
+
+        function startTF() {
+            // Tomamos 6 preguntas al azar
+            tfState.questions = [...tfData].sort(() => 0.5 - Math.random()).slice(0, 6);
+            tfState.currentQ = 0;
+            tfState.score = 0;
+            tfState.feedback = null;
+            showView('tf');
+            renderTF();
+        }
+        
+        function resetTF() { tfState = { currentQ: 0, score: 0, questions: [], feedback: null }; }
+
+        function renderTF() {
+            const container = document.getElementById('view-tf');
+            if (tfState.currentQ >= tfState.questions.length) {
+                showResultScreen(tfState.score, tfState.questions.length, "Verdadero o Falso", 'tf');
+                return;
+            }
+
+            const currentData = tfState.questions[tfState.currentQ];
+            
+            let html = `
+                <div class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-3xl shadow-xl border-4 border-rose-300 text-center animate-fade-in-up">
+                    <div class="flex justify-between items-center mb-6 text-rose-500 font-bold">
+                        <span>Ronda ${tfState.currentQ + 1} de ${tfState.questions.length}</span>
+                        <span class="bg-rose-100 px-3 py-1 rounded-full text-rose-800">Puntos: ${tfState.score} ⭐</span>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-8 rounded-2xl mb-8 min-h-[140px] flex items-center justify-center border-2 border-gray-200 shadow-inner">
+                        <h3 class="text-xl md:text-3xl font-semibold text-gray-800 leading-tight">"${currentData.text}"</h3>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 justify-center" id="tf-options">
+                        <button onclick="handleTF(true)" class="flex-1 py-4 md:py-6 rounded-2xl text-2xl font-bold text-white bg-green-500 hover:bg-green-600 border-b-4 border-green-700 active:scale-95 active:border-b-0 transition-all shadow-md">✅ Verdadero</button>
+                        <button onclick="handleTF(false)" class="flex-1 py-4 md:py-6 rounded-2xl text-2xl font-bold text-white bg-red-500 hover:bg-red-600 border-b-4 border-red-700 active:scale-95 active:border-b-0 transition-all shadow-md">❌ Falso</button>
+                    </div>
+                    
+                    <div id="tf-feedback" class="mt-6 h-12 flex items-center justify-center"></div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function handleTF(userAnswer) {
+            if (tfState.feedback) return; // Prevent multiple clicks
+            initAudio();
+            
+            const currentData = tfState.questions[tfState.currentQ];
+            const isCorrect = userAnswer === currentData.isTrue;
+            const buttons = document.querySelectorAll('#tf-options button');
+            const feedbackDiv = document.getElementById('tf-feedback');
+
+            buttons.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                sounds.correct();
+                tfState.score++;
+                feedbackDiv.innerHTML = `<span class="text-2xl font-bold text-green-500 animate-bounce">¡Correcto! 🎉</span>`;
+            } else {
+                sounds.incorrect();
+                feedbackDiv.innerHTML = `<span class="text-2xl font-bold text-red-500 animate-bounce">¡Ups! Era ${currentData.isTrue ? 'Verdadero' : 'Falso'}</span>`;
+            }
+
+            tfState.feedback = 'shown';
+
+            setTimeout(() => {
+                tfState.currentQ++;
+                tfState.feedback = null;
+                if (tfState.currentQ >= tfState.questions.length) { sounds.win(); }
+                renderTF();
+            }, 1800);
         }
 
         // --- PANTALLA DE RESULTADOS ---
         function showResultScreen(score, total, title, originGame) {
             const isPerfect = score === total;
+            const isGood = score >= total / 2;
             const container = document.getElementById('view-result');
-            backBtn.classList.add('hidden'); // Ocultar botón volver en resultados
+            backBtn.classList.add('hidden'); 
 
             let btnAction = `showView('menu')`;
             if (originGame === 'quiz') btnAction = `startQuiz()`;
             if (originGame === 'match') btnAction = `startMatch()`;
             if (originGame === 'words') btnAction = `startWords()`;
+            if (originGame === 'order') btnAction = `startOrder()`;
+            if (originGame === 'tf') btnAction = `startTF()`;
             
+            let message = isPerfect ? '¡Felicidades! Eres una experta en geología.' : 
+                          isGood ? '¡Buen trabajo! Vas por muy buen camino.' : 
+                          '¡Sigue practicando! La Tierra tiene muchos secretos.';
+            
+            let emoji = isPerfect ? '🏆' : isGood ? '🌟' : '📚';
+
             container.innerHTML = `
-                <div class="max-w-lg mx-auto bg-white p-10 rounded-3xl shadow-xl text-center border-4 border-yellow-400 animate-fade-in-up">
-                    <div class="text-6xl mb-4">${isPerfect ? '🏆' : '🌟'}</div>
-                    <h2 class="text-3xl font-extrabold text-gray-800 mb-2">¡Misión Completada!</h2>
-                    <p class="text-lg text-gray-600 mb-6">Has terminado el juego: <span class="font-bold text-blue-600">${title}</span></p>
+                <div class="max-w-lg mx-auto bg-white p-8 md:p-10 rounded-3xl shadow-xl text-center border-4 border-yellow-400 animate-fade-in-up">
+                    <div class="text-6xl mb-4 animate-bounce">${emoji}</div>
+                    <h2 class="text-3xl font-extrabold text-gray-800 mb-2">¡Actividad Completada!</h2>
+                    <p class="text-lg text-gray-600 mb-6">Juego: <span class="font-bold text-blue-600">${title}</span></p>
                     
-                    <div class="bg-yellow-100 rounded-2xl p-6 mb-8 border-2 border-yellow-300">
-                        <p class="text-xl font-medium text-yellow-800">Tu puntaje es:</p>
-                        <p class="text-5xl font-black text-yellow-600 mt-2">${score} / ${total}</p>
+                    <div class="bg-yellow-100 rounded-2xl p-6 mb-8 border-2 border-yellow-300 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-6xl opacity-20">🌍</div>
+                        <p class="text-xl font-medium text-yellow-800 relative z-10">Tu puntaje es:</p>
+                        <p class="text-5xl font-black text-yellow-600 mt-2 relative z-10">${score} / ${total}</p>
                     </div>
 
-                    <p class="text-xl font-bold text-green-600 mb-8">
-                        ${isPerfect ? '¡Felicidades Antonella! Eres una experta en geología.' : '¡Buen trabajo! Sigue practicando para ser una experta.'}
-                    </p>
+                    <p class="text-xl font-bold text-green-600 mb-8">${message}</p>
 
-                    <button onclick="${btnAction}" class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-4 rounded-full font-bold text-xl shadow-lg hover:scale-105 transition-transform mr-2 mb-2 cursor-pointer">
-                        Jugar de Nuevo 🔄
-                    </button>
-                    
-                    <button onclick="showView('menu')" class="bg-gray-200 text-gray-700 px-8 py-4 rounded-full font-bold text-xl shadow-lg hover:bg-gray-300 transition-colors cursor-pointer">
-                        Ir al Menú
-                    </button>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="${btnAction}" class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-4 rounded-full font-bold text-xl shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all cursor-pointer">
+                            Jugar de Nuevo 🔄
+                        </button>
+                        
+                        <button onclick="showView('menu')" class="bg-gray-200 text-gray-800 px-8 py-4 rounded-full font-bold text-lg shadow-sm hover:bg-gray-300 transition-colors cursor-pointer">
+                            Volver al Menú Principal
+                        </button>
+                    </div>
                 </div>
             `;
             
