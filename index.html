@@ -3,1238 +3,1079 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Misiones Educativas</title>
+    <title>Estudio Interactivo Maya - 4º Básico</title>
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        /* Custom animations and styling to enhance Tailwind */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
         }
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        .hidden { display: none !important; }
         
-        @keyframes fade-in-up {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-            animation: fade-in-up 0.5s ease-out forwards;
-        }
+        /* Specific styling for the memory cards to handle the 3D flip effect */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
         
-        @keyframes bounce-hover {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        .hover\:animate-bounce-hover:hover {
-            animation: bounce-hover 1s infinite;
-        }
-
-        .stars-bg {
-            background-image: 
-            radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 200px 200px;
-        }
-
-        .card-container {
-            perspective: 1000px;
-        }
-        .card-inner {
+        .memory-card {
             transition: transform 0.6s;
-            transform-style: preserve-3d;
         }
-        .card-flipped .card-inner {
+        .memory-card.flipped {
             transform: rotateY(180deg);
-        }
-        .card-front, .card-back {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-        .card-back {
-            transform: rotateY(180deg);
-        }
-
-        .view-section {
-            display: none;
-            width: 100%;
-        }
-        .view-section.active {
-            display: block;
         }
     </style>
 </head>
-<body class="bg-slate-100 font-sans selection:bg-orange-300 min-h-screen flex flex-col overflow-x-hidden">
+<body class="bg-orange-50 font-sans text-gray-800 min-h-screen">
 
-    <!-- GLOBAL HEADER -->
-    <header id="global-header" class="p-4 shadow-md text-white text-center relative z-50 transition-colors duration-500 bg-gradient-to-r from-indigo-600 to-purple-700">
-        <button id="btn-back" onclick="goBack()" class="hidden absolute left-4 top-4 bg-white/30 hover:bg-white/50 text-white px-4 py-2 rounded-full font-bold transition-colors shadow-sm cursor-pointer z-50 flex items-center gap-2">
-            <span>←</span> <span class="hidden sm:inline">Volver</span>
-        </button>
-        <h1 id="main-title" class="text-2xl sm:text-3xl md:text-4xl font-black tracking-wider drop-shadow-lg flex items-center justify-center gap-3 mt-12 sm:mt-0">
-            <span>🚀</span> Portal Educativo <span>📚</span>
-        </h1>
+    <!-- Global Header -->
+    <header class="bg-amber-700 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl">🛕</span>
+            <h1 class="text-xl md:text-2xl font-bold tracking-tight">Estudio Maya - 4ºA</h1>
+        </div>
+        <!-- User info section in header (hidden initially) -->
+        <div id="header-user-info" class="hidden flex items-center gap-4">
+             <div class="bg-amber-800 px-3 md:px-4 py-1.5 rounded-full flex items-center gap-2 border border-amber-600 shadow-inner">
+                <span class="text-xl">🍫</span>
+                <span id="header-score" class="font-bold">0 Semillas</span>
+             </div>
+             <div class="flex items-center gap-2">
+                 <span id="header-emoji" class="text-2xl"></span>
+                 <span id="header-name" class="font-semibold hidden sm:inline"></span>
+             </div>
+        </div>
     </header>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-grow flex items-center justify-center p-4 sm:p-8 w-full z-20 relative">
+    <main class="container mx-auto p-4 md:p-8">
         
-        <!-- DECORATIVE ELEMENTS (Only for Space theme) -->
-        <div id="space-decorations" class="hidden absolute inset-0 pointer-events-none overflow-hidden">
-            <div class="absolute top-10 left-10 text-4xl opacity-30 animate-float" style="animation-delay: 0s">🚀</div>
-            <div class="absolute bottom-20 right-10 text-5xl opacity-30 animate-float" style="animation-delay: 1s">🪐</div>
-            <div class="absolute top-1/3 right-20 text-3xl opacity-20 animate-float" style="animation-delay: 2s">☄️</div>
+        <!-- ==================== LOGIN SCREEN ==================== -->
+        <div id="screen-login" class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden animate-fade-in border-t-8 border-amber-600">
+            <div class="bg-amber-100 p-8 text-center border-b border-amber-200">
+                <h2 class="text-3xl font-extrabold text-amber-900 mb-2">¡Bienvenido Explorador!</h2>
+                <p class="text-amber-700">Regístrate para comenzar tu aventura.</p>
+            </div>
+            
+            <form id="login-form" class="p-8">
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Tu Nombre:</label>
+                    <input type="text" id="login-name" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-lg" placeholder="Ej: Juan" required minlength="3">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-3">Elige tu Avatar:</label>
+                    <div id="avatar-container" class="flex flex-wrap justify-center gap-3">
+                        <!-- Avatars will be injected here by JS -->
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Mensaje (Opcional):</label>
+                    <input type="text" id="login-message" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm italic" placeholder="¡Vamos a sacar un 7!" maxlength="50">
+                </div>
+
+                <button type="submit" id="btn-start" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors text-lg opacity-50 cursor-not-allowed" disabled>
+                    ¡Comenzar la Aventura!
+                </button>
+            </form>
         </div>
 
-        <!-- APP SELECTOR MENU -->
-        <div id="view-main-selector" class="view-section active max-w-4xl w-full">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+        <!-- ==================== MAIN DASHBOARD ==================== -->
+        <div id="screen-dashboard" class="hidden animate-fade-in">
+            <!-- Navigation Tabs -->
+            <nav class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8 bg-white p-3 rounded-2xl shadow-sm border border-amber-100">
+                <button id="tab-study" class="nav-tab px-6 py-3 rounded-xl font-bold transition-all shadow-sm bg-amber-600 text-white shadow-amber-600/30 ring-2 ring-amber-600 ring-offset-2" onclick="switchMainTab('study')">📖 Estudio</button>
+                <button id="tab-games" class="nav-tab px-6 py-3 rounded-xl font-bold transition-all shadow-sm bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-amber-800" onclick="switchMainTab('games')">🎮 Juegos</button>
+                <button id="tab-ranking" class="nav-tab px-6 py-3 rounded-xl font-bold transition-all shadow-sm bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-amber-800" onclick="switchMainTab('ranking')">🏆 Salón de la Fama</button>
+            </nav>
+
+            <!-- --- STUDY ZONE --- -->
+            <div id="view-study" class="space-y-12 animate-fade-in">
+                <!-- Section 1: Time and Space -->
+                <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                    <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/4b_u2_soc.jpg" alt="Intro Mayas" class="w-full h-48 md:h-64 object-cover" />
+                    <div class="p-6 md:p-10">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4 border-b-4 border-amber-200 inline-block pb-2">1. Ubicación Temporal y Espacial</h2>
+                        <div class="grid md:grid-cols-2 gap-8 mt-6">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">⏱️ Los Mayas en el Tiempo</h3>
+                                <p class="text-gray-700 mb-4 leading-relaxed">
+                                    Su historia se divide en dos grandes períodos:<br>
+                                    - <strong>Clásico (300 al 900 d.C.):</strong> Máximo desarrollo. Construcción de grandes ciudades en la selva (Tikal, Palenque).<br>
+                                    - <strong>Posclásico (900 al 1521 d.C.):</strong> Desarrollo en tierras bajas (Chichén Itzá).
+                                </p>
+                                <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/p68_69_infografia.png" alt="Línea de tiempo" class="w-full rounded-xl shadow-md border border-gray-200" />
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">🗺️ Entorno Geográfico</h3>
+                                <p class="text-gray-700 mb-4 leading-relaxed">
+                                    Habitaron <strong>Mesoamérica</strong> (Sur de México, Guatemala, Belice, Honduras, El Salvador). 
+                                    Se adaptaron a 3 zonas: Tierras altas (bosques), Selva (tropical), y Tierras bajas (seco, con cenotes).
+                                </p>
+                                <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/8e49aepag.100101/hi_4b_u2_f3.png" alt="Mapa Mesoamérica" class="w-full rounded-xl shadow-md border border-gray-200" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Organization -->
+                <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                    <div class="p-6 md:p-10">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4 border-b-4 border-amber-200 inline-block pb-2">2. Organización Política</h2>
+                        <div class="mt-6 flex flex-col md:flex-row gap-8 items-center">
+                            <div class="flex-1">
+                                <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                    Se organizaron en <strong>ciudades-Estado independientes</strong>. Cada una tenía su propio gobierno, leyes y ejército, aunque compartían cultura.
+                                </p>
+                                <div class="bg-amber-50 p-6 rounded-2xl border-l-4 border-amber-500 mb-6">
+                                    <h4 class="font-bold text-amber-900 text-lg mb-2">El Ahau (Rey)</h4>
+                                    <p class="text-gray-700">Era la máxima autoridad. Dictaba leyes, administraba justicia y organizaba el comercio. Se le consideraba un ser divino.</p>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                 <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/p70_71_mapadeclick.png" alt="Ciudad Estado" class="w-full rounded-xl shadow-lg border border-gray-200" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Society and Economy -->
+                <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                    <div class="p-6 md:p-10">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4 border-b-4 border-amber-200 inline-block pb-2">3. Sociedad y Economía</h2>
+                        <div class="mt-6 space-y-8">
+                            <div>
+                                 <h3 class="text-2xl font-bold text-gray-800 mb-4">Sociedad Piramidal</h3>
+                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                    Era una sociedad muy jerárquica, dividida en grupos con funciones específicas.
+                                 </p>
+                                 <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/p72_73_mapaclick.jpg" alt="Pirámide Social" class="max-w-2xl w-full mx-auto rounded-xl shadow-md border border-gray-200 block" />
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-8 bg-gray-50 p-6 md:p-8 rounded-2xl">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Economía: Tala y Roza</h3>
+                                    <p class="text-gray-700 leading-relaxed mb-4">
+                                        La principal actividad era la <strong>agricultura</strong> (maíz). Al vivir en selvas, desarrollaron el sistema de <strong>tala y roza</strong> (cortar árboles y quemar maleza para abono) en sus <strong>milpas</strong>.
+                                    </p>
+                                     <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/p72_73_galeria_1.jpg" alt="Tala y Roza" class="w-full rounded-xl shadow-md border border-gray-200" />
+                                </div>
+                                <div>
+                                     <h3 class="text-2xl font-bold text-gray-800 mb-4">El Mercado y la Moneda</h3>
+                                     <p class="text-gray-700 leading-relaxed mb-4">
+                                        El mercado era el centro social y económico. Su "moneda" más importante eran las <strong>semillas de cacao</strong>.
+                                     </p>
+                                     <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/p72_73_foto1.jpg" alt="Mercado Maya" class="w-full rounded-xl shadow-md border border-gray-200" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- --- GAMES MENU --- -->
+            <div id="view-games" class="hidden text-center animate-fade-in py-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4">¡Hora de jugar y ganar Cacao!</h2>
+                <p class="text-lg md:text-xl text-gray-700 mb-10 font-medium">Elige un desafío para demostrar lo que has aprendido.</p>
                 
-                <!-- Tierra APP Button -->
-                <button onclick="showApp('tierra')" class="group relative bg-gradient-to-br from-orange-400 to-red-600 rounded-3xl p-8 border-4 border-white shadow-2xl hover:scale-105 transition-transform overflow-hidden flex flex-col items-center justify-center min-h-[300px]">
-                    <div class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                    <div class="text-8xl mb-4 group-hover:animate-bounce-hover">🌎</div>
-                    <h2 class="text-3xl font-black text-white drop-shadow-md text-center">Capas de la Tierra</h2>
-                    <p class="text-orange-100 mt-2 font-medium bg-black/20 px-4 py-1 rounded-full">Ciencias Naturales</p>
-                </button>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <button onclick="startGame('trivia')" class="bg-white p-8 rounded-3xl shadow-xl border-b-8 border-blue-500 hover:-translate-y-2 transform transition-all group flex flex-col items-center justify-center">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">❓</div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-blue-900 mb-2">La Gran Trivia</h3>
+                        <p class="text-sm md:text-base text-gray-600 font-medium">¡10 semillas por acierto!</p>
+                    </button>
+                    
+                    <button onclick="startGame('truefalse')" class="bg-white p-8 rounded-3xl shadow-xl border-b-8 border-green-500 hover:-translate-y-2 transform transition-all group flex flex-col items-center justify-center">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">✅</div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-green-900 mb-2">Verdadero o Falso</h3>
+                        <p class="text-sm md:text-base text-gray-600 font-medium">¿Mito o realidad?</p>
+                    </button>
 
-                <!-- Espacio APP Button -->
-                <button onclick="showApp('espacio')" class="group relative bg-gradient-to-br from-indigo-800 to-purple-900 rounded-3xl p-8 border-4 border-slate-700 shadow-2xl hover:scale-105 transition-transform overflow-hidden flex flex-col items-center justify-center min-h-[300px] stars-bg">
-                    <div class="absolute top-0 left-0 w-full h-full bg-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                    <div class="text-8xl mb-4 group-hover:animate-float">👨‍🚀</div>
-                    <h2 class="text-3xl font-black text-white drop-shadow-md text-center">Space Mission</h2>
-                    <p class="text-indigo-200 mt-2 font-medium bg-black/40 px-4 py-1 rounded-full border border-indigo-500/50">Inglés</p>
-                </button>
+                    <button onclick="startGame('sortpyramid')" class="bg-white p-8 rounded-3xl shadow-xl border-b-8 border-purple-500 hover:-translate-y-2 transform transition-all group flex flex-col items-center justify-center">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">🛕</div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-purple-900 mb-2">Arma la Pirámide</h3>
+                        <p class="text-sm md:text-base text-gray-600 font-medium">Ordena la sociedad.</p>
+                    </button>
 
+                    <button onclick="startGame('memory')" class="bg-white p-8 rounded-3xl shadow-xl border-b-8 border-pink-500 hover:-translate-y-2 transform transition-all group flex flex-col items-center justify-center">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">🧠</div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-pink-900 mb-2">Memoria Maya</h3>
+                        <p class="text-sm md:text-base text-gray-600 font-medium">Encuentra las parejas.</p>
+                    </button>
+
+                    <button onclick="startGame('wordguess')" class="bg-white p-8 rounded-3xl shadow-xl border-b-8 border-teal-500 hover:-translate-y-2 transform transition-all group flex flex-col items-center justify-center">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">🔤</div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-teal-900 mb-2">Adivina la Palabra</h3>
+                        <p class="text-sm md:text-base text-gray-600 font-medium">Descifra el códice.</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- --- RANKING ZONE --- -->
+            <div id="view-ranking" class="hidden max-w-2xl mx-auto animate-fade-in">
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-yellow-400">
+                    <h2 class="text-3xl font-extrabold text-amber-900 mb-6 text-center">🏆 Salón de la Fama 4ºA</h2>
+                    <p class="text-center text-gray-600 mb-8">¡Así va la cosecha de semillas de cacao!</p>
+                    <div id="ranking-list" class="space-y-4">
+                        <!-- Ranking items injected via JS -->
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- ==========================================
-             APP 1: CAPAS DE LA TIERRA
-             ========================================== -->
-        
-        <!-- Menú Tierra -->
-        <div id="view-tierra-menu" class="view-section max-w-2xl w-full mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl text-center border-4 border-orange-300">
-            <h2 class="text-2xl font-bold text-orange-600 mb-4">Misiones Geológicas 🌋</h2>
-            <div class="grid gap-4 md:grid-cols-1">
-                <button onclick="startTierraQuiz()" class="group flex items-center justify-between bg-gradient-to-r from-blue-400 to-blue-500 p-4 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform text-left w-full">
-                    <div>
-                        <h3 class="text-xl font-bold">1. Trivia Geológica 🧠</h3>
-                        <p class="text-blue-100 mt-1 text-sm">Responde las preguntas de alternativas.</p>
-                    </div>
-                    <span class="text-4xl group-hover:animate-bounce-hover">❓</span>
-                </button>
-                <button onclick="startTierraMatch()" class="group flex items-center justify-between bg-gradient-to-r from-green-400 to-green-500 p-4 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform text-left w-full">
-                    <div>
-                        <h3 class="text-xl font-bold">2. Conecta las Capas 🧩</h3>
-                        <p class="text-green-100 mt-1 text-sm">Une cada concepto con su definición.</p>
-                    </div>
-                    <span class="text-4xl group-hover:animate-bounce-hover">🔗</span>
-                </button>
-                <button onclick="startTierraWords()" class="group flex items-center justify-between bg-gradient-to-r from-purple-400 to-purple-500 p-4 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform text-left w-full">
-                    <div>
-                        <h3 class="text-xl font-bold">3. Palabra Oculta 🕵️‍♀️</h3>
-                        <p class="text-purple-100 mt-1 text-sm">Descubre la palabra secreta.</p>
-                    </div>
-                    <span class="text-4xl group-hover:animate-bounce-hover">🔤</span>
-                </button>
-                <button onclick="startTierraSort()" class="group flex items-center justify-between bg-gradient-to-r from-yellow-400 to-yellow-500 p-4 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform text-left w-full">
-                    <div>
-                        <h3 class="text-xl font-bold">4. Ordena las Capas 🌍</h3>
-                        <p class="text-yellow-100 mt-1 text-sm">Desde el exterior al interior.</p>
-                    </div>
-                    <span class="text-4xl group-hover:animate-bounce-hover">⬇️</span>
-                </button>
-                <button onclick="startTierraTF()" class="group flex items-center justify-between bg-gradient-to-r from-rose-400 to-rose-500 p-4 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform text-left w-full">
-                    <div>
-                        <h3 class="text-xl font-bold">5. Verdadero o Falso ⚡</h3>
-                        <p class="text-rose-100 mt-1 text-sm">Pon a prueba tus reflejos.</p>
-                    </div>
-                    <span class="text-4xl group-hover:animate-bounce-hover">✅</span>
-                </button>
-                <button onclick="startTierraImage()" class="group flex items-center justify-between bg-gradient-to-r from-teal-400 to-teal-500 p-4 rounded-2xl text-white shadow-lg hover:scale-105 transition-transform text-left w-full">
-                    <div>
-                        <h3 class="text-xl font-bold">6. Etiqueta las Capas 🖼️</h3>
-                        <p class="text-teal-100 mt-1 text-sm">Completa el esquema visual.</p>
-                    </div>
-                    <span class="text-4xl group-hover:animate-bounce-hover">🏷️</span>
-                </button>
-            </div>
+        <!-- ==================== GAME CONTAINERS ==================== -->
+        <div id="screen-active-game" class="hidden animate-fade-in">
+            <!-- Dynamic game content will be loaded here -->
+            <div id="game-container" class="w-full"></div>
         </div>
-
-        <!-- Juegos Tierra -->
-        <div id="view-tierra-quiz" class="view-section"></div>
-        <div id="view-tierra-match" class="view-section"></div>
-        <div id="view-tierra-words" class="view-section"></div>
-        <div id="view-tierra-sort" class="view-section"></div>
-        <div id="view-tierra-tf" class="view-section"></div>
-        <div id="view-tierra-image" class="view-section"></div>
-
-        <!-- ==========================================
-             APP 2: SPACE MISSION (INGLÉS)
-             ========================================== -->
-        
-        <!-- Menú Espacio -->
-        <div id="view-espacio-menu" class="view-section"></div>
-
-        <!-- Juegos Espacio -->
-        <div id="view-espacio-memory" class="view-section hidden"></div>
-        <div id="view-espacio-ordinals" class="view-section hidden"></div>
-        <div id="view-espacio-gear" class="view-section hidden"></div>
-        <div id="view-espacio-planets" class="view-section hidden"></div>
-        <div id="view-espacio-routine" class="view-section hidden"></div>
-
-        <!-- Pantalla de Resultados Universal -->
-        <div id="view-result" class="view-section"></div>
 
     </main>
 
-    <!-- SCRIPTS CORE LOGIC -->
-    <script>
-        // --- 1. MOTOR DE AUDIO ---
-        let audioCtx = null;
-        const initAudio = () => {
-            if (!audioCtx) {
-                try {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    audioCtx = new AudioContext();
-                } catch(e) { console.log("Audio no soportado"); }
-            }
-            if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        };
+    <footer class="text-center py-6 text-amber-800/60 font-medium text-sm mt-10">
+        Creado para los estudiantes del 4º Año A de la Escuela Carlos Mahns. ¡Éxito en la prueba!
+    </footer>
 
-        const playTone = (freq, type, duration, vol=0.1) => {
-            if(!audioCtx) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.05);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
-        };
+    <!-- ==================== TEMPLATES FOR GAMES (Hidden) ==================== -->
+    <div id="templates" class="hidden">
+        
+        <!-- TRIVIA TEMPLATE -->
+        <div id="tpl-trivia" class="max-w-3xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="exitGame()" class="text-gray-500 hover:text-gray-800 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                <span id="trivia-progress" class="font-bold text-blue-800 bg-blue-100 px-4 py-2 rounded-full shadow">Pregunta 1 / X</span>
+            </div>
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl border-t-8 border-blue-500 text-center">
+                <h3 id="trivia-question" class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 leading-tight">Question</h3>
+                <div id="trivia-options" class="grid gap-4 mb-8">
+                    <!-- Buttons injected here -->
+                </div>
+                <div id="trivia-explanation-box" class="hidden animate-fade-in bg-blue-50 p-6 rounded-2xl border border-blue-200 text-left">
+                    <p class="text-blue-900 mb-6 text-lg"><strong class="font-bold">Explicación:</strong> <span id="trivia-explanation">Text</span></p>
+                    <button onclick="triviaNextQuestion()" class="bg-amber-500 text-white font-bold py-3 px-8 rounded-full shadow-md hover:bg-amber-600 block w-full md:w-auto md:mx-auto text-lg">Siguiente Pregunta</button>
+                </div>
+            </div>
+        </div>
 
-        const sounds = {
-            click: () => playTone(800, 'triangle', 0.05, 0.05),
-            tierra_correct: () => { playTone(440, 'sine', 0.1, 0.2); setTimeout(() => playTone(659.25, 'sine', 0.3, 0.2), 100); },
-            tierra_incorrect: () => { playTone(300, 'sawtooth', 0.2, 0.1); setTimeout(() => playTone(250, 'sawtooth', 0.3, 0.1), 150); },
-            tierra_win: () => { playTone(523.25, 'sine', 0.5, 0.15); playTone(659.25, 'sine', 0.5, 0.15); playTone(783.99, 'sine', 0.5, 0.15); setTimeout(() => playTone(1046.50, 'sine', 0.8, 0.2), 300); },
-            espacio_correct: () => { playTone(600, 'sine', 0.1, 0.2); setTimeout(() => playTone(1200, 'sine', 0.2, 0.2), 100); },
-            espacio_incorrect: () => { playTone(300, 'square', 0.2, 0.1); setTimeout(() => playTone(150, 'square', 0.2, 0.1), 100); },
-            espacio_win: () => { playTone(400, 'triangle', 0.1, 0.2); setTimeout(() => playTone(500, 'triangle', 0.1, 0.2), 100); setTimeout(() => playTone(600, 'triangle', 0.1, 0.2), 200); setTimeout(() => playTone(800, 'triangle', 0.3, 0.2), 300); }
-        };
+        <!-- TRUE/FALSE TEMPLATE -->
+        <div id="tpl-truefalse" class="max-w-2xl mx-auto text-center">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="exitGame()" class="text-gray-500 hover:text-gray-800 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                <span id="tf-progress" class="font-bold text-green-800 bg-green-100 px-4 py-2 rounded-full shadow">Pregunta 1 / X</span>
+            </div>
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl border-4 border-green-400">
+                <h3 id="tf-question" class="text-2xl md:text-3xl font-bold text-gray-800 mb-10 leading-tight">Statement</h3>
+                <div id="tf-buttons" class="flex gap-6 justify-center">
+                    <button onclick="tfAnswer(true)" class="flex-1 bg-green-100 text-green-800 border-b-4 border-green-300 hover:bg-green-200 font-bold py-4 px-8 rounded-2xl text-xl">Verdadero</button>
+                    <button onclick="tfAnswer(false)" class="flex-1 bg-red-100 text-red-800 border-b-4 border-red-300 hover:bg-red-200 font-bold py-4 px-8 rounded-2xl text-xl">Falso</button>
+                </div>
+                <div id="tf-explanation-box" class="hidden animate-fade-in mt-6">
+                    <div id="tf-result-msg" class="p-6 rounded-2xl mb-6 text-xl font-bold"></div>
+                    <p class="text-lg text-gray-700 bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8 italic shadow-inner">
+                        <strong>¿Por qué?</strong> <span id="tf-explanation">Reason</span>
+                    </p>
+                    <button onclick="tfNextQuestion()" class="bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-600 text-lg w-full md:w-auto">Siguiente</button>
+                </div>
+            </div>
+        </div>
 
-        // --- 2. GESTIÓN DE VISTAS (NAVEGACIÓN) ---
-        let currentApp = null; // 'tierra' | 'espacio' | null
-        let historyStack = ['main-selector'];
+        <!-- GAME FINISHED TEMPLATE -->
+        <div id="tpl-gamefinished" class="text-center py-16 animate-fade-in bg-white rounded-3xl shadow-xl border-4 max-w-2xl mx-auto">
+            <h2 id="finish-title" class="text-4xl md:text-5xl font-extrabold mb-6">¡Completado! 🎉</h2>
+            <p class="text-2xl text-gray-700 mb-8 font-medium">Ganaste <strong id="finish-score" class="text-amber-600 text-4xl">0</strong> semillas de cacao.</p>
+            <button onclick="exitGame()" class="bg-blue-500 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg hover:bg-blue-600">Volver a Juegos</button>
+        </div>
 
-        function hideAllViews() {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-        }
-
-        function showView(viewId) {
-            hideAllViews();
-            document.getElementById(`view-${viewId}`).classList.add('active');
-            
-            const btnBack = document.getElementById('btn-back');
-            if (viewId === 'main-selector') {
-                btnBack.classList.add('hidden');
-                currentApp = null;
-                applyAppTheme(null);
-                historyStack = ['main-selector'];
-            } else {
-                btnBack.classList.remove('hidden');
-                // Gestionar el historial
-                if(historyStack[historyStack.length-1] !== viewId) {
-                    historyStack.push(viewId);
-                }
-            }
-        }
-
-        function goBack() {
-            initAudio();
-            sounds.click();
-            if (historyStack.length > 1) {
-                historyStack.pop(); // quitar la actual
-                const prevView = historyStack[historyStack.length - 1];
-                
-                // Limpiar intervalos/timeouts si los hubiera al salir a medias
-                hideAllViews();
-                document.getElementById(`view-${prevView}`).classList.add('active');
-                
-                if (prevView === 'main-selector') {
-                    currentApp = null;
-                    applyAppTheme(null);
-                    document.getElementById('btn-back').classList.add('hidden');
-                } else if (prevView === 'tierra-menu') {
-                    applyAppTheme('tierra');
-                } else if (prevView === 'espacio-menu') {
-                    applyAppTheme('espacio');
-                }
-            }
-        }
-
-        function showApp(appType) {
-            initAudio();
-            sounds.click();
-            currentApp = appType;
-            applyAppTheme(appType);
-            
-            if (appType === 'tierra') {
-                showView('tierra-menu');
-            } else if (appType === 'espacio') {
-                renderEspacioMenu();
-                showView('espacio-menu');
-            }
-        }
-
-        function applyAppTheme(appType) {
-            const header = document.getElementById('global-header');
-            const title = document.getElementById('main-title');
-            const spaceDecor = document.getElementById('space-decorations');
-            
-            document.body.className = "min-h-screen flex flex-col overflow-x-hidden font-sans";
-
-            if (appType === 'tierra') {
-                document.body.classList.add('bg-blue-100', 'selection:bg-orange-300');
-                header.className = "p-4 shadow-md text-white text-center relative z-50 transition-colors duration-500 rounded-b-3xl mb-6 bg-gradient-to-r from-orange-400 to-red-500";
-                title.innerHTML = `<span>🌎</span> Misión: Capas de la Tierra <span>🌋</span>`;
-                spaceDecor.classList.add('hidden');
-            } else if (appType === 'espacio') {
-                document.body.classList.add('bg-slate-900', 'stars-bg', 'selection:bg-purple-500', 'selection:text-white');
-                header.className = "w-full bg-black/40 border-b border-indigo-900/50 p-4 sticky top-0 z-50 backdrop-blur-sm transition-colors duration-500";
-                title.innerHTML = `<span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-400 font-black">👨‍🚀 SPACE MISSION ACADEMY 👩‍🚀</span>`;
-                spaceDecor.classList.remove('hidden');
-            } else {
-                document.body.classList.add('bg-slate-100');
-                header.className = "p-4 shadow-md text-white text-center relative z-50 transition-colors duration-500 bg-gradient-to-r from-indigo-600 to-purple-700";
-                title.innerHTML = `<span>🚀</span> Portal Educativo <span>📚</span>`;
-                spaceDecor.classList.add('hidden');
-            }
-        }
-
-        // --- PANTALLA RESULTADOS COMÚN ---
-        function showResultScreen(score, total, title, originId, appType) {
-            const container = document.getElementById('view-result');
-            const isPerfect = score === total;
-            const theme = appType === 'tierra' 
-                ? { bg: 'bg-white', border: 'border-yellow-400', titleCol: 'text-gray-800', pCol: 'text-gray-600', boxBg: 'bg-yellow-100 border-yellow-300', boxTxt: 'text-yellow-800', scoreCol: 'text-yellow-600', msg: '¡Felicidades! Eres experta en geología.', btn: 'bg-gradient-to-r from-orange-400 to-red-500' }
-                : { bg: 'bg-indigo-900/80 backdrop-blur-md', border: 'border-cyan-400', titleCol: 'text-white', pCol: 'text-indigo-200', boxBg: 'bg-black/40 border-cyan-500', boxTxt: 'text-cyan-300', scoreCol: 'text-yellow-300', msg: '¡Misión Cumplida Cadete!', btn: 'bg-cyan-500 hover:bg-cyan-400' };
-
-            let restartAction = "";
-            if(originId === 'tierra-quiz') restartAction = "startTierraQuiz()";
-            if(originId === 'tierra-match') restartAction = "startTierraMatch()";
-            if(originId === 'tierra-words') restartAction = "startTierraWords()";
-            if(originId === 'tierra-sort') restartAction = "startTierraSort()";
-            if(originId === 'tierra-tf') restartAction = "startTierraTF()";
-            if(originId === 'tierra-image') restartAction = "startTierraImage()";
-            if(originId === 'espacio-memory') restartAction = "startSpaceMemory()";
-            if(originId === 'espacio-ordinals') restartAction = "startSpaceOrdinals()";
-            if(originId === 'espacio-gear') restartAction = "startSpaceGear()";
-            if(originId === 'espacio-planets') restartAction = "startSpacePlanets()";
-            if(originId === 'espacio-routine') restartAction = "startSpaceRoutine()";
-
-            let html = `
-                <div class="max-w-lg w-full mx-auto p-10 rounded-3xl shadow-2xl text-center border-4 animate-fade-in-up ${theme.bg} ${theme.border}">
-                    <div class="text-6xl mb-4 animate-bounce">${isPerfect ? '🏆' : '🌟'}</div>
-                    <h2 class="text-3xl font-extrabold mb-2 ${theme.titleCol}">${appType === 'tierra' ? '¡Misión Completada!' : 'Mission Accomplished!'}</h2>
-                    <p class="text-lg mb-6 ${theme.pCol}">${appType === 'tierra' ? 'Juego terminado:' : 'Module complete:'} <span class="font-bold">${title}</span></p>
-                    
-                    <div class="rounded-2xl p-6 mb-8 border-2 ${theme.boxBg}">
-                        <p class="text-xl font-medium ${theme.boxTxt}">${appType === 'tierra' ? 'Tu puntaje es:' : 'Final Score:'}</p>
-                        <p class="text-5xl font-black mt-2 ${theme.scoreCol}">${score} / ${total}</p>
+        <!-- SORT PYRAMID TEMPLATE -->
+        <div id="tpl-sortpyramid" class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="exitGame()" class="text-gray-500 hover:text-gray-800 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                <span class="font-bold text-purple-800 bg-purple-100 px-4 py-2 rounded-full shadow">Completa la Sociedad</span>
+            </div>
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl border-4 border-purple-400">
+                <p class="text-center text-gray-700 mb-6 font-medium bg-purple-50 p-3 rounded-lg">
+                    1. Toca un grupo de abajo.<br/>2. Toca el nivel de la pirámide donde pertenece.
+                </p>
+                <div class="flex flex-col md:flex-row gap-8">
+                    <!-- Slots -->
+                    <div id="pyramid-slots" class="flex-1 flex flex-col items-center gap-2">
+                        <!-- Slots injected by JS -->
                     </div>
-                    
-                    <p class="text-xl font-bold mb-8 ${isPerfect ? 'text-green-500' : 'text-blue-400'}">${theme.msg}</p>
-
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button onclick="${restartAction}" class="px-6 py-3 rounded-full font-bold text-lg shadow-lg hover:scale-105 transition-transform text-white ${theme.btn}">
-                            ${appType === 'tierra' ? 'Reintentar 🔄' : 'Try Again 🔄'}
-                        </button>
-                        <button onclick="goBack()" class="px-6 py-3 rounded-full font-bold text-lg shadow-lg hover:scale-105 transition-transform bg-slate-600 text-white hover:bg-slate-500">
-                            ${appType === 'tierra' ? 'Ir al Menú 🏠' : 'Return to Base 🏠'}
-                        </button>
+                    <!-- Available Items -->
+                    <div class="w-full md:w-64 flex flex-col gap-3">
+                        <h4 class="font-bold text-gray-600 text-center border-b pb-2">Grupos:</h4>
+                        <div id="pyramid-items" class="flex flex-col gap-3">
+                            <!-- Items injected by JS -->
+                        </div>
                     </div>
                 </div>
-            `;
-            container.innerHTML = html;
-            showView('result');
+            </div>
+        </div>
+
+        <!-- MEMORY GAME TEMPLATE -->
+        <div id="tpl-memory" class="max-w-4xl mx-auto text-center">
+             <div class="flex justify-between items-center mb-6">
+                <button onclick="exitGame()" class="text-gray-500 hover:text-gray-800 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                <span id="memory-progress" class="font-bold text-pink-800 bg-pink-100 px-4 py-2 rounded-full shadow">Parejas: 0 / X</span>
+            </div>
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl border-4 border-pink-300">
+                <p class="text-gray-600 font-medium mb-4">Encuentra las parejas de símbolos mayas.</p>
+                <div id="memory-grid" class="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 perspective-1000">
+                    <!-- Cards injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- WORD GUESS TEMPLATE -->
+        <div id="tpl-wordguess" class="max-w-3xl mx-auto text-center">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="exitGame()" class="text-gray-500 hover:text-gray-800 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                <span id="word-progress" class="font-bold text-teal-800 bg-teal-100 px-4 py-2 rounded-full shadow">Palabra 1 / X</span>
+            </div>
+            <div class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border-4 border-teal-400">
+                <div class="mb-8">
+                    <p class="text-lg md:text-xl text-teal-900 font-bold bg-teal-50 p-4 rounded-xl border border-teal-200 inline-block shadow-inner">
+                        <span class="text-2xl mr-2">🕵️‍♂️</span> Pista: <span id="word-clue"></span>
+                    </p>
+                </div>
+                
+                <!-- The word display -->
+                <div id="word-display" class="flex justify-center gap-2 mb-10 flex-wrap">
+                    <!-- Letter boxes injected here -->
+                </div>
+
+                <!-- Game Active UI -->
+                <div id="word-active-ui">
+                    <div class="mb-6 flex justify-center items-center gap-2">
+                        <span class="font-bold text-gray-600">Vidas:</span>
+                        <div id="word-lives" class="flex gap-1">
+                            <!-- Hearts injected here -->
+                        </div>
+                    </div>
+                    <div id="word-keyboard" class="flex flex-wrap justify-center gap-2 md:gap-3 max-w-2xl mx-auto">
+                        <!-- Keyboard injected here -->
+                    </div>
+                </div>
+
+                <!-- Word Result UI -->
+                <div id="word-result-ui" class="hidden p-4 rounded-2xl text-2xl font-extrabold animate-bounce mt-8">
+                    <!-- Result text injected here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- AUDIO SYSTEM ---
+        const sounds = {
+            click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+            success: new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'),
+            error: new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3'),
+        };
+
+        // Preload and configure audio
+        Object.values(sounds).forEach(audio => {
+            audio.volume = 0.3;
+        });
+
+        function playSound(type) {
+            // Clone node to allow rapid overlapping plays
+            const soundClone = sounds[type].cloneNode();
+            soundClone.volume = 0.3;
+            soundClone.play().catch(e => console.log("Audio ignored by browser policy until user interaction."));
         }
 
-        // ==========================================
-        // APP 1 DATA & LOGIC: CAPAS DE LA TIERRA
-        // ==========================================
-        const tierraData = [
-            { term: "Corteza", def: "Es la capa más externa, delgada y superficial de la Tierra.", options: ["Corteza", "Manto", "Núcleo Interno", "Suelo"] },
-            { term: "Placas", def: "Grandes fragmentos de litósfera que se mueven sobre el manto.", options: ["Continentes", "Océanos", "Placas", "Rocas"] },
-            { term: "Manto", def: "Capa intermedia, la más gruesa de la Tierra. Tiene un comportamiento plástico.", options: ["Manto", "Litosfera", "Corteza", "Núcleo Externo"] },
-            { term: "Suelo", def: "Capa superior de la Tierra que sustenta la vida vegetal y animal.", options: ["Litosfera", "Suelo", "Corteza", "Placas"] },
-            { term: "Núcleo Externo", def: "Capa de hierro y níquel en estado líquido, situada entre el manto y el núcleo interno.", options: ["Manto Inferior", "Núcleo Interno", "Núcleo Externo", "Litosfera"] },
-            { term: "Litosfera", def: "Parte superior de la Tierra, compuesta por la corteza y parte del manto superior. Es la capa más rígida.", options: ["Litosfera", "Manto", "Núcleo Interno", "Corteza"] },
-            { term: "Núcleo Interno", def: "Capa que se encuentra en el centro de la Tierra. Es la parte más profunda y está en estado sólido.", options: ["Núcleo Externo", "Manto", "Núcleo Interno", "Suelo"] },
-            { term: "Líquido", def: "Corresponde al estado de la materia en el que se encuentra el Núcleo Externo.", options: ["Sólido", "Gaseoso", "Líquido", "Plasmático"] },
-            { term: "Hierro", def: "Principal elemento por el cual se conforma el Núcleo Interno (hasta un 70%).", options: ["Cobre", "Níquel", "Hierro", "Oro"] }
+        // --- DATA ---
+        const TRIVIA_QUESTIONS = [
+            { q: "¿En qué región se ubicó la civilización Maya?", options: ["Los Andes", "Mesoamérica", "Norteamérica", "El Caribe"], a: 1, expl: "Abarcaron el sur de México, Guatemala, Belice, Honduras y El Salvador (Mesoamérica)." },
+            { q: "¿Cómo se organizaban políticamente?", options: ["Gran imperio", "Tribus nómadas", "Ciudades-Estado", "Aldeas"], a: 2, expl: "Eran ciudades independientes con propio gobierno y leyes." },
+            { q: "¿Quién era la máxima autoridad?", options: ["Sacerdote Principal", "El Ahau", "Jefe Guerrero", "Consejo"], a: 1, expl: "El Ahau o rey era considerado un ser divino con poder total." },
+            { q: "¿Cuál fue la base de su economía?", options: ["Ganadería", "Pesca", "Agricultura (maíz)", "Minería"], a: 2, expl: "La agricultura, especialmente el maíz, cultivado mediante tala y roza." },
+            { q: "¿Qué utilizaban como moneda?", options: ["Oro", "Semillas de cacao", "Conchas", "Sal"], a: 1, expl: "El cacao era tan valioso que se usaba para intercambiar productos." },
+            { q: "En matemáticas, ¿qué concepto inventaron?", options: ["Fracciones", "Números negativos", "El cero", "Geometría"], a: 2, expl: "Usaron el cero, representado con una concha, para sus complejos cálculos." },
+            { q: "¿Cómo era su religión?", options: ["Monoteísta", "Sin religión", "Politeísta", "Solo antepasados"], a: 2, expl: "Politeístas: creían en muchos dioses relacionados con la naturaleza (sol, lluvia)." }
         ];
 
-        // --- Tierra: Trivia ---
-        let tQuizState = { currentQ: 0, score: 0, options: [], answered: false };
+        const TF_QUESTIONS = [
+            { q: "Los mayas formaron un gran imperio gobernado por un solo emperador.", a: false, expl: "Eran ciudades-Estado independientes (como Palenque o Tikal)." },
+            { q: "Para cultivar en la selva, cortaban árboles y quemaban maleza.", a: true, expl: "Es el sistema de 'tala y roza' que usaban en sus milpas." },
+            { q: "Las semillas de cacao se usaban para comprar en el mercado.", a: true, expl: "Eran muy valiosas y servían como moneda." },
+            { q: "Los esclavos formaban parte del grupo más privilegiado.", a: false, expl: "Eran el grupo más bajo de la pirámide, sin derechos." },
+            { q: "Los cenotes eran pozos de agua importantes en zonas secas.", a: true, expl: "Eran su fuente principal de agua en lugares sin ríos superficiales." }
+        ];
+
+        const PYRAMID_DATA = [
+            { id: 'ahau', label: '1. Ahau y familia', desc: 'Máxima autoridad.', color: 'bg-red-500' },
+            { id: 'nobles', label: '2. Nobleza', desc: 'Cargos políticos. Sin tributos.', color: 'bg-orange-500' },
+            { id: 'sacerdotes', label: '3. Sacerdotes', desc: 'Rituales, astronomía.', color: 'bg-yellow-500' },
+            { id: 'pueblo', label: '4. Pueblo', desc: 'Campesinos, pagan tributo.', color: 'bg-green-500' },
+            { id: 'esclavos', label: '5. Esclavos', desc: 'Prisioneros, trabajo forzado.', color: 'bg-gray-500' }
+        ];
+
+        const MEMORY_CARDS = [
+            { id: 1, symbol: '🌧️', matchId: 1, name: 'Chaac (Lluvia)' },
+            { id: 2, symbol: '🌧️', matchId: 1, name: 'Chaac (Lluvia)' },
+            { id: 3, symbol: '☀️', matchId: 2, name: 'Kinich Ahau (Sol)' },
+            { id: 4, symbol: '☀️', matchId: 2, name: 'Kinich Ahau (Sol)' },
+            { id: 5, symbol: '🌽', matchId: 3, name: 'Maíz' },
+            { id: 6, symbol: '🌽', matchId: 3, name: 'Maíz' },
+            { id: 7, symbol: '🍫', matchId: 4, name: 'Cacao' },
+            { id: 8, symbol: '🍫', matchId: 4, name: 'Cacao' },
+            { id: 9, symbol: '🛕', matchId: 5, name: 'Templo' },
+            { id: 10, symbol: '🛕', matchId: 5, name: 'Templo' },
+            { id: 11, symbol: '👑', matchId: 6, name: 'Ahau' },
+            { id: 12, symbol: '👑', matchId: 6, name: 'Ahau' },
+        ];
+
+        const WORD_GUESS_WORDS = [
+            { word: "CENOTE", clue: "Pozo de agua subterránea." },
+            { word: "AHAU", clue: "Máxima autoridad de una ciudad-Estado." },
+            { word: "CACAO", clue: "Semilla utilizada como moneda." },
+            { word: "MILPA", clue: "Terreno de cultivo maya." },
+            { word: "CERO", clue: "Número inventado por los mayas (concha)." },
+            { word: "TIKAL", clue: "Famosa ciudad maya en la selva." }
+        ];
+
+        const EMOJIS = ['🐆', '🦜', '🐸', '🐍', '🦅', '🐒', '🦋', '🦎'];
+
+        // --- GLOBAL STATE ---
+        const appState = {
+            users: [], // Array of {name, emoji, message, score}
+            currentUser: null, // Pointer to current user object
+            activeGameId: null, // 'trivia', 'truefalse', etc.
+            
+            // Game Specific States
+            gameScore: 0,
+            
+            // Trivia / TF state
+            qIndex: 0,
+            shuffledQs: [],
+            
+            // Pyramid State
+            pyramidPlaced: [null, null, null, null, null],
+            pyramidAvailable: [],
+            selectedPyramidItem: null,
+            
+            // Memory State
+            memoryCards: [],
+            flippedIndices: [],
+            matchedPairs: [],
+            memoryLocked: false,
+
+            // Word Guess State
+            wordIndex: 0,
+            shuffledWords: [],
+            guessedLetters: [],
+            wordStatus: 'playing' // playing, won_word, lost_word
+        };
+
+        // --- DOM ELEMENTS ---
+        const elScreenLogin = document.getElementById('screen-login');
+        const elScreenDashboard = document.getElementById('screen-dashboard');
+        const elScreenActiveGame = document.getElementById('screen-active-game');
         
-        function startTierraQuiz() {
-            tQuizState = { currentQ: 0, score: 0, options: [], answered: false };
-            showView('tierra-quiz');
-            renderTierraQuiz();
-        }
+        const elViewStudy = document.getElementById('view-study');
+        const elViewGames = document.getElementById('view-games');
+        const elViewRanking = document.getElementById('view-ranking');
+        
+        const elHeaderUserInfo = document.getElementById('header-user-info');
+        const elGameContainer = document.getElementById('game-container');
 
-        function renderTierraQuiz() {
-            const container = document.getElementById('view-tierra-quiz');
-            if (tQuizState.currentQ >= tierraData.length) {
-                showResultScreen(tQuizState.score, tierraData.length, "Trivia Geológica", 'tierra-quiz', 'tierra');
-                return;
-            }
-
-            const currentData = tierraData[tQuizState.currentQ];
-            if (tQuizState.options.length === 0) {
-                tQuizState.options = [...currentData.options].sort(() => Math.random() - 0.5);
-            }
-
-            let html = `
-                <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-blue-300 text-center animate-fade-in-up w-full">
-                    <div class="flex justify-between items-center mb-6 text-blue-500 font-bold">
-                        <span>Pregunta ${tQuizState.currentQ + 1} de ${tierraData.length}</span>
-                        <span>Puntos: ${tQuizState.score} ⭐</span>
-                    </div>
-                    <div class="bg-blue-50 p-6 rounded-2xl mb-8 min-h-[120px] flex items-center justify-center border-2 border-blue-200">
-                        <h3 class="text-xl md:text-2xl font-semibold text-gray-700">"${currentData.def}"</h3>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="tierra-quiz-options">
-            `;
-
-            tQuizState.options.forEach(opt => {
-                let btnClass = "bg-gray-100 hover:bg-blue-100 text-gray-700 border-2 border-gray-200";
-                html += `<button onclick="handleTierraQuizAns('${opt}')" class="p-4 rounded-xl text-lg font-bold transition-all transform active:scale-95 ${btnClass} quiz-btn">${opt}</button>`;
+        // --- INITIALIZATION ---
+        function init() {
+            renderAvatars();
+            
+            // Setup Login Form Validation
+            const inputName = document.getElementById('login-name');
+            const btnStart = document.getElementById('btn-start');
+            
+            inputName.addEventListener('input', () => {
+                if(inputName.value.trim().length >= 3) {
+                    btnStart.disabled = false;
+                    btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btnStart.disabled = true;
+                    btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                }
             });
 
-            html += `</div><div id="tierra-quiz-feedback" class="mt-6 text-2xl font-bold h-8"></div></div>`;
-            container.innerHTML = html;
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
         }
 
-        function handleTierraQuizAns(selected) {
-            if (tQuizState.answered) return;
-            tQuizState.answered = true;
-            initAudio();
+        function renderAvatars() {
+            const container = document.getElementById('avatar-container');
+            container.innerHTML = EMOJIS.map(emoji => `
+                <button type="button" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100" data-emoji="${emoji}">
+                    ${emoji}
+                </button>
+            `).join('');
 
-            const currentData = tierraData[tQuizState.currentQ];
-            const isCorrect = selected === currentData.term;
-            const btns = document.querySelectorAll('.quiz-btn');
-            const feedback = document.getElementById('tierra-quiz-feedback');
-
-            if (isCorrect) {
-                sounds.tierra_correct();
-                tQuizState.score++;
-                feedback.innerHTML = `<span class="text-green-500 animate-bounce block">¡Correcto! 🎉</span>`;
-            } else {
-                sounds.tierra_incorrect();
-                feedback.innerHTML = `<span class="text-red-500 animate-bounce block">¡Casi! Era ${currentData.term} 😅</span>`;
-            }
-
+            // Add click listeners to select avatar
+            const btns = container.querySelectorAll('.avatar-btn');
             btns.forEach(btn => {
-                btn.disabled = true;
-                if (btn.innerText === currentData.term) {
-                    btn.className = "quiz-btn p-4 rounded-xl text-lg font-bold transition-all bg-green-500 text-white border-2 border-green-600 animate-pulse";
-                } else if (btn.innerText === selected && !isCorrect) {
-                    btn.className = "quiz-btn p-4 rounded-xl text-lg font-bold transition-all bg-red-200 text-red-800 border-2 border-red-300 opacity-50";
-                } else {
-                    btn.className = "quiz-btn p-4 rounded-xl text-lg font-bold transition-all bg-gray-100 text-gray-400 border-2 border-gray-200 opacity-50";
-                }
+                btn.addEventListener('click', (e) => {
+                    btns.forEach(b => {
+                        b.classList.remove('bg-amber-200', 'scale-110', 'ring-2', 'ring-amber-500');
+                        b.classList.add('bg-gray-50');
+                    });
+                    const target = e.currentTarget;
+                    target.classList.remove('bg-gray-50');
+                    target.classList.add('bg-amber-200', 'scale-110', 'ring-2', 'ring-amber-500');
+                    target.setAttribute('aria-selected', 'true');
+                });
+            });
+            // Select first by default
+            if(btns.length > 0) btns[0].click();
+        }
+
+        // --- CORE LOGIC ---
+        function handleLogin(e) {
+            e.preventDefault();
+            const name = document.getElementById('login-name').value.trim();
+            const message = document.getElementById('login-message').value.trim();
+            const selectedAvatarBtn = document.querySelector('.avatar-btn[aria-selected="true"]');
+            const emoji = selectedAvatarBtn ? selectedAvatarBtn.dataset.emoji : '🐆';
+
+            playSound('success');
+
+            // Check if user exists
+            let user = appState.users.find(u => u.name.toLowerCase() === name.toLowerCase());
+            if (!user) {
+                user = { name, emoji, message, score: 0 };
+                appState.users.push(user);
+            }
+            appState.currentUser = user;
+
+            // Update UI
+            document.getElementById('header-name').textContent = user.name;
+            document.getElementById('header-emoji').textContent = user.emoji;
+            updateHeaderScore();
+            elHeaderUserInfo.classList.remove('hidden');
+
+            // Switch Screen
+            elScreenLogin.classList.add('hidden');
+            elScreenDashboard.classList.remove('hidden');
+            switchMainTab('study');
+        }
+
+        function switchMainTab(tabId) {
+            playSound('click');
+            // Hide all views
+            elViewStudy.classList.add('hidden');
+            elViewGames.classList.add('hidden');
+            elViewRanking.classList.add('hidden');
+            
+            // Reset Tab styling
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                t.className = "nav-tab px-6 py-3 rounded-xl font-bold transition-all shadow-sm bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-amber-800";
             });
 
-            setTimeout(() => {
-                tQuizState.currentQ++;
-                tQuizState.options = [];
-                tQuizState.answered = false;
-                if(tQuizState.currentQ >= tierraData.length) sounds.tierra_win();
-                renderTierraQuiz();
-            }, 1500);
+            // Show selected view & update tab styling
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            activeTab.className = "nav-tab px-6 py-3 rounded-xl font-bold transition-all shadow-sm bg-amber-600 text-white shadow-amber-600/30 ring-2 ring-amber-600 ring-offset-2";
+
+            if(tabId === 'ranking') updateRankingUI();
         }
 
-        // --- Tierra: Match ---
-        let tMatchState = { terms: [], defs: [], selTerm: null, selDef: null, matched: [] };
-        function startTierraMatch() {
-            const shuffled = [...tierraData].sort(() => 0.5 - Math.random()).slice(0, 5);
-            tMatchState = {
-                terms: shuffled.map(d => d.term).sort(() => 0.5 - Math.random()),
-                defs: shuffled.map(d => ({ term: d.term, text: d.def })).sort(() => 0.5 - Math.random()),
-                selTerm: null, selDef: null, matched: []
-            };
-            showView('tierra-match');
-            renderTierraMatch();
+        function updateHeaderScore() {
+            document.getElementById('header-score').textContent = `${appState.currentUser.score} Semillas`;
         }
 
-        function renderTierraMatch() {
-            const container = document.getElementById('view-tierra-match');
-            if (tMatchState.matched.length === tMatchState.terms.length) {
-                sounds.tierra_win();
-                showResultScreen(5, 5, "Conecta las Capas", 'tierra-match', 'tierra');
+        function addScore(points) {
+            appState.gameScore += points;
+            appState.currentUser.score += points;
+            updateHeaderScore();
+        }
+
+        function updateRankingUI() {
+            const list = document.getElementById('ranking-list');
+            // Sort copy of users
+            const sorted = [...appState.users].sort((a, b) => b.score - a.score);
+            
+            if(sorted.length === 0) {
+                list.innerHTML = `<p class="text-center text-gray-500 italic py-8">Aún no hay exploradores.</p>`;
                 return;
             }
 
-            let html = `<div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-green-300 w-full animate-fade-in-up"><h2 class="text-2xl font-bold text-center text-green-600 mb-6">Toca un concepto y luego su definición</h2><div class="flex flex-col md:flex-row gap-6"><div class="flex-1 flex flex-col gap-3"><h3 class="font-bold text-gray-500 text-center uppercase tracking-wide">Conceptos</h3>`;
-            
-            tMatchState.terms.forEach(t => {
-                const isMatched = tMatchState.matched.includes(t);
-                const isSelected = tMatchState.selTerm === t;
-                let styles = "bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200";
-                if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
-                else if (isSelected) styles = "bg-orange-400 border-orange-500 text-white scale-105 shadow-md";
-                html += `<button ${isMatched?'disabled':''} onclick="selTMatchTerm('${t}')" class="p-4 rounded-xl border-2 font-bold transition-all text-left md:text-center ${styles}">${t}</button>`;
-            });
-
-            html += `</div><div class="flex-1 flex flex-col gap-3"><h3 class="font-bold text-gray-500 text-center uppercase tracking-wide">Definiciones</h3>`;
-            
-            tMatchState.defs.forEach((d, i) => {
-                const isMatched = tMatchState.matched.includes(d.term);
-                const isSelected = tMatchState.selDef && tMatchState.selDef.text === d.text;
-                let styles = "bg-blue-50 border-blue-200 text-gray-700 hover:bg-blue-100";
-                if (isMatched) styles = "bg-green-500 border-green-600 text-white opacity-50 cursor-not-allowed";
-                else if (isSelected) styles = "bg-blue-300 border-blue-400 text-blue-900 scale-105 shadow-md";
-                html += `<button ${isMatched?'disabled':''} onclick="selTMatchDef(${i})" class="p-4 rounded-xl border-2 text-sm md:text-base font-medium transition-all text-left ${styles}">${d.text}</button>`;
-            });
-            html += `</div></div></div>`;
-            container.innerHTML = html;
-            checkTMatch();
+            list.innerHTML = sorted.map((u, i) => `
+                <div class="flex items-center justify-between p-4 rounded-2xl ${i === 0 ? 'bg-yellow-50 border-yellow-200' : i===1 ? 'bg-gray-50 border-gray-200' : i===2 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-100'} border">
+                    <div class="flex items-center gap-4">
+                        <span class="text-2xl font-black ${i===0?'text-yellow-500':i===1?'text-gray-400':i===2?'text-orange-400':'text-gray-300'}">#${i+1}</span>
+                        <span class="text-3xl">${u.emoji}</span>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-lg">${u.name}</h4>
+                            ${u.message ? `<p class="text-sm text-gray-500 italic">"${u.message}"</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="font-black text-amber-700 bg-amber-100 px-4 py-2 rounded-full">${u.score} 🍫</div>
+                </div>
+            `).join('');
         }
 
-        function selTMatchTerm(t) { initAudio(); sounds.click(); tMatchState.selTerm = t; renderTierraMatch(); }
-        function selTMatchDef(i) { initAudio(); sounds.click(); tMatchState.selDef = tMatchState.defs[i]; renderTierraMatch(); }
-        function checkTMatch() {
-            if (tMatchState.selTerm && tMatchState.selDef) {
-                if (tMatchState.selTerm === tMatchState.selDef.term) {
-                    sounds.tierra_correct();
-                    tMatchState.matched.push(tMatchState.selTerm);
-                    tMatchState.selTerm = null; tMatchState.selDef = null;
-                    setTimeout(renderTierraMatch, 300);
+        // ==================== GAMES CONTROLLER ====================
+
+        function loadTemplate(tplId) {
+            const tpl = document.getElementById(tplId).cloneNode(true);
+            tpl.id = 'active-' + tplId;
+            elGameContainer.innerHTML = '';
+            elGameContainer.appendChild(tpl);
+        }
+
+        function startGame(gameId) {
+            playSound('click');
+            appState.activeGameId = gameId;
+            appState.gameScore = 0;
+            
+            elScreenDashboard.classList.add('hidden');
+            elScreenActiveGame.classList.remove('hidden');
+
+            if (gameId === 'trivia') initTrivia();
+            else if (gameId === 'truefalse') initTrueFalse();
+            else if (gameId === 'sortpyramid') initSortPyramid();
+            else if (gameId === 'memory') initMemory();
+            else if (gameId === 'wordguess') initWordGuess();
+        }
+
+        function exitGame() {
+            playSound('click');
+            appState.activeGameId = null;
+            elScreenActiveGame.classList.add('hidden');
+            elScreenDashboard.classList.remove('hidden');
+            elGameContainer.innerHTML = '';
+            // Update Ranking in case score changed
+            updateRankingUI();
+        }
+
+        function showGameFinishedScreen(titleThemeClass, titleText) {
+            loadTemplate('tpl-gamefinished');
+            const titleEl = document.getElementById('finish-title');
+            titleEl.className = `text-4xl md:text-5xl font-extrabold mb-6 ${titleThemeClass}`;
+            titleEl.textContent = titleText;
+            document.getElementById('finish-score').textContent = appState.gameScore;
+            
+            // Set border color based on theme
+            const container = document.getElementById('active-tpl-gamefinished');
+            // Extract color from class (e.g. text-blue-600 -> border-blue-300)
+            const colorMatch = titleThemeClass.match(/text-([a-z]+)-/);
+            if(colorMatch) {
+                container.classList.add(`border-${colorMatch[1]}-300`);
+            }
+        }
+
+        // --- TRIVIA LOGIC ---
+        function initTrivia() {
+            appState.shuffledQs = [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5);
+            appState.qIndex = 0;
+            loadTemplate('tpl-trivia');
+            renderTriviaQuestion();
+        }
+
+        function renderTriviaQuestion() {
+            const q = appState.shuffledQs[appState.qIndex];
+            document.getElementById('trivia-progress').textContent = `Pregunta ${appState.qIndex + 1} / ${appState.shuffledQs.length}`;
+            document.getElementById('trivia-question').textContent = q.q;
+            
+            const optionsContainer = document.getElementById('trivia-options');
+            optionsContainer.innerHTML = q.options.map((opt, i) => `
+                <button onclick="triviaAnswer(${i})" id="trivia-opt-${i}" class="p-4 rounded-xl text-left text-lg md:text-xl transition-all bg-gray-50 border-2 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300">
+                    ${opt}
+                </button>
+            `).join('');
+            
+            document.getElementById('trivia-explanation-box').classList.add('hidden');
+        }
+
+        function triviaAnswer(selectedIndex) {
+            if(!document.getElementById('trivia-explanation-box').classList.contains('hidden')) return; // Prevent double click
+            
+            const q = appState.shuffledQs[appState.qIndex];
+            const isCorrect = selectedIndex === q.a;
+            
+            // Disable all buttons and restyle
+            q.options.forEach((_, i) => {
+                const btn = document.getElementById(`trivia-opt-${i}`);
+                btn.onclick = null; // disable
+                if (i === q.a) {
+                    btn.className = "p-4 rounded-xl text-left text-lg md:text-xl transition-all bg-green-100 border-2 border-green-400 text-green-800 font-bold";
+                } else if (i === selectedIndex) {
+                    btn.className = "p-4 rounded-xl text-left text-lg md:text-xl transition-all bg-red-100 border-2 border-red-400 text-red-800";
                 } else {
-                    sounds.tierra_incorrect();
-                    setTimeout(() => { tMatchState.selTerm = null; tMatchState.selDef = null; renderTierraMatch(); }, 800);
+                    btn.className = "p-4 rounded-xl text-left text-lg md:text-xl transition-all bg-gray-50 border-2 border-gray-200 text-gray-400 opacity-50";
+                }
+            });
+
+            if(isCorrect) {
+                playSound('success');
+                addScore(10);
+            } else {
+                playSound('error');
+            }
+
+            document.getElementById('trivia-explanation').textContent = q.expl;
+            document.getElementById('trivia-explanation-box').classList.remove('hidden');
+        }
+
+        function triviaNextQuestion() {
+            playSound('click');
+            appState.qIndex++;
+            if(appState.qIndex < appState.shuffledQs.length) {
+                renderTriviaQuestion();
+            } else {
+                showGameFinishedScreen('text-blue-600', '¡Trivia Completada! 🎉');
+            }
+        }
+
+        // --- TRUE / FALSE LOGIC ---
+        function initTrueFalse() {
+            appState.shuffledQs = [...TF_QUESTIONS].sort(() => Math.random() - 0.5);
+            appState.qIndex = 0;
+            loadTemplate('tpl-truefalse');
+            renderTFQuestion();
+        }
+
+        function renderTFQuestion() {
+            const q = appState.shuffledQs[appState.qIndex];
+            document.getElementById('tf-progress').textContent = `Pregunta ${appState.qIndex + 1} / ${appState.shuffledQs.length}`;
+            document.getElementById('tf-question').textContent = q.q;
+            document.getElementById('tf-buttons').classList.remove('hidden');
+            document.getElementById('tf-explanation-box').classList.add('hidden');
+        }
+
+        function tfAnswer(selectedBool) {
+            const q = appState.shuffledQs[appState.qIndex];
+            const isCorrect = selectedBool === q.a;
+
+            document.getElementById('tf-buttons').classList.add('hidden');
+            
+            const resultMsg = document.getElementById('tf-result-msg');
+            if(isCorrect) {
+                playSound('success');
+                addScore(10);
+                resultMsg.textContent = '¡Correcto! 🎉';
+                resultMsg.className = 'p-6 rounded-2xl mb-6 text-xl font-bold bg-green-100 text-green-800';
+            } else {
+                playSound('error');
+                resultMsg.textContent = '¡Ups! Incorrecto. 😅';
+                resultMsg.className = 'p-6 rounded-2xl mb-6 text-xl font-bold bg-red-100 text-red-800';
+            }
+
+            document.getElementById('tf-explanation').textContent = q.expl;
+            document.getElementById('tf-explanation-box').classList.remove('hidden');
+        }
+
+        function tfNextQuestion() {
+            playSound('click');
+            appState.qIndex++;
+            if(appState.qIndex < appState.shuffledQs.length) {
+                renderTFQuestion();
+            } else {
+                showGameFinishedScreen('text-green-600', '¡Desafío Completado! ✅');
+            }
+        }
+
+        // --- SORT PYRAMID LOGIC ---
+        function initSortPyramid() {
+            appState.pyramidAvailable = [...PYRAMID_DATA].sort(() => Math.random() - 0.5);
+            appState.pyramidPlaced = [null, null, null, null, null];
+            appState.selectedPyramidItem = null;
+            loadTemplate('tpl-sortpyramid');
+            renderPyramid();
+        }
+
+        function renderPyramid() {
+            // Render Slots
+            const slotsContainer = document.getElementById('pyramid-slots');
+            slotsContainer.innerHTML = appState.pyramidPlaced.map((item, i) => {
+                const widthPercent = 40 + (i * 15);
+                if (item) {
+                    return `<div class="h-20 md:h-24 rounded-lg flex flex-col justify-center items-center shadow-md text-white transition-all ${item.color}" style="width: ${widthPercent}%;">
+                                <span class="font-bold text-sm md:text-base">${item.label}</span>
+                                <span class="text-xs px-2 text-center opacity-90 hidden md:block">${item.desc}</span>
+                            </div>`;
+                } else {
+                    return `<div onclick="pyramidSlotClick(${i})" class="h-20 md:h-24 transition-all duration-300 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-400 bg-gray-100 cursor-pointer hover:bg-purple-50" style="width: ${widthPercent}%;">
+                                <span class="text-gray-400 font-bold text-xl">Nivel ${i + 1}</span>
+                            </div>`;
+                }
+            }).join('');
+
+            // Render Available Items
+            const itemsContainer = document.getElementById('pyramid-items');
+            itemsContainer.innerHTML = appState.pyramidAvailable.map(item => {
+                const isSelected = appState.selectedPyramidItem && appState.selectedPyramidItem.id === item.id;
+                const ringClass = isSelected ? 'ring-4 ring-blue-400 scale-105 opacity-100' : 'hover:scale-105 opacity-90 hover:opacity-100';
+                return `<button onclick="pyramidItemClick('${item.id}')" class="p-3 rounded-lg text-white font-medium shadow-sm transition-all text-left ${item.color} ${ringClass}">
+                            ${item.label}
+                        </button>`;
+            }).join('');
+        }
+
+        function pyramidItemClick(id) {
+            playSound('click');
+            appState.selectedPyramidItem = appState.pyramidAvailable.find(i => i.id === id);
+            renderPyramid(); // re-render to show selection ring
+        }
+
+        function pyramidSlotClick(slotIndex) {
+            if (!appState.selectedPyramidItem) return;
+
+            const correctItemForSlot = PYRAMID_DATA[slotIndex]; // PYRAMID_DATA is in correct order 0-4
+
+            if (appState.selectedPyramidItem.id === correctItemForSlot.id) {
+                playSound('success');
+                // Place item
+                appState.pyramidPlaced[slotIndex] = appState.selectedPyramidItem;
+                // Remove from available
+                appState.pyramidAvailable = appState.pyramidAvailable.filter(i => i.id !== appState.selectedPyramidItem.id);
+                appState.selectedPyramidItem = null;
+                
+                renderPyramid();
+
+                // Check win condition
+                if (appState.pyramidAvailable.length === 0) {
+                    addScore(50);
+                    setTimeout(() => {
+                        showGameFinishedScreen('text-purple-600', '¡Pirámide Construida! 🛕');
+                    }, 800);
+                }
+            } else {
+                playSound('error');
+                // Visual feedback for error could be added here (e.g. shake animation)
+            }
+        }
+
+        // --- MEMORY GAME LOGIC ---
+        function initMemory() {
+            appState.memoryCards = [...MEMORY_CARDS].sort(() => Math.random() - 0.5);
+            appState.flippedIndices = [];
+            appState.matchedPairs = [];
+            appState.memoryLocked = false;
+            loadTemplate('tpl-memory');
+            renderMemoryGrid();
+            updateMemoryProgress();
+        }
+
+        function updateMemoryProgress() {
+            const el = document.getElementById('memory-progress');
+            if(el) el.textContent = `Parejas: ${appState.matchedPairs.length} / ${MEMORY_CARDS.length / 2}`;
+        }
+
+        function renderMemoryGrid() {
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = appState.memoryCards.map((card, i) => {
+                const isFlipped = appState.flippedIndices.includes(i) || appState.matchedPairs.includes(card.matchId);
+                // Creating the 3D card structure
+                return `
+                <div class="aspect-square relative cursor-pointer group perspective-1000" onclick="memoryCardClick(${i})">
+                    <div id="mem-card-inner-${i}" class="w-full h-full relative transform-style-3d transition-transform duration-500 ${isFlipped ? 'rotate-y-180' : 'group-hover:scale-105'}">
+                        <!-- Front (Hidden side) -->
+                        <div class="absolute w-full h-full bg-pink-500 border-4 border-pink-600 rounded-xl shadow-md flex items-center justify-center backface-hidden">
+                            <span class="text-4xl text-pink-200">?</span>
+                        </div>
+                        <!-- Back (Revealed side) -->
+                        <div class="absolute w-full h-full bg-pink-50 border-4 border-pink-300 rounded-xl shadow-md flex flex-col items-center justify-center backface-hidden rotate-y-180">
+                            <span class="text-4xl md:text-5xl">${card.symbol}</span>
+                            <span class="text-[10px] md:text-xs text-pink-800 font-bold mt-1 text-center px-1 leading-tight">${card.name}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function memoryCardClick(index) {
+            if (appState.memoryLocked) return;
+            if (appState.flippedIndices.includes(index)) return;
+            if (appState.matchedPairs.includes(appState.memoryCards[index].matchId)) return;
+
+            playSound('click');
+            appState.flippedIndices.push(index);
+            
+            // Flip animation class
+            document.getElementById(`mem-card-inner-${index}`).classList.add('rotate-y-180');
+            document.getElementById(`mem-card-inner-${index}`).classList.remove('group-hover:scale-105');
+
+            if (appState.flippedIndices.length === 2) {
+                appState.memoryLocked = true;
+                const [idx1, idx2] = appState.flippedIndices;
+                const matchId1 = appState.memoryCards[idx1].matchId;
+                const matchId2 = appState.memoryCards[idx2].matchId;
+
+                if (matchId1 === matchId2) {
+                    // Match found
+                    setTimeout(() => {
+                        playSound('success');
+                        appState.matchedPairs.push(matchId1);
+                        addScore(15);
+                        updateMemoryProgress();
+                        appState.flippedIndices = [];
+                        appState.memoryLocked = false;
+                        
+                        // Check win
+                        if (appState.matchedPairs.length === MEMORY_CARDS.length / 2) {
+                            setTimeout(() => {
+                                showGameFinishedScreen('text-pink-600', '¡Memoria de Jaguar! 🐆');
+                            }, 500);
+                        }
+                    }, 400); // small delay before success sound
+                } else {
+                    // No match
+                    setTimeout(() => {
+                        playSound('error');
+                        // Flip back
+                        document.getElementById(`mem-card-inner-${idx1}`).classList.remove('rotate-y-180');
+                        document.getElementById(`mem-card-inner-${idx1}`).classList.add('group-hover:scale-105');
+                        document.getElementById(`mem-card-inner-${idx2}`).classList.remove('rotate-y-180');
+                        document.getElementById(`mem-card-inner-${idx2}`).classList.add('group-hover:scale-105');
+                        
+                        appState.flippedIndices = [];
+                        appState.memoryLocked = false;
+                    }, 1000);
                 }
             }
         }
 
-        // --- Tierra: Words ---
-        let tWordsData = [];
-        let tWordsState = { currentIdx: 0, guessed: [], score: 0 };
-        function startTierraWords() {
-            tWordsData = tierraData.filter(d => !d.term.includes(" ")).map(d => ({
-                word: d.term.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
-                clue: d.def
-            }));
-            tWordsState = { currentIdx: 0, guessed: [], score: 0 };
-            showView('tierra-words');
-            renderTierraWords();
+        // --- WORD GUESS LOGIC ---
+        function initWordGuess() {
+            // Pick 4 random words for a round
+            appState.shuffledWords = [...WORD_GUESS_WORDS].sort(() => Math.random() - 0.5).slice(0, 4);
+            appState.wordIndex = 0;
+            appState.guessedLetters = [];
+            appState.wordStatus = 'playing';
+            loadTemplate('tpl-wordguess');
+            renderWordLevel();
         }
 
-        function renderTierraWords() {
-            const container = document.getElementById('view-tierra-words');
-            if (tWordsState.currentIdx >= tWordsData.length) {
-                showResultScreen(tWordsState.score, tWordsData.length, "Palabra Oculta", 'tierra-words', 'tierra');
-                return;
+        function renderWordLevel() {
+            const level = appState.shuffledWords[appState.wordIndex];
+            document.getElementById('word-progress').textContent = `Palabra ${appState.wordIndex + 1} / ${appState.shuffledWords.length}`;
+            document.getElementById('word-clue').textContent = level.clue;
+            
+            // Reset UI states
+            document.getElementById('word-active-ui').classList.remove('hidden');
+            document.getElementById('word-result-ui').classList.add('hidden');
+            appState.wordStatus = 'playing';
+            appState.guessedLetters = [];
+            
+            renderWordDisplay();
+            renderWordKeyboard();
+        }
+
+        function renderWordDisplay() {
+            const word = appState.shuffledWords[appState.wordIndex].word;
+            const display = document.getElementById('word-display');
+            
+            display.innerHTML = word.split('').map(letter => {
+                const isRevealed = appState.guessedLetters.includes(letter) || appState.wordStatus === 'lost_word';
+                const isMissed = appState.wordStatus === 'lost_word' && !appState.guessedLetters.includes(letter);
+                
+                let classes = "w-10 h-12 md:w-14 md:h-16 flex items-center justify-center text-2xl md:text-4xl font-extrabold border-b-4 rounded-t-lg mx-1 transition-all ";
+                if (isRevealed) classes += "border-teal-600 bg-teal-50 text-teal-900";
+                else classes += "border-gray-400 bg-gray-100";
+                
+                if (isMissed) classes += " text-red-500"; // Highlight letters missed when lost
+
+                return `<span class="${classes}">${isRevealed ? letter : ''}</span>`;
+            }).join('');
+
+            // Render Lives
+            renderLives();
+        }
+
+        function renderLives() {
+            const word = appState.shuffledWords[appState.wordIndex].word;
+            const mistakes = appState.guessedLetters.filter(l => !word.includes(l)).length;
+            const maxMistakes = 6;
+            
+            const livesContainer = document.getElementById('word-lives');
+            if(livesContainer) {
+                let hearts = '';
+                for(let i=0; i<maxMistakes; i++) {
+                    const isAlive = i < (maxMistakes - mistakes);
+                    hearts += `<span class="text-xl transition-all ${isAlive ? 'text-teal-500' : 'text-red-300 opacity-50 grayscale'}">❤️</span>`;
+                }
+                livesContainer.innerHTML = hearts;
             }
+        }
 
-            const currentData = tWordsData[tWordsState.currentIdx];
-            const wordLetters = currentData.word.split('');
-            const isWordGuessed = wordLetters.every(l => tWordsState.guessed.includes(l));
+        function renderWordKeyboard() {
+            const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+            const word = appState.shuffledWords[appState.wordIndex].word;
+            const keyboard = document.getElementById('word-keyboard');
+            
+            keyboard.innerHTML = alphabet.map(letter => {
+                const isGuessed = appState.guessedLetters.includes(letter);
+                const isCorrect = isGuessed && word.includes(letter);
+                const isWrong = isGuessed && !word.includes(letter);
+                
+                let btnClass = "w-10 h-10 md:w-12 md:h-12 text-lg md:text-xl font-bold rounded-lg shadow-sm transition-all ";
+                let disabledAttr = isGuessed ? 'disabled' : '';
 
-            let html = `<div class="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-purple-300 text-center w-full animate-fade-in-up">
-                <div class="flex justify-between items-center mb-4 text-purple-500 font-bold"><span>Palabra ${tWordsState.currentIdx + 1} de ${tWordsData.length}</span><span>Puntos: ${tWordsState.score} ⭐</span></div>
-                <div class="bg-purple-100 p-4 rounded-xl mb-8 border-2 border-purple-200"><p class="text-purple-800 font-medium text-lg">Pista: ${currentData.clue}</p></div>
-                <div class="flex flex-wrap justify-center gap-2 mb-10">`;
+                if (isCorrect) btnClass += "bg-teal-500 text-white border-b-4 border-teal-700 opacity-80 cursor-default";
+                else if (isWrong) btnClass += "bg-red-400 text-white border-b-4 border-red-600 opacity-50 cursor-default";
+                else btnClass += "bg-gray-100 text-gray-800 hover:bg-gray-200 border-b-4 border-gray-300 active:border-b-0 active:translate-y-1";
 
-            wordLetters.forEach(l => {
-                const show = tWordsState.guessed.includes(l);
-                html += `<div class="w-12 h-14 md:w-16 md:h-20 bg-gray-100 border-b-4 border-purple-600 rounded-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-purple-800 shadow-inner">${show ? l : ''}</div>`;
-            });
-            html += `</div>`;
+                return `<button onclick="wordGuessLetter('${letter}')" ${disabledAttr} class="${btnClass}">${letter}</button>`;
+            }).join('');
+        }
+
+        function wordGuessLetter(letter) {
+            if (appState.wordStatus !== 'playing') return;
+            if (appState.guessedLetters.includes(letter)) return;
+
+            playSound('click');
+            appState.guessedLetters.push(letter);
+            
+            const word = appState.shuffledWords[appState.wordIndex].word;
+            const mistakes = appState.guessedLetters.filter(l => !word.includes(l)).length;
+            const isWordGuessed = word.split('').every(l => appState.guessedLetters.includes(l));
+
+            renderWordDisplay();
+            renderWordKeyboard();
 
             if (isWordGuessed) {
-                html += `<div class="text-2xl font-bold text-green-500 animate-bounce mb-6">¡Excelente! 🎉</div>`;
-                if(!tWordsState.winTriggered) {
-                    tWordsState.winTriggered = true;
-                    sounds.tierra_correct();
-                    setTimeout(() => {
-                        tWordsState.score++; tWordsState.currentIdx++; tWordsState.guessed = []; tWordsState.winTriggered = false;
-                        if(tWordsState.currentIdx >= tWordsData.length) sounds.tierra_win();
-                        renderTierraWords();
-                    }, 1500);
-                }
+                appState.wordStatus = 'won_word';
+                playSound('success');
+                const pointsEarned = Math.max(5, 20 - (mistakes * 2));
+                addScore(pointsEarned);
+                showWordResult(true, word);
+            } else if (mistakes >= 6) {
+                appState.wordStatus = 'lost_word';
+                playSound('error');
+                showWordResult(false, word);
+                renderWordDisplay(); // Re-render to show missing letters in red
             }
-
-            const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
-            html += `<div class="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">`;
-            alphabet.forEach(l => {
-                const isGuessed = tWordsState.guessed.includes(l);
-                const isCorrect = isGuessed && wordLetters.includes(l);
-                const isWrong = isGuessed && !wordLetters.includes(l);
-                let btnColor = "bg-white border-gray-300 text-gray-700 hover:bg-purple-50";
-                if (isCorrect) btnColor = "bg-green-500 border-green-600 text-white";
-                if (isWrong) btnColor = "bg-gray-300 border-gray-400 text-gray-500 opacity-50";
-                html += `<button ${isGuessed || isWordGuessed ? 'disabled' : ''} onclick="guessTWord('${l}')" class="w-10 h-12 md:w-12 md:h-14 rounded-lg border-b-4 font-bold text-lg md:text-xl transition-colors ${btnColor}">${l}</button>`;
-            });
-            html += `</div></div>`;
-            container.innerHTML = html;
         }
 
-        function guessTWord(l) {
-            initAudio(); sounds.click();
-            const currentData = tWordsData[tWordsState.currentIdx];
-            if (!currentData.word.includes(l)) sounds.tierra_incorrect();
-            tWordsState.guessed.push(l);
-            renderTierraWords();
-        }
-
-        // --- Tierra: Ordena las Capas ---
-        const correctTierraLayers = ["Corteza", "Manto", "Núcleo Externo", "Núcleo Interno"];
-        const layerEmojis = {"Corteza": "🪨", "Manto": "🌋", "Núcleo Externo": "🌊", "Núcleo Interno": "🔥"};
-        let tSortState = { currentItems: [], isChecked: false, isCorrect: false };
-        
-        function startTierraSort() {
-            tSortState.currentItems = [...correctTierraLayers].sort(() => Math.random() - 0.5);
-            tSortState.isChecked = false; tSortState.isCorrect = false;
-            showView('tierra-sort'); renderTierraSort();
-        }
-        
-        function renderTierraSort() {
-            const container = document.getElementById('view-tierra-sort');
-            let html = `<div class="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-yellow-400 text-center animate-fade-in-up w-full">
-                <h2 class="text-xl md:text-3xl font-black text-yellow-600 mb-2 drop-shadow-sm">4. Ordena las Capas</h2>
-                <p class="text-slate-600 mb-6 font-medium">Ordena desde el exterior (arriba) hasta el centro de la Tierra (abajo).</p>
-                <div class="flex flex-col gap-3 mb-8 px-4 relative">
-                    <div class="absolute -left-2 top-0 bottom-0 w-2 bg-gradient-to-b from-green-400 via-orange-400 to-red-600 rounded-full"></div>
-                    <div class="absolute -left-7 top-0 text-3xl animate-bounce">🌱</div>
-                    <div class="absolute -left-7 bottom-0 text-3xl animate-pulse">🔥</div>`;
+        function showWordResult(won, word) {
+            document.getElementById('word-active-ui').classList.add('hidden');
+            const resultUi = document.getElementById('word-result-ui');
+            resultUi.classList.remove('hidden');
             
-            tSortState.currentItems.forEach((item, index) => {
-                html += `<div class="flex items-center justify-between p-3 rounded-xl border-2 border-slate-200 bg-slate-50 shadow-sm transition-transform"><div class="flex items-center gap-3"><span class="font-black text-slate-400 text-lg w-6">${index + 1}.</span><span class="text-2xl">${layerEmojis[item]}</span><span class="font-bold text-lg text-slate-700">${item}</span></div><div class="flex gap-2"><button onclick="moveTierraSort(${index}, -1)" ${index === 0 || tSortState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-slate-200 hover:bg-yellow-400 text-slate-700 hover:text-white rounded-lg flex items-center justify-center font-black text-xl disabled:opacity-30 disabled:hover:bg-slate-200 disabled:hover:text-slate-700 transition-colors shadow-sm">↑</button><button onclick="moveTierraSort(${index}, 1)" ${index === tSortState.currentItems.length - 1 || tSortState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-slate-200 hover:bg-yellow-400 text-slate-700 hover:text-white rounded-lg flex items-center justify-center font-black text-xl disabled:opacity-30 disabled:hover:bg-slate-200 disabled:hover:text-slate-700 transition-colors shadow-sm">↓</button></div></div>`;
-            });
-            html += `</div>`;
-            if (tSortState.isChecked) {
-                if (tSortState.isCorrect) { 
-                    html += `<div class="text-2xl font-black text-green-500 animate-bounce mb-6 drop-shadow-md">¡Excelente trabajo! 🌍</div>`; 
-                    if(!tSortState.winTriggered){ tSortState.winTriggered = true; setTimeout(() => { tSortState.winTriggered = false; showResultScreen(1, 1, "Ordena las Capas", 'tierra-sort', 'tierra'); }, 1500); }
-                } 
-                else { html += `<div class="text-xl font-bold text-red-500 mb-6 drop-shadow-md">Ese no es el orden correcto. ¡Intenta de nuevo!</div><button onclick="startTierraSort()" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-3 rounded-full font-black shadow-lg hover:scale-105 transition-transform">Reintentar</button>`; }
-            } else { html += `<button onclick="checkTierraSort()" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-3 rounded-full font-black text-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all w-full md:w-auto">Comprobar Orden</button>`; }
-            html += `</div>`; container.innerHTML = html;
-        }
-        
-        function moveTierraSort(index, direction) { initAudio(); sounds.click(); const newIndex = index + direction; if (newIndex < 0 || newIndex >= tSortState.currentItems.length) return; const items = [...tSortState.currentItems]; [items[index], items[newIndex]] = [items[newIndex], items[index]]; tSortState.currentItems = items; renderTierraSort(); }
-        function checkTierraSort() { initAudio(); tSortState.isChecked = true; tSortState.isCorrect = JSON.stringify(tSortState.currentItems) === JSON.stringify(correctTierraLayers); if (tSortState.isCorrect) sounds.tierra_win(); else sounds.tierra_incorrect(); renderTierraSort(); }
-
-        // --- Tierra: Verdadero o Falso ---
-        const tTFData = [
-            { q: "La corteza es la capa más gruesa de la Tierra.", ans: false },
-            { q: "El manto tiene un comportamiento plástico.", ans: true },
-            { q: "El núcleo externo está en estado líquido.", ans: true },
-            { q: "La litosfera es la capa más rígida.", ans: true },
-            { q: "El núcleo interno está hecho de agua y sal.", ans: false },
-            { q: "Las placas tectónicas se mueven sobre el manto.", ans: true },
-            { q: "El núcleo externo está en el centro mismo de la Tierra.", ans: false }
-        ];
-        let tTFState = { currentQ: 0, score: 0, answered: false, selected: null };
-
-        function startTierraTF() {
-            tTFState = { currentQ: 0, score: 0, answered: false, selected: null };
-            tTFData.sort(() => Math.random() - 0.5); // Barajar preguntas
-            showView('tierra-tf'); renderTierraTF();
-        }
-
-        function renderTierraTF() {
-            const container = document.getElementById('view-tierra-tf');
-            if (tTFState.currentQ >= 5) { // Jugar solo 5 rondas para hacerlo rápido
-                showResultScreen(tTFState.score, 5, "Verdadero o Falso", 'tierra-tf', 'tierra');
-                return;
-            }
-
-            const currentData = tTFData[tTFState.currentQ];
-            
-            let html = `
-                <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border-4 border-rose-300 text-center animate-fade-in-up w-full">
-                    <div class="flex justify-between items-center mb-6 text-rose-500 font-bold">
-                        <span>Pregunta ${tTFState.currentQ + 1} de 5</span>
-                        <span>Puntos: ${tTFState.score} ⭐</span>
-                    </div>
-                    
-                    <div class="text-6xl mb-4 animate-bounce-hover">🤔</div>
-                    
-                    <div class="bg-rose-50 p-6 rounded-2xl mb-8 min-h-[140px] flex items-center justify-center border-2 border-rose-200">
-                        <h3 class="text-xl md:text-3xl font-bold text-slate-800 leading-tight">"${currentData.q}"</h3>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            `;
-
-            let btnVClass = "bg-green-100 hover:bg-green-200 text-green-700 border-green-300";
-            let btnFClass = "bg-red-100 hover:bg-red-200 text-red-700 border-red-300";
-
-            if (tTFState.answered) {
-                if (currentData.ans === true) btnVClass = "bg-green-500 text-white border-green-600 shadow-lg scale-105";
-                else if (tTFState.selected === true) btnVClass = "bg-red-500 text-white border-red-600 opacity-50";
-                else btnVClass = "bg-gray-100 text-gray-400 border-gray-200 opacity-50";
-
-                if (currentData.ans === false) btnFClass = "bg-green-500 text-white border-green-600 shadow-lg scale-105";
-                else if (tTFState.selected === false) btnFClass = "bg-red-500 text-white border-red-600 opacity-50";
-                else btnFClass = "bg-gray-100 text-gray-400 border-gray-200 opacity-50";
-            }
-
-            html += `<button ${tTFState.answered ? 'disabled' : ''} onclick="handleTierraTF(true)" class="p-6 rounded-2xl text-2xl font-black transition-all transform border-4 flex items-center justify-center gap-3 ${btnVClass}"><span class="text-3xl">✅</span> VERDADERO</button>`;
-            html += `<button ${tTFState.answered ? 'disabled' : ''} onclick="handleTierraTF(false)" class="p-6 rounded-2xl text-2xl font-black transition-all transform border-4 flex items-center justify-center gap-3 ${btnFClass}"><span class="text-3xl">❌</span> FALSO</button>`;
-
-            html += `</div></div>`;
-            container.innerHTML = html;
-        }
-
-        function handleTierraTF(ans) {
-            if (tTFState.answered) return;
-            initAudio();
-            tTFState.answered = true;
-            tTFState.selected = ans;
-
-            const isCorrect = ans === tTFData[tTFState.currentQ].ans;
-            if (isCorrect) {
-                sounds.tierra_correct();
-                tTFState.score++;
+            if (won) {
+                resultUi.className = "p-4 rounded-2xl text-2xl font-extrabold animate-bounce mt-8 text-teal-600 bg-teal-100";
+                resultUi.textContent = '¡Palabra Descubierta! 🎉';
             } else {
-                sounds.tierra_incorrect();
+                resultUi.className = "p-4 rounded-2xl text-2xl font-extrabold animate-bounce mt-8 text-red-600 bg-red-100";
+                resultUi.textContent = `¡Ups! La palabra era ${word}`;
             }
-
-            renderTierraTF();
 
             setTimeout(() => {
-                tTFState.currentQ++;
-                tTFState.answered = false;
-                tTFState.selected = null;
-                if(tTFState.currentQ >= 5) sounds.tierra_win();
-                renderTierraTF();
-            }, 1500);
-        }
-
-        // --- Tierra: Imagen Interactiva (Etiqueta las Capas) ---
-        const tImgCorrect = {
-            slot1: "Corteza",
-            slot2: "Manto",
-            slot3: "Núcleo externo",
-            slot4: "Núcleo interno"
-        };
-        let tImgState = {
-            selectedTag: null,
-            placed: { slot1: null, slot2: null, slot3: null, slot4: null },
-            available: [],
-            isChecked: false,
-            isCorrect: false
-        };
-
-        function startTierraImage() {
-            tImgState = {
-                selectedTag: null,
-                placed: { slot1: null, slot2: null, slot3: null, slot4: null },
-                available: ["Manto", "Corteza", "Núcleo interno", "Núcleo externo"].sort(() => Math.random() - 0.5),
-                isChecked: false,
-                isCorrect: false
-            };
-            showView('tierra-image');
-            renderTierraImage();
-        }
-
-        function renderTierraImage() {
-            const container = document.getElementById('view-tierra-image');
-            let html = `
-                <div class="max-w-3xl mx-auto bg-white p-4 md:p-8 rounded-3xl shadow-xl border-4 border-teal-300 text-center animate-fade-in-up w-full">
-                    <h2 class="text-2xl font-black text-teal-600 mb-2 drop-shadow-sm">6. Etiqueta la Estructura</h2>
-                    <p class="text-slate-500 mb-6 font-medium text-sm sm:text-base">Toca un nombre abajo y luego toca el número donde corresponde en el dibujo.</p>
-
-                    <!-- CONTENEDOR DIBUJO SVG -->
-                    <div class="relative w-full max-w-sm mx-auto mb-8">
-                        <svg viewBox="0 0 420 400" class="w-full h-auto drop-shadow-xl">
-                            <!-- Fondo Suave -->
-                            <circle cx="200" cy="200" r="195" fill="#f0f9ff" opacity="0.6"/>
-                            
-                            <!-- MITAD IZQUIERDA (Globo Terráqueo) -->
-                            <!-- Océanos -->
-                            <path d="M 200,40 A 160,160 0 0,0 200,360 Z" fill="#3b82f6" />
-                            <!-- Continentes simulados -->
-                            <path d="M 180,60 Q 130,70 110,120 Q 150,150 180,120 Z" fill="#22c55e" />
-                            <path d="M 190,180 Q 130,200 120,280 Q 170,340 195,310 Z" fill="#22c55e" />
-                            <path d="M 90,170 Q 40,190 55,260 Q 100,240 115,190 Z" fill="#22c55e" />
-
-                            <!-- MITAD DERECHA (Corte transversal - Capas) -->
-                            <!-- 1. Corteza -->
-                            <path d="M 200,40 A 160,160 0 0,1 200,360 Z" fill="#8b4513" />
-                            <!-- 2. Manto -->
-                            <path d="M 200,50 A 150,150 0 0,1 200,350 Z" fill="#ea580c" />
-                            <!-- 3. Núcleo Externo -->
-                            <path d="M 200,110 A 90,90 0 0,1 200,290 Z" fill="#f97316" />
-                            <!-- 4. Núcleo Interno -->
-                            <path d="M 200,155 A 45,45 0 0,1 200,245 Z" fill="#facc15" />
-
-                            <!-- LINEAS Y NUMEROS -->
-                            <!-- Línea 1 (Corteza) -->
-                            <polyline points="295,95 340,50 375,50" stroke="#334155" stroke-width="3" fill="none" />
-                            <circle cx="375" cy="50" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
-                            <text x="375" y="56" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">1</text>
-
-                            <!-- Línea 2 (Manto) -->
-                            <polyline points="315,160 350,130 375,130" stroke="#334155" stroke-width="3" fill="none" />
-                            <circle cx="375" cy="130" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
-                            <text x="375" y="136" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">2</text>
-
-                            <!-- Línea 3 (Núcleo Ext) -->
-                            <polyline points="265,225 310,230 375,230" stroke="#334155" stroke-width="3" fill="none" />
-                            <circle cx="375" cy="230" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
-                            <text x="375" y="236" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">3</text>
-
-                            <!-- Línea 4 (Núcleo Int) -->
-                            <polyline points="215,225 260,300 375,300" stroke="#334155" stroke-width="3" fill="none" />
-                            <circle cx="375" cy="300" r="16" fill="#14b8a6" stroke="#fff" stroke-width="2" />
-                            <text x="375" y="306" font-size="16" fill="white" font-family="sans-serif" font-weight="bold" text-anchor="middle">4</text>
-                        </svg>
-                    </div>
-
-                    <!-- CAJAS DE DESTINO -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-            `;
-
-            [1, 2, 3, 4].forEach(num => {
-                const slotKey = 'slot' + num;
-                const placedTag = tImgState.placed[slotKey];
-                const bgClass = placedTag ? 'bg-teal-50 border-teal-500 shadow-inner' : 'bg-slate-50 border-slate-300 hover:bg-slate-100';
-                
-                html += `
-                    <button onclick="placeTImgSlot('${slotKey}')" class="p-3 border-2 border-dashed rounded-xl flex items-center justify-start gap-3 transition-colors ${bgClass}">
-                        <span class="w-8 h-8 rounded-full bg-teal-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm">${num}</span>
-                        <span class="font-bold ${placedTag ? 'text-teal-700' : 'text-slate-400'} text-sm sm:text-lg flex-grow text-left">${placedTag || 'Toca para colocar aquí...'}</span>
-                        ${placedTag ? '<span class="text-xs text-red-400 hover:text-red-600">✖</span>' : ''}
-                    </button>
-                `;
-            });
-
-            html += `</div>
-                    <!-- ETIQUETAS DISPONIBLES -->
-                    <div class="bg-slate-100 p-4 rounded-2xl min-h-[80px] flex flex-wrap justify-center items-center gap-3 border-2 border-slate-200">
-            `;
-            
-            if (tImgState.available.length === 0) {
-                html += `<span class="text-slate-400 font-medium italic">¡Todas las etiquetas están en su lugar!</span>`;
-            } else {
-                tImgState.available.forEach(tag => {
-                    const isSelected = tImgState.selectedTag === tag;
-                    const styleClass = isSelected ? 'bg-orange-500 text-white border-orange-600 scale-110 shadow-lg' : 'bg-white text-slate-700 border-slate-300 hover:bg-orange-50 hover:border-orange-300 shadow-sm';
-                    html += `<button onclick="selectTImgTag('${tag}')" class="px-5 py-2 border-2 rounded-full font-bold text-sm sm:text-base transition-all transform ${styleClass}">${tag}</button>`;
-                });
-            }
-
-            html += `</div>`;
-
-            // CONTROLES DE COMPROBACIÓN
-            if (tImgState.available.length === 0 && !tImgState.isChecked) {
-                html += `<div class="mt-8"><button onclick="checkTierraImage()" class="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-8 py-3 rounded-full font-black text-xl shadow-lg hover:scale-105 transition-transform animate-pulse">Comprobar Esquema</button></div>`;
-            } else if (tImgState.isChecked) {
-                if (tImgState.isCorrect) {
-                    html += `<div class="mt-6 text-2xl font-black text-green-500 animate-bounce drop-shadow-md">¡Esquema Perfecto! 🎓</div>`;
-                    if(!tImgState.winTriggered){ 
-                        tImgState.winTriggered = true; 
-                        setTimeout(() => showResultScreen(4, 4, "Etiqueta las Capas", 'tierra-image', 'tierra'), 1500); 
-                    }
+                appState.wordIndex++;
+                if (appState.wordIndex < appState.shuffledWords.length) {
+                    renderWordLevel();
                 } else {
-                    html += `
-                        <div class="mt-6 text-xl font-bold text-red-500 drop-shadow-md">Algunas capas no están en su lugar correcto.</div>
-                        <button onclick="startTierraImage()" class="mt-4 bg-gradient-to-r from-teal-400 to-teal-500 text-white px-8 py-3 rounded-full font-black shadow-lg hover:scale-105 transition-transform">Intentar de nuevo</button>
-                    `;
+                    showGameFinishedScreen('text-teal-600', '¡Descifrador de Códices! 📜');
                 }
-            }
-
-            html += `</div>`;
-            container.innerHTML = html;
+            }, 2500);
         }
 
-        function selectTImgTag(tag) {
-            initAudio(); sounds.click();
-            tImgState.selectedTag = tImgState.selectedTag === tag ? null : tag;
-            renderTierraImage();
-        }
-
-        function placeTImgSlot(slotKey) {
-            initAudio();
-            
-            // Si hay un tag seleccionado para colocar
-            if (tImgState.selectedTag) {
-                sounds.click();
-                // Si el slot ya tenía algo, lo devolvemos a disponibles
-                if (tImgState.placed[slotKey]) {
-                    tImgState.available.push(tImgState.placed[slotKey]);
-                }
-                // Colocamos el nuevo tag y lo sacamos de disponibles
-                tImgState.placed[slotKey] = tImgState.selectedTag;
-                tImgState.available = tImgState.available.filter(t => t !== tImgState.selectedTag);
-                tImgState.selectedTag = null;
-            } 
-            // Si no hay tag seleccionado, pero tocamos un slot ocupado (para sacarlo)
-            else if (tImgState.placed[slotKey]) {
-                sounds.click();
-                tImgState.available.push(tImgState.placed[slotKey]);
-                tImgState.placed[slotKey] = null;
-            }
-            renderTierraImage();
-        }
-
-        function checkTierraImage() {
-            initAudio();
-            tImgState.isChecked = true;
-            tImgState.isCorrect = true;
-            
-            for (let slot in tImgCorrect) {
-                if (tImgState.placed[slot] !== tImgCorrect[slot]) {
-                    tImgState.isCorrect = false;
-                }
-            }
-            
-            if (tImgState.isCorrect) sounds.tierra_win();
-            else sounds.tierra_incorrect();
-            
-            renderTierraImage();
-        }
-
-        // ==========================================
-        // APP 2 DATA & LOGIC: SPACE MISSION
-        // ==========================================
-        function renderEspacioMenu() {
-            const html = `
-                <div class="flex flex-col gap-6 max-w-4xl w-full mx-auto animate-fade-in-up">
-                    <div class="text-center mb-4">
-                        <h2 class="text-white text-xl sm:text-3xl font-bold mb-2">¡Bienvenido Cadete!</h2>
-                        <p class="text-slate-300">Selecciona una misión para practicar tu inglés espacial.</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <button onclick="startSpaceMemory()" class="group relative w-full bg-gradient-to-r from-blue-700 to-indigo-800 rounded-3xl p-6 border-2 border-indigo-400 shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] transition-all transform hover:-translate-y-2 overflow-hidden text-left">
-                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity"></div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-5xl group-hover:animate-bounce">🌌</div>
-                                <div>
-                                    <h3 class="text-xl font-black text-white drop-shadow-md">Misión 1: Memoria</h3>
-                                    <p class="text-blue-200 font-medium text-sm">Vocabulario del espacio</p>
-                                </div>
-                            </div>
-                        </button>
-
-                        <button onclick="startSpaceOrdinals()" class="group relative w-full bg-gradient-to-r from-cyan-600 to-blue-900 rounded-3xl p-6 border-2 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] transition-all transform hover:-translate-y-2 overflow-hidden text-left">
-                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity"></div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-5xl group-hover:animate-ping">☄️</div>
-                                <div>
-                                    <h3 class="text-xl font-black text-white drop-shadow-md">Misión 2: Ordinales</h3>
-                                    <p class="text-cyan-200 font-medium text-sm">Asteroides Ordinales</p>
-                                </div>
-                            </div>
-                        </button>
-
-                        <button onclick="startSpaceGear()" class="group relative w-full bg-gradient-to-r from-emerald-600 to-teal-800 rounded-3xl p-6 border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all transform hover:-translate-y-2 overflow-hidden text-left">
-                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity"></div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-5xl group-hover:animate-pulse">🧑‍🚀</div>
-                                <div>
-                                    <h3 class="text-xl font-black text-white drop-shadow-md">Misión 3: Astronaut Gear</h3>
-                                    <p class="text-emerald-200 font-medium text-sm">Partes del traje espacial</p>
-                                </div>
-                            </div>
-                        </button>
-
-                        <button onclick="startSpacePlanets()" class="group relative w-full bg-gradient-to-r from-orange-600 to-red-800 rounded-3xl p-6 border-2 border-orange-400 shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_30px_rgba(234,88,12,0.6)] transition-all transform hover:-translate-y-2 overflow-hidden text-left">
-                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity"></div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-5xl group-hover:animate-spin">☀️</div>
-                                <div>
-                                    <h3 class="text-xl font-black text-white drop-shadow-md">Misión 4: The Planets</h3>
-                                    <p class="text-orange-200 font-medium text-sm">Ordena el sistema solar</p>
-                                </div>
-                            </div>
-                        </button>
-
-                        <button onclick="startSpaceRoutine()" class="md:col-span-2 group relative w-full bg-gradient-to-r from-purple-600 to-pink-800 rounded-3xl p-6 border-2 border-pink-400 shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] transition-all transform hover:-translate-y-2 overflow-hidden text-left">
-                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity"></div>
-                            <div class="flex items-center justify-center md:justify-start gap-4">
-                                <div class="text-5xl group-hover:animate-bounce">⏰</div>
-                                <div>
-                                    <h3 class="text-xl font-black text-white drop-shadow-md">Misión 5: Daily Routine</h3>
-                                    <p class="text-pink-200 font-medium text-sm">Ordena tu rutina diaria</p>
-                                </div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('view-espacio-menu').innerHTML = html;
-        }
-
-        // --- Espacio: Memoria ---
-        const memCardsInitial = [
-            { id: 1, pairId: 1, content: 'Galaxy 🌌' }, { id: 2, pairId: 1, content: 'Galaxia' },
-            { id: 3, pairId: 2, content: 'Rocket 🚀' }, { id: 4, pairId: 2, content: 'Cohete' },
-            { id: 5, pairId: 3, content: 'Moon 🌕' }, { id: 6, pairId: 3, content: 'Luna' },
-            { id: 7, pairId: 4, content: 'Telescope 🔭' }, { id: 8, pairId: 4, content: 'Telescopio' },
-            { id: 9, pairId: 5, content: 'Astronaut 👨‍🚀' }, { id: 10, pairId: 5, content: 'Astronauta' },
-            { id: 11, pairId: 6, content: 'Asteroid ☄️' }, { id: 12, pairId: 6, content: 'Asteroide' }
-        ];
-        let memState = { cards: [], flipped: [], matched: [], moves: 0 };
-
-        function startSpaceMemory() {
-            memState.cards = [...memCardsInitial].sort(() => Math.random() - 0.5);
-            memState.flipped = []; memState.matched = []; memState.moves = 0;
-            showView('espacio-memory'); renderSpaceMemory();
-        }
-
-        function renderSpaceMemory() {
-            const container = document.getElementById('view-espacio-memory');
-            const isWin = memState.matched.length === memCardsInitial.length / 2;
-            
-            if (isWin) {
-                if(!memState.winTriggered){ memState.winTriggered = true; sounds.espacio_win(); setTimeout(()=>showResultScreen(memCardsInitial.length/2, memCardsInitial.length/2, "Memoria Espacial", 'espacio-memory', 'espacio'), 1500); }
-            }
-
-            let html = `<div class="flex flex-col items-center w-full max-w-2xl mx-auto p-4 animate-fade-in-up"><div class="flex justify-between w-full mb-6 items-center"><h2 class="text-2xl sm:text-3xl font-black text-yellow-300 drop-shadow-md">Misión 1: Memoria</h2><div class="text-white font-bold bg-slate-800 px-4 py-2 rounded-xl border border-slate-600">Movimientos: ${memState.moves}</div></div>`;
-            
-            html += `<div class="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4 w-full">`;
-            memState.cards.forEach((card, idx) => {
-                const isFlipped = memState.flipped.includes(idx) || memState.matched.includes(card.pairId);
-                html += `<div onclick="handleMemClick(${idx})" class="card-container w-full aspect-[4/3] cursor-pointer ${isFlipped ? 'card-flipped' : ''}">
-                    <div class="card-inner w-full h-full relative">
-                        <div class="card-back absolute w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg border-2 border-indigo-300 flex items-center justify-center text-center p-2"><span class="text-white font-bold text-sm sm:text-lg drop-shadow-md">${card.content}</span></div>
-                        <div class="card-front absolute w-full h-full bg-slate-800 rounded-xl shadow-lg border-2 border-slate-600 flex items-center justify-center hover:border-yellow-400 transition-colors"><span class="text-3xl">❓</span></div>
-                    </div></div>`;
-            });
-            html += `</div></div>`;
-            container.innerHTML = html;
-        }
-
-        function handleMemClick(idx) {
-            if (memState.flipped.length === 2 || memState.flipped.includes(idx) || memState.matched.includes(memState.cards[idx].pairId)) return;
-            initAudio(); sounds.click();
-            memState.flipped.push(idx);
-            
-            if (memState.flipped.length === 2) {
-                memState.moves++;
-                const c1 = memState.cards[memState.flipped[0]]; const c2 = memState.cards[memState.flipped[1]];
-                if (c1.pairId === c2.pairId) {
-                    sounds.espacio_correct(); memState.matched.push(c1.pairId); memState.flipped = [];
-                } else {
-                    sounds.espacio_incorrect(); setTimeout(() => { memState.flipped = []; renderSpaceMemory(); }, 1000);
-                }
-            }
-            renderSpaceMemory();
-        }
-
-        // --- Espacio: Ordinales ---
-        const ordQuestions = [
-            { q: "10th", options: ["Tenth", "Ten", "Tenths"], answer: 0 },
-            { q: "21st", options: ["Twenty-one", "Twenty-first", "Twentieth-first"], answer: 1 },
-            { q: "50th", options: ["Fiveth", "Fifty", "Fiftieth"], answer: 2 },
-            { q: "100th", options: ["One hundred", "One hundredth", "Hundredst"], answer: 1 },
-            { q: "342nd", options: ["Three hundred forty-second", "Three hundred forty-two", "Three hundredth forty-second"], answer: 0 },
-            { q: "1000th", options: ["One thousand", "One thousandth", "One millionth"], answer: 1 }
-        ];
-        let ordState = { currentQ: 0, score: 0, selectedOpt: null };
-
-        function startSpaceOrdinals() {
-            ordState = { currentQ: 0, score: 0, selectedOpt: null };
-            showView('espacio-ordinals'); renderSpaceOrdinals();
-        }
-
-        function renderSpaceOrdinals() {
-            const container = document.getElementById('view-espacio-ordinals');
-            if (ordState.currentQ >= ordQuestions.length) { showResultScreen(ordState.score, ordQuestions.length, "Asteroides Ordinales", 'espacio-ordinals', 'espacio'); return; }
-            
-            const currentData = ordQuestions[ordState.currentQ];
-            const isAnswered = ordState.selectedOpt !== null;
-            
-            let html = `
-                <div class="flex flex-col items-center w-full max-w-4xl mx-auto p-4 animate-fade-in-up">
-                    <div class="flex justify-between w-full mb-6 items-center"><h2 class="text-xl sm:text-3xl font-black text-cyan-300 drop-shadow-md text-center">Misión 2: Asteroides Ordinales</h2><div class="text-white font-bold bg-slate-800 px-4 py-2 rounded-xl border border-slate-600 hidden sm:block">Puntos: ${ordState.score}</div></div>
-                    <p class="text-white text-center mb-6 bg-slate-800/80 p-3 rounded-lg border border-slate-600 w-full max-w-2xl">¡Destruye el asteroide seleccionando el número ordinal correcto!</p>
-                    <div class="relative flex items-center justify-center w-48 h-48 mb-8 transition-all duration-700 ease-in-out ${isAnswered && ordState.selectedOpt === currentData.answer ? 'scale-0 opacity-0 rotate-180' : 'scale-100 opacity-100 animate-float'}">
-                        <div class="text-[100px] absolute drop-shadow-[0_0_30px_rgba(249,115,22,0.8)]">☄️</div>
-                        <div class="z-10 bg-black/70 px-4 py-2 rounded-xl border-2 border-orange-500 font-black text-4xl text-white backdrop-blur-md shadow-2xl">${currentData.q}</div>
-                        ${isAnswered && ordState.selectedOpt !== currentData.answer ? '<div class="absolute inset-0 bg-red-500/40 rounded-full animate-ping z-20"></div>' : ''}
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl">
-            `;
-            
-            currentData.options.forEach((opt, idx) => {
-                let btnClass = "bg-slate-800 hover:bg-cyan-900 text-cyan-100 border-cyan-600";
-                if (isAnswered) {
-                    if (idx === currentData.answer) btnClass = "bg-green-600 border-green-400 text-white shadow-[0_0_25px_rgba(74,222,128,0.8)] z-10 scale-105";
-                    else if (idx === ordState.selectedOpt) btnClass = "bg-red-600 border-red-400 text-white";
-                    else btnClass = "bg-slate-900 text-slate-700 border-slate-800 opacity-40";
-                }
-                html += `<button ${isAnswered ? 'disabled' : ''} onclick="handleOrdAnswer(${idx})" class="text-lg sm:text-xl font-bold py-4 px-2 rounded-2xl border-2 transition-all transform duration-300 ${!isAnswered ? 'hover:-translate-y-2 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]' : ''} ${btnClass}">${opt}</button>`;
-            });
-
-            html += `</div></div>`;
-            container.innerHTML = html;
-        }
-
-        function handleOrdAnswer(idx) {
-            if (ordState.selectedOpt !== null) return;
-            initAudio(); ordState.selectedOpt = idx;
-            const isCorrect = idx === ordQuestions[ordState.currentQ].answer;
-            if (isCorrect) { sounds.espacio_correct(); ordState.score++; } else { sounds.espacio_incorrect(); }
-            renderSpaceOrdinals();
-            
-            setTimeout(() => {
-                ordState.currentQ++;
-                ordState.selectedOpt = null;
-                if (ordState.currentQ >= ordQuestions.length) sounds.espacio_win();
-                renderSpaceOrdinals();
-            }, 1500);
-        }
-
-        // --- Espacio: Astronaut Gear ---
-        const gearQuestions = [
-            { q: "What protects the astronaut's head?", ans: "Helmet", opts: ["Visor", "Helmet", "Gloves"], emoji: "🧑‍🚀" },
-            { q: "What helps the astronaut breathe in space?", ans: "Oxygen tank", opts: ["Backpack", "Oxygen tank", "Boots"], emoji: "🫁" },
-            { q: "What do astronauts wear on their hands?", ans: "Gloves", opts: ["Gloves", "Helmet", "Visor"], emoji: "🧤" },
-            { q: "What do astronauts wear on their feet?", ans: "Boots", opts: ["Backpack", "Boots", "Gloves"], emoji: "🥾" },
-            { q: "What lets the astronaut see through the helmet?", ans: "Visor", opts: ["Visor", "Oxygen tank", "Boots"], emoji: "🥽" }
-        ];
-        let gearState = { currentQ: 0, score: 0, selectedOpt: null };
-
-        function startSpaceGear() {
-            gearState.currentQ = 0; gearState.score = 0; gearState.selectedOpt = null;
-            showView('espacio-gear'); renderSpaceGear();
-        }
-
-        function renderSpaceGear() {
-            const container = document.getElementById('view-espacio-gear');
-            if (gearState.currentQ >= gearQuestions.length) { showResultScreen(gearState.score, gearQuestions.length, "Astronaut Gear", 'espacio-gear', 'espacio'); return; }
-            
-            const currentData = gearQuestions[gearState.currentQ];
-            const isAnswered = gearState.selectedOpt !== null;
-            
-            let html = `
-                <div class="flex flex-col items-center w-full max-w-4xl mx-auto p-4 animate-fade-in-up">
-                    <div class="flex justify-between w-full mb-6 items-center">
-                        <h2 class="text-xl sm:text-3xl font-black text-emerald-300 drop-shadow-md text-center">Misión 3: Astronaut Gear</h2>
-                        <div class="text-white font-bold bg-slate-800 px-4 py-2 rounded-xl border border-slate-600 hidden sm:block">Puntos: ${gearState.score}</div>
-                    </div>
-                    
-                    <div class="bg-slate-800/80 p-6 md:p-8 rounded-3xl border-2 border-emerald-500/50 w-full max-w-2xl text-center shadow-2xl mb-8 flex flex-col items-center">
-                        <div class="text-7xl mb-4 animate-bounce-hover">${currentData.emoji}</div>
-                        <h3 class="text-xl md:text-2xl font-bold text-white leading-tight">"${currentData.q}"</h3>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl">
-            `;
-            
-            currentData.opts.forEach((opt) => {
-                let btnClass = "bg-slate-800 hover:bg-emerald-900 text-emerald-100 border-emerald-600";
-                if (isAnswered) {
-                    if (opt === currentData.ans) btnClass = "bg-green-600 border-green-400 text-white shadow-[0_0_25px_rgba(74,222,128,0.8)] z-10 scale-105";
-                    else if (opt === gearState.selectedOpt) btnClass = "bg-red-600 border-red-400 text-white";
-                    else btnClass = "bg-slate-900 text-slate-700 border-slate-800 opacity-40";
-                }
-                html += `<button ${isAnswered ? 'disabled' : ''} onclick="handleGearAnswer('${opt}')" class="text-lg sm:text-xl font-bold py-4 px-2 rounded-2xl border-2 transition-all transform duration-300 ${!isAnswered ? 'hover:-translate-y-2 hover:shadow-[0_0_15px_rgba(16,185,129,0.5)]' : ''} ${btnClass}">${opt}</button>`;
-            });
-
-            html += `</div></div>`;
-            container.innerHTML = html;
-        }
-
-        function handleGearAnswer(opt) {
-            if (gearState.selectedOpt !== null) return;
-            initAudio(); gearState.selectedOpt = opt;
-            const isCorrect = opt === gearQuestions[gearState.currentQ].ans;
-            if (isCorrect) { sounds.espacio_correct(); gearState.score++; } else { sounds.espacio_incorrect(); }
-            renderSpaceGear();
-            setTimeout(() => { gearState.currentQ++; gearState.selectedOpt = null; if (gearState.currentQ >= gearQuestions.length) sounds.espacio_win(); renderSpaceGear(); }, 1500);
-        }
-
-        // --- Espacio: The Planets ---
-        const correctPlanets = ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"];
-        const planetEmojis = {"Mercury": "🌑", "Venus": "🌕", "Earth": "🌍", "Mars": "🔴", "Jupiter": "🟠", "Saturn": "🪐", "Uranus": "🔵", "Neptune": "🧊"};
-        let planetsState = { currentItems: [], isChecked: false, isCorrect: false };
-        
-        function startSpacePlanets() {
-            planetsState.currentItems = [...correctPlanets].sort(() => Math.random() - 0.5);
-            planetsState.isChecked = false; planetsState.isCorrect = false;
-            showView('espacio-planets'); renderSpacePlanets();
-        }
-        
-        function renderSpacePlanets() {
-            const container = document.getElementById('view-espacio-planets');
-            let html = `<div class="max-w-xl mx-auto bg-slate-800/90 backdrop-blur-sm p-6 md:p-8 rounded-3xl shadow-[0_0_30px_rgba(234,88,12,0.2)] border-2 border-orange-500 text-center animate-fade-in-up w-full">
-                <h2 class="text-xl md:text-3xl font-black text-orange-400 mb-2 drop-shadow-md">Misión 4: The Planets</h2>
-                <p class="text-slate-300 mb-6 font-medium">Ordena los planetas desde el Sol (arriba) hasta el más lejano (abajo).</p>
-                <div class="flex flex-col gap-3 mb-8 px-4 relative">
-                    <div class="absolute -left-2 top-0 bottom-0 w-2 bg-gradient-to-b from-yellow-400 via-orange-500 to-blue-900 rounded-full shadow-[0_0_10px_rgba(250,204,21,0.5)]"></div>
-                    <div class="absolute -left-7 top-0 text-3xl animate-pulse">☀️</div>`;
-            
-            planetsState.currentItems.forEach((item, index) => {
-                html += `<div class="flex items-center justify-between p-3 rounded-xl border-2 border-slate-600 bg-slate-700 shadow-md transition-transform"><div class="flex items-center gap-3"><span class="font-black text-slate-400 text-lg w-6">${index + 1}.</span><span class="text-2xl">${planetEmojis[item]}</span><span class="font-bold text-lg text-white">${item}</span></div><div class="flex gap-2"><button onclick="moveSpacePlanet(${index}, -1)" ${index === 0 || planetsState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-slate-600 hover:bg-orange-500 text-white rounded-lg flex items-center justify-center font-black text-xl disabled:opacity-30 disabled:hover:bg-slate-600 transition-colors shadow-sm">↑</button><button onclick="moveSpacePlanet(${index}, 1)" ${index === planetsState.currentItems.length - 1 || planetsState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-slate-600 hover:bg-orange-500 text-white rounded-lg flex items-center justify-center font-black text-xl disabled:opacity-30 disabled:hover:bg-slate-600 transition-colors shadow-sm">↓</button></div></div>`;
-            });
-            html += `</div>`;
-            if (planetsState.isChecked) {
-                if (planetsState.isCorrect) { html += `<div class="text-2xl font-black text-green-400 animate-bounce mb-6 drop-shadow-md">¡Sistema Solar Alineado! 🌟</div>`; setTimeout(() => showResultScreen(1, 1, "The Planets", 'espacio-planets', 'espacio'), 1500); } 
-                else { html += `<div class="text-xl font-bold text-red-400 mb-6 drop-shadow-md">Ese no es el orden. ¡Intenta de nuevo, cadete!</div><button onclick="startSpacePlanets()" class="bg-gradient-to-r from-orange-500 to-red-600 text-white px-8 py-3 rounded-full font-black shadow-lg hover:scale-105 transition-transform">Reintentar</button>`; }
-            } else { html += `<button onclick="checkSpacePlanets()" class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-3 rounded-full font-black text-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_30px_rgba(249,115,22,0.6)] hover:-translate-y-1 transition-all w-full md:w-auto">Confirmar Órbitas</button>`; }
-            html += `</div>`; container.innerHTML = html;
-        }
-        
-        function moveSpacePlanet(index, direction) { initAudio(); sounds.click(); const newIndex = index + direction; if (newIndex < 0 || newIndex >= planetsState.currentItems.length) return; const items = [...planetsState.currentItems]; [items[index], items[newIndex]] = [items[newIndex], items[index]]; planetsState.currentItems = items; renderSpacePlanets(); }
-        function checkSpacePlanets() { initAudio(); planetsState.isChecked = true; planetsState.isCorrect = JSON.stringify(planetsState.currentItems) === JSON.stringify(correctPlanets); if (planetsState.isCorrect) sounds.espacio_win(); else sounds.espacio_incorrect(); renderSpacePlanets(); }
-
-        // --- Espacio: Daily Routine ---
-        const correctRoutine = ["I wake up", "I have breakfast", "I go to school", "I have lunch", "I do my homework", "I go to bed"];
-        const routineEmojis = {"I wake up": "🥱", "I have breakfast": "🥞", "I go to school": "🎒", "I have lunch": "🍲", "I do my homework": "📚", "I go to bed": "🛌"};
-        let routineState = { currentItems: [], isChecked: false, isCorrect: false };
-        
-        function startSpaceRoutine() {
-            routineState.currentItems = [...correctRoutine].sort(() => Math.random() - 0.5);
-            routineState.isChecked = false; routineState.isCorrect = false;
-            showView('espacio-routine'); renderSpaceRoutine();
-        }
-        
-        function renderSpaceRoutine() {
-            const container = document.getElementById('view-espacio-routine');
-            let html = `<div class="max-w-xl mx-auto bg-slate-800/90 backdrop-blur-sm p-6 md:p-8 rounded-3xl shadow-[0_0_30px_rgba(219,39,119,0.2)] border-2 border-pink-500 text-center animate-fade-in-up w-full">
-                <h2 class="text-xl md:text-3xl font-black text-pink-400 mb-2 drop-shadow-md">Misión 5: Daily Routine</h2>
-                <p class="text-slate-300 mb-6 font-medium">Ordena las actividades desde la mañana hasta la noche.</p>
-                <div class="flex flex-col gap-3 mb-8 px-4 relative">
-                    <div class="absolute -left-2 top-0 bottom-0 w-2 bg-gradient-to-b from-yellow-300 via-pink-500 to-indigo-900 rounded-full shadow-[0_0_10px_rgba(236,72,153,0.5)]"></div>
-                    <div class="absolute -left-7 top-0 text-3xl animate-bounce">🌅</div>
-                    <div class="absolute -left-7 bottom-0 text-3xl animate-pulse">🌙</div>`;
-            
-            routineState.currentItems.forEach((item, index) => {
-                html += `<div class="flex items-center justify-between p-3 rounded-xl border-2 border-slate-600 bg-slate-700 shadow-md transition-transform"><div class="flex items-center gap-3"><span class="font-black text-slate-400 text-lg w-6">${index + 1}.</span><span class="text-2xl">${routineEmojis[item]}</span><span class="font-bold text-lg text-white">${item}</span></div><div class="flex gap-2"><button onclick="moveSpaceRoutine(${index}, -1)" ${index === 0 || routineState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-slate-600 hover:bg-pink-500 text-white rounded-lg flex items-center justify-center font-black text-xl disabled:opacity-30 disabled:hover:bg-slate-600 transition-colors shadow-sm">↑</button><button onclick="moveSpaceRoutine(${index}, 1)" ${index === routineState.currentItems.length - 1 || routineState.isChecked ? 'disabled' : ''} class="w-10 h-10 bg-slate-600 hover:bg-pink-500 text-white rounded-lg flex items-center justify-center font-black text-xl disabled:opacity-30 disabled:hover:bg-slate-600 transition-colors shadow-sm">↓</button></div></div>`;
-            });
-            html += `</div>`;
-            if (routineState.isChecked) {
-                if (routineState.isCorrect) { html += `<div class="text-2xl font-black text-green-400 animate-bounce mb-6 drop-shadow-md">¡Rutina Perfecta! 🏆</div>`; setTimeout(() => showResultScreen(1, 1, "Daily Routine", 'espacio-routine', 'espacio'), 1500); } 
-                else { html += `<div class="text-xl font-bold text-red-400 mb-6 drop-shadow-md">Algo está fuera de orden. ¡Verifica el reloj!</div><button onclick="startSpaceRoutine()" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-3 rounded-full font-black shadow-lg hover:scale-105 transition-transform">Reintentar</button>`; }
-            } else { html += `<button onclick="checkSpaceRoutine()" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-3 rounded-full font-black text-xl shadow-[0_0_20px_rgba(236,72,153,0.4)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] hover:-translate-y-1 transition-all w-full md:w-auto">Revisar Rutina</button>`; }
-            html += `</div>`; container.innerHTML = html;
-        }
-        
-        function moveSpaceRoutine(index, direction) { initAudio(); sounds.click(); const newIndex = index + direction; if (newIndex < 0 || newIndex >= routineState.currentItems.length) return; const items = [...routineState.currentItems]; [items[index], items[newIndex]] = [items[newIndex], items[index]]; routineState.currentItems = items; renderSpaceRoutine(); }
-        function checkSpaceRoutine() { initAudio(); routineState.isChecked = true; routineState.isCorrect = JSON.stringify(routineState.currentItems) === JSON.stringify(correctRoutine); if (routineState.isCorrect) sounds.espacio_win(); else sounds.espacio_incorrect(); renderSpaceRoutine(); }
+        // Bootstrap the app
+        window.onload = init;
 
     </script>
 </body>
