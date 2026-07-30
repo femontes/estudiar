@@ -618,24 +618,34 @@
             const inputName = document.getElementById('login-name');
             const btnStart = document.getElementById('btn-start');
             
-            inputName.addEventListener('input', () => {
-                if(inputName.value.trim().length >= 3) {
-                    btnStart.disabled = false;
-                    btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btnStart.disabled = true;
-                    btnStart.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-            });
+            if (inputName && btnStart) {
+                inputName.addEventListener('input', () => {
+                    if(inputName.value.trim().length >= 3) {
+                        btnStart.disabled = false;
+                        btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        btnStart.disabled = true;
+                        btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                });
+            }
 
-            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
             
-            // Handle "Entrar sin loguearse" button
-            document.getElementById('btn-skip-login').addEventListener('click', handleSkipLogin);
+            // Handle "Entrar sin loguearse" button (con precaución por si no existe)
+            const skipBtn = document.getElementById('btn-skip-login');
+            if (skipBtn) {
+                skipBtn.addEventListener('click', handleSkipLogin);
+            }
         }
 
         function renderAvatars() {
             const container = document.getElementById('avatar-container');
+            if (!container) return;
+            
             container.innerHTML = EMOJIS.map(emoji => `
                 <button type="button" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100" data-emoji="${emoji}">
                     ${emoji}
@@ -657,8 +667,6 @@
                     target.setAttribute('aria-selected', 'true');
                 });
             });
-            // Handle "Entrar sin loguearse" button
-            document.getElementById('btn-skip-login').addEventListener('click', handleSkipLogin);
         }
 
         // --- CORE LOGIC ---
