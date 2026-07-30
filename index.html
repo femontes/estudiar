@@ -91,10 +91,13 @@
                 </div>
 
                 <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-3">Elige tu Avatar:</label>
-                    <div id="avatar-container" class="flex flex-wrap justify-center gap-3">
+                    <label class="block text-gray-700 text-sm font-bold mb-3">Elige tu Avatar (Opcional):</label>
+                    <div id="avatar-container" class="flex flex-wrap justify-center gap-3 mb-3">
                         <!-- Avatars will be injected here by JS -->
                     </div>
+                    <button type="button" id="btn-no-avatar" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 rounded-xl transition-colors text-sm border border-gray-300">
+                        Entrar sin avatar
+                    </button>
                 </div>
 
                 <div class="mb-8">
@@ -541,6 +544,7 @@
         };
 
         const EMOJIS = ['🐆', '🦜', '🐸', '🐍', '🦅', '🐒', '🦋', '🦎'];
+        const DEFAULT_EMOJI = '👤'; // Generic user icon if no avatar is selected
 
         // --- GLOBAL STATE ---
         const appState = {
@@ -624,6 +628,16 @@
             });
 
             document.getElementById('login-form').addEventListener('submit', handleLogin);
+            
+            // Handle "Entrar sin avatar" button
+            document.getElementById('btn-no-avatar').addEventListener('click', () => {
+                const btns = document.querySelectorAll('.avatar-btn');
+                btns.forEach(b => {
+                    b.classList.remove('bg-amber-200', 'scale-110', 'ring-2', 'ring-amber-500');
+                    b.classList.add('bg-gray-50');
+                    b.setAttribute('aria-selected', 'false');
+                });
+            });
         }
 
         function renderAvatars() {
@@ -648,8 +662,8 @@
                     target.setAttribute('aria-selected', 'true');
                 });
             });
-            // Select first by default
-            if(btns.length > 0) btns[0].click();
+            // No longer select the first by default to allow the "no avatar" option to be clearer initially
+            // if(btns.length > 0) btns[0].click();
         }
 
         // --- CORE LOGIC ---
@@ -658,7 +672,7 @@
             const name = document.getElementById('login-name').value.trim();
             const message = document.getElementById('login-message').value.trim();
             const selectedAvatarBtn = document.querySelector('.avatar-btn[aria-selected="true"]');
-            const emoji = selectedAvatarBtn ? selectedAvatarBtn.dataset.emoji : '🐆';
+            const emoji = selectedAvatarBtn ? selectedAvatarBtn.dataset.emoji : DEFAULT_EMOJI;
 
             playSound('success');
 
@@ -1472,5 +1486,4 @@
 
     </script>
 </body>
-</html>
 </html>
