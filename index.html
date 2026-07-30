@@ -98,7 +98,7 @@
             <div id="view-study" class="space-y-12 animate-fade-in">
                 <!-- Section 1: Time and Space -->
                 <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-                    <img src="https://files.compartirconocimientos-cl.santillana.com/142ae5b0-d01d-11f0-a6b0-8deb8aba0739/resources/4b_u2_soc.jpg" alt="Intro Mayas" class="w-full h-48 md:h-64 object-cover" />
+                    <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/3e0f4488-d951-4176-b172-9bac465c053a.png" alt="Intro Mayas" class="w-full h-auto object-contain bg-amber-50" />
                     <div class="p-6 md:p-10">
                         <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4 border-b-4 border-amber-200 inline-block pb-2">1. Ubicación Temporal y Espacial</h2>
                         <div class="grid md:grid-cols-2 gap-8 mt-6">
@@ -211,6 +211,12 @@
                         <div class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">🔤</div>
                         <h3 class="text-xl md:text-2xl font-extrabold text-teal-900 mb-2">Adivina la Palabra</h3>
                         <p class="text-sm md:text-base text-gray-600 font-medium">Descifra el códice.</p>
+                    </button>
+
+                    <button onclick="startGame('crossword')" class="bg-white p-8 rounded-3xl shadow-xl border-b-8 border-orange-500 hover:-translate-y-2 transform transition-all group flex flex-col items-center justify-center">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">🧩</div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-orange-900 mb-2">Crucigrama Maya</h3>
+                        <p class="text-sm md:text-base text-gray-600 font-medium">Cruza tus conocimientos.</p>
                     </button>
                 </div>
             </div>
@@ -367,6 +373,36 @@
             </div>
         </div>
 
+        <!-- CROSSWORD TEMPLATE -->
+        <div id="tpl-crossword" class="max-w-4xl mx-auto text-center">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="exitGame()" class="text-gray-500 hover:text-gray-800 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                <button onclick="checkCrossword()" class="font-bold text-white bg-orange-500 hover:bg-orange-600 px-6 py-2 rounded-full shadow transition-colors">Revisar Crucigrama</button>
+            </div>
+            <div class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border-4 border-orange-400">
+                
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Grid Container -->
+                    <div class="flex-1 overflow-x-auto pb-4">
+                        <div id="crossword-grid" class="inline-grid gap-1 bg-orange-100 p-2 rounded-xl border-2 border-orange-200">
+                            <!-- Grid cells injected here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Clues Container -->
+                    <div class="w-full lg:w-72 text-left bg-orange-50 p-4 rounded-xl border border-orange-200 h-fit max-h-96 overflow-y-auto">
+                        <h4 class="font-bold text-orange-900 text-xl border-b-2 border-orange-200 pb-2 mb-4">Pistas</h4>
+                        <div id="crossword-clues" class="space-y-4 text-sm text-gray-700">
+                            <!-- Clues injected here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Result Message -->
+                <div id="crossword-result-msg" class="hidden mt-6 p-4 rounded-xl text-lg font-bold"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -440,6 +476,21 @@
             { word: "TIKAL", clue: "Famosa ciudad maya en la selva." }
         ];
 
+        // --- CROSSWORD DATA ---
+        // Simple hardcoded crossword layout for guaranteed fit.
+        // Grid size: 10x10
+        const CROSSWORD_DATA = {
+            width: 10,
+            height: 10,
+            words: [
+                { id: 1, word: 'MAIZ', row: 1, col: 2, dir: 'H', clue: 'Cultivo principal y base de su alimentación.' },
+                { id: 2, word: 'MILPA', row: 1, col: 2, dir: 'V', clue: 'Terreno donde cultivaban usando roza y quema.' },
+                { id: 3, word: 'AHAU', row: 5, col: 2, dir: 'H', clue: 'Máximo gobernante o rey de una ciudad-estado.' },
+                { id: 4, word: 'CACAO', row: 4, col: 7, dir: 'V', clue: 'Semilla usada como moneda en el mercado.' },
+                { id: 5, word: 'ROZA', row: 3, col: 5, dir: 'H', clue: 'Técnica agrícola: Cortar árboles y maleza.' }
+            ]
+        };
+
         const EMOJIS = ['🐆', '🦜', '🐸', '🐍', '🦅', '🐒', '🦋', '🦎'];
 
         // --- GLOBAL STATE ---
@@ -470,7 +521,11 @@
             wordIndex: 0,
             shuffledWords: [],
             guessedLetters: [],
-            wordStatus: 'playing' // playing, won_word, lost_word
+            wordStatus: 'playing', // playing, won_word, lost_word
+            
+            // Crossword State
+            crosswordGrid: [],
+            crosswordSolved: false
         };
 
         // --- DOM ELEMENTS ---
@@ -639,6 +694,7 @@
             else if (gameId === 'sortpyramid') initSortPyramid();
             else if (gameId === 'memory') initMemory();
             else if (gameId === 'wordguess') initWordGuess();
+            else if (gameId === 'crossword') initCrossword();
         }
 
         function exitGame() {
@@ -1072,6 +1128,140 @@
                     showGameFinishedScreen('text-teal-600', '¡Descifrador de Códices! 📜');
                 }
             }, 2500);
+        }
+
+        // --- CROSSWORD LOGIC ---
+        function initCrossword() {
+            appState.crosswordSolved = false;
+            appState.crosswordGrid = generateEmptyGrid(CROSSWORD_DATA.width, CROSSWORD_DATA.height);
+            
+            // Map words onto the grid structure
+            CROSSWORD_DATA.words.forEach(w => {
+                for (let i = 0; i < w.word.length; i++) {
+                    const r = w.dir === 'H' ? w.row : w.row + i;
+                    const c = w.dir === 'H' ? w.col + i : w.col;
+                    appState.crosswordGrid[r][c] = {
+                        char: w.word[i],
+                        userInput: '',
+                        number: i === 0 ? w.id : (appState.crosswordGrid[r][c]?.number || null), // Only assign number to first char
+                        isActive: true
+                    };
+                }
+            });
+
+            loadTemplate('tpl-crossword');
+            renderCrossword();
+        }
+
+        function generateEmptyGrid(w, h) {
+            const grid = [];
+            for (let r = 0; r < h; r++) {
+                const row = [];
+                for (let c = 0; c < w; c++) {
+                    row.push({ char: null, userInput: '', number: null, isActive: false });
+                }
+                grid.push(row);
+            }
+            return grid;
+        }
+
+        function renderCrossword() {
+            const gridEl = document.getElementById('crossword-grid');
+            gridEl.style.gridTemplateColumns = `repeat(${CROSSWORD_DATA.width}, minmax(0, 1fr))`;
+            
+            let gridHTML = '';
+            for (let r = 0; r < CROSSWORD_DATA.height; r++) {
+                for (let c = 0; c < CROSSWORD_DATA.width; c++) {
+                    const cell = appState.crosswordGrid[r][c];
+                    if (cell.isActive) {
+                        gridHTML += `
+                            <div class="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white border border-orange-400 rounded-md shadow-sm overflow-hidden flex items-center justify-center">
+                                ${cell.number ? `<span class="absolute top-0 left-0.5 text-[8px] sm:text-[10px] font-bold text-orange-600 leading-none pt-0.5">${cell.number}</span>` : ''}
+                                <input type="text" maxlength="1" 
+                                    class="w-full h-full text-center text-lg sm:text-xl font-bold uppercase bg-transparent outline-none focus:bg-orange-100 transition-colors"
+                                    oninput="handleCrosswordInput(this, ${r}, ${c})"
+                                    value="${cell.userInput}"
+                                    ${appState.crosswordSolved ? 'disabled' : ''}
+                                />
+                            </div>
+                        `;
+                    } else {
+                        gridHTML += `<div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-transparent"></div>`;
+                    }
+                }
+            }
+            gridEl.innerHTML = gridHTML;
+
+            // Render Clues
+            const cluesEl = document.getElementById('crossword-clues');
+            cluesEl.innerHTML = CROSSWORD_DATA.words.map(w => 
+                `<div class="mb-3">
+                    <span class="font-bold text-orange-800 inline-block w-6">${w.id}.</span> 
+                    <span class="font-semibold text-gray-500 text-xs uppercase">${w.dir === 'H' ? 'Horiz' : 'Vert'}:</span> 
+                    ${w.clue}
+                </div>`
+            ).join('');
+        }
+
+        function handleCrosswordInput(inputEl, r, c) {
+            const val = inputEl.value.toUpperCase();
+            inputEl.value = val;
+            appState.crosswordGrid[r][c].userInput = val;
+            playSound('click');
+            
+            // Basic auto-advance logic (moves right if possible)
+            if(val) {
+                 const nextInput = inputEl.parentElement.nextElementSibling?.querySelector('input');
+                 if(nextInput && !nextInput.disabled) nextInput.focus();
+            }
+        }
+
+        function checkCrossword() {
+            if (appState.crosswordSolved) return;
+            
+            let allCorrect = true;
+            let filledCount = 0;
+            let totalActiveCells = 0;
+
+            for (let r = 0; r < CROSSWORD_DATA.height; r++) {
+                for (let c = 0; c < CROSSWORD_DATA.width; c++) {
+                    const cell = appState.crosswordGrid[r][c];
+                    if (cell.isActive) {
+                        totalActiveCells++;
+                        if (cell.userInput) filledCount++;
+                        if (cell.userInput !== cell.char) {
+                            allCorrect = false;
+                        }
+                    }
+                }
+            }
+
+            const msgEl = document.getElementById('crossword-result-msg');
+            msgEl.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-yellow-100', 'text-yellow-800');
+
+            if (filledCount === 0) {
+                 msgEl.classList.add('bg-yellow-100', 'text-yellow-800');
+                 msgEl.textContent = '¡Escribe algunas letras primero!';
+            } else if (allCorrect && filledCount === totalActiveCells) {
+                playSound('success');
+                appState.crosswordSolved = true;
+                addScore(30);
+                
+                // Disable all inputs
+                document.querySelectorAll('#crossword-grid input').forEach(inp => inp.disabled = true);
+                
+                msgEl.classList.add('bg-green-100', 'text-green-800');
+                msgEl.textContent = '¡Excelente! Has resuelto el crucigrama (+30 semillas).';
+                
+                setTimeout(() => {
+                    showGameFinishedScreen('text-orange-600', '¡Sabio Maya! 🧠');
+                }, 2000);
+                
+            } else {
+                playSound('error');
+                msgEl.classList.add('bg-red-100', 'text-red-800');
+                msgEl.textContent = 'Hay algunos errores. ¡Revisa bien las pistas e inténtalo de nuevo!';
+            }
         }
 
         // Bootstrap the app
