@@ -29,6 +29,29 @@
         .memory-card.flipped {
             transform: rotateY(180deg);
         }
+        
+        /* Specific styling for the crossword grid */
+        .crossword-cell {
+            width: 2.5rem;
+            height: 2.5rem;
+            @media (min-width: 640px) {
+                width: 3rem;
+                height: 3rem;
+            }
+        }
+        .crossword-input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: transparent;
+            outline: none;
+        }
+        .crossword-input:focus {
+            background-color: #ffedd5; /* Tailwind orange-100 */
+        }
     </style>
 </head>
 <body class="bg-orange-50 font-sans text-gray-800 min-h-screen">
@@ -374,25 +397,27 @@
         </div>
 
         <!-- CROSSWORD TEMPLATE -->
-        <div id="tpl-crossword" class="max-w-4xl mx-auto text-center">
+        <div id="tpl-crossword" class="max-w-5xl mx-auto text-center">
             <div class="flex justify-between items-center mb-6">
                 <button onclick="exitGame()" class="text-gray-500 hover:text-gray-800 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
                 <button onclick="checkCrossword()" class="font-bold text-white bg-orange-500 hover:bg-orange-600 px-6 py-2 rounded-full shadow transition-colors">Revisar Crucigrama</button>
             </div>
             <div class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border-4 border-orange-400">
                 
-                <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex flex-col lg:flex-row gap-8 justify-center items-start">
                     <!-- Grid Container -->
-                    <div class="flex-1 overflow-x-auto pb-4">
-                        <div id="crossword-grid" class="inline-grid gap-1 bg-orange-100 p-2 rounded-xl border-2 border-orange-200">
+                    <div class="overflow-x-auto pb-4 mx-auto lg:mx-0">
+                        <div id="crossword-grid" class="inline-grid gap-0.5 bg-orange-800 p-1 rounded-xl border-4 border-orange-200 shadow-inner">
                             <!-- Grid cells injected here -->
                         </div>
                     </div>
                     
                     <!-- Clues Container -->
-                    <div class="w-full lg:w-72 text-left bg-orange-50 p-4 rounded-xl border border-orange-200 h-fit max-h-96 overflow-y-auto">
-                        <h4 class="font-bold text-orange-900 text-xl border-b-2 border-orange-200 pb-2 mb-4">Pistas</h4>
-                        <div id="crossword-clues" class="space-y-4 text-sm text-gray-700">
+                    <div class="w-full lg:w-80 text-left bg-orange-50 p-6 rounded-xl border-2 border-orange-200 shadow-md">
+                        <h4 class="font-black text-orange-900 text-2xl border-b-4 border-orange-200 pb-3 mb-5 flex items-center gap-2">
+                            <span>📝</span> Pistas
+                        </h4>
+                        <div id="crossword-clues" class="space-y-5 text-gray-700">
                             <!-- Clues injected here -->
                         </div>
                     </div>
@@ -404,6 +429,30 @@
         </div>
 
     </div>
+
+    <!-- FIREBASE INTEGRATION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'estudio-maya-4a';
+        let db, auth;
+        
+        try {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Firebase no configurado. Se usará el modo local temporal.", error);
+        }
+
+        // Export Firebase functions to global scope so main script can use them
+        window.firebaseAPI = {
+            db, auth, doc, setDoc, updateDoc, onSnapshot, collection, query, appId, signInAnonymously, signInWithCustomToken
+        };
+    </script>
 
     <script>
         // --- AUDIO SYSTEM ---
@@ -477,17 +526,17 @@
         ];
 
         // --- CROSSWORD DATA ---
-        // Simple hardcoded crossword layout for guaranteed fit.
+        // Enhanced Crossword Layout with proper intersections
         // Grid size: 10x10
         const CROSSWORD_DATA = {
             width: 10,
             height: 10,
             words: [
                 { id: 1, word: 'MAIZ', row: 1, col: 2, dir: 'H', clue: 'Cultivo principal y base de su alimentación.' },
-                { id: 2, word: 'MILPA', row: 1, col: 2, dir: 'V', clue: 'Terreno donde cultivaban usando roza y quema.' },
-                { id: 3, word: 'AHAU', row: 5, col: 2, dir: 'H', clue: 'Máximo gobernante o rey de una ciudad-estado.' },
-                { id: 4, word: 'CACAO', row: 4, col: 7, dir: 'V', clue: 'Semilla usada como moneda en el mercado.' },
-                { id: 5, word: 'ROZA', row: 3, col: 5, dir: 'H', clue: 'Técnica agrícola: Cortar árboles y maleza.' }
+                { id: 2, word: 'MILPA', row: 1, col: 2, dir: 'V', clue: 'Terreno donde cultivaban usando roza y quema.' }, // Intersects MAIZ at 'M'
+                { id: 3, word: 'AHAU', row: 5, col: 1, dir: 'H', clue: 'Máximo gobernante o rey de una ciudad-estado.' },
+                { id: 4, word: 'CACAO', row: 4, col: 6, dir: 'V', clue: 'Semilla usada como moneda en el mercado.' },
+                { id: 5, word: 'ROZA', row: 3, col: 4, dir: 'H', clue: 'Técnica agrícola: Cortar árboles y maleza.' }
             ]
         };
 
@@ -541,9 +590,25 @@
         const elGameContainer = document.getElementById('game-container');
 
         // --- INITIALIZATION ---
-        function init() {
+        async function init() {
             renderAvatars();
             
+            // Firebase setup
+            if (window.firebaseAPI && window.firebaseAPI.auth) {
+                const { auth, signInAnonymously, signInWithCustomToken } = window.firebaseAPI;
+                try {
+                    if (typeof __initial_auth_token !== 'undefined') {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    console.log("Conectado al servidor de la escuela.");
+                    setupRankingListener();
+                } catch (e) {
+                    console.error("Error al conectar:", e);
+                }
+            }
+
             // Setup Login Form Validation
             const inputName = document.getElementById('login-name');
             const btnStart = document.getElementById('btn-start');
@@ -588,7 +653,7 @@
         }
 
         // --- CORE LOGIC ---
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const name = document.getElementById('login-name').value.trim();
             const message = document.getElementById('login-message').value.trim();
@@ -597,17 +662,36 @@
 
             playSound('success');
 
-            // Check if user exists
-            let user = appState.users.find(u => u.name.toLowerCase() === name.toLowerCase());
-            if (!user) {
-                user = { name, emoji, message, score: 0 };
-                appState.users.push(user);
+            // Firebase: Guardar usuario
+            if (window.firebaseAPI && window.firebaseAPI.auth.currentUser) {
+                const { db, doc, setDoc, appId, auth } = window.firebaseAPI;
+                const userId = auth.currentUser.uid;
+                
+                const userData = {
+                    name,
+                    emoji,
+                    message,
+                    score: 0,
+                    timestamp: new Date().toISOString()
+                };
+
+                try {
+                    // Save to public collection for the ranking
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'ranking', userId), userData);
+                    appState.currentUser = { ...userData, id: userId };
+                } catch (error) {
+                    console.error("Error guardando usuario:", error);
+                    // Fallback local
+                    appState.currentUser = { name, emoji, message, score: 0, id: 'local' };
+                }
+            } else {
+                // Modo offline/local
+                appState.currentUser = { name, emoji, message, score: 0, id: 'local' };
             }
-            appState.currentUser = user;
 
             // Update UI
-            document.getElementById('header-name').textContent = user.name;
-            document.getElementById('header-emoji').textContent = user.emoji;
+            document.getElementById('header-name').textContent = appState.currentUser.name;
+            document.getElementById('header-emoji').textContent = appState.currentUser.emoji;
             updateHeaderScore();
             elHeaderUserInfo.classList.remove('hidden');
 
@@ -616,6 +700,39 @@
             elScreenDashboard.classList.remove('hidden');
             switchMainTab('study');
         }
+
+        // Firebase: Escuchar cambios en el ranking
+        function setupRankingListener() {
+            if (!window.firebaseAPI || !window.firebaseAPI.auth.currentUser) return;
+            const { db, onSnapshot, collection, appId } = window.firebaseAPI;
+
+            const rankingRef = collection(db, 'artifacts', appId, 'public', 'data', 'ranking');
+            
+            onSnapshot(rankingRef, (snapshot) => {
+                const users = [];
+                snapshot.forEach((doc) => {
+                    users.push({ ...doc.data(), id: doc.id });
+                });
+                appState.users = users;
+                
+                // Update current user score if it was updated remotely
+                if (appState.currentUser) {
+                    const updatedMe = users.find(u => u.id === appState.currentUser.id);
+                    if (updatedMe) {
+                        appState.currentUser.score = updatedMe.score;
+                        updateHeaderScore();
+                    }
+                }
+                
+                // Si la vista de ranking está activa, actualizarla
+                if (!document.getElementById('view-ranking').classList.contains('hidden')) {
+                    updateRankingUI();
+                }
+            }, (error) => {
+                console.error("Error al escuchar el ranking:", error);
+            });
+        }
+
 
         function switchMainTab(tabId) {
             playSound('click');
@@ -641,10 +758,26 @@
             document.getElementById('header-score').textContent = `${appState.currentUser.score} Semillas`;
         }
 
-        function addScore(points) {
+        async function addScore(points) {
             appState.gameScore += points;
-            appState.currentUser.score += points;
-            updateHeaderScore();
+            
+            if (appState.currentUser) {
+                appState.currentUser.score += points;
+                updateHeaderScore();
+
+                // Guardar en Firebase
+                if (window.firebaseAPI && window.firebaseAPI.auth.currentUser && appState.currentUser.id !== 'local') {
+                    const { db, doc, updateDoc, appId } = window.firebaseAPI;
+                    try {
+                        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'ranking', appState.currentUser.id);
+                        await updateDoc(userRef, {
+                            score: appState.currentUser.score
+                        });
+                    } catch (error) {
+                        console.error("Error actualizando puntaje:", error);
+                    }
+                }
+            }
         }
 
         function updateRankingUI() {
@@ -1135,15 +1268,20 @@
             appState.crosswordSolved = false;
             appState.crosswordGrid = generateEmptyGrid(CROSSWORD_DATA.width, CROSSWORD_DATA.height);
             
-            // Map words onto the grid structure
+            // Map words onto the grid structure, handling intersections
             CROSSWORD_DATA.words.forEach(w => {
                 for (let i = 0; i < w.word.length; i++) {
                     const r = w.dir === 'H' ? w.row : w.row + i;
                     const c = w.dir === 'H' ? w.col + i : w.col;
+                    
+                    const existingCell = appState.crosswordGrid[r][c];
+                    
                     appState.crosswordGrid[r][c] = {
-                        char: w.word[i],
+                        char: w.word[i], // The correct character
                         userInput: '',
-                        number: i === 0 ? w.id : (appState.crosswordGrid[r][c]?.number || null), // Only assign number to first char
+                        // Assign number only to the first character of the word.
+                        // If a cell already has a number (from an intersecting word starting here), keep it or add this one.
+                        number: (i === 0) ? w.id : (existingCell.number || null),
                         isActive: true
                     };
                 }
@@ -1174,19 +1312,24 @@
                 for (let c = 0; c < CROSSWORD_DATA.width; c++) {
                     const cell = appState.crosswordGrid[r][c];
                     if (cell.isActive) {
+                        // Create input id to easily find neighbors
+                        const inputId = `cw-${r}-${c}`;
                         gridHTML += `
-                            <div class="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white border border-orange-400 rounded-md shadow-sm overflow-hidden flex items-center justify-center">
-                                ${cell.number ? `<span class="absolute top-0 left-0.5 text-[8px] sm:text-[10px] font-bold text-orange-600 leading-none pt-0.5">${cell.number}</span>` : ''}
+                            <div class="relative crossword-cell bg-white rounded-sm shadow-sm flex items-center justify-center">
+                                ${cell.number ? `<span class="absolute top-0 left-0.5 text-[10px] font-black text-orange-800 leading-none pt-0.5 z-10">${cell.number}</span>` : ''}
                                 <input type="text" maxlength="1" 
-                                    class="w-full h-full text-center text-lg sm:text-xl font-bold uppercase bg-transparent outline-none focus:bg-orange-100 transition-colors"
+                                    id="${inputId}"
+                                    class="crossword-input"
                                     oninput="handleCrosswordInput(this, ${r}, ${c})"
+                                    onkeydown="handleCrosswordKeydown(event, ${r}, ${c})"
                                     value="${cell.userInput}"
                                     ${appState.crosswordSolved ? 'disabled' : ''}
+                                    autocomplete="off"
                                 />
                             </div>
                         `;
                     } else {
-                        gridHTML += `<div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-transparent"></div>`;
+                        gridHTML += `<div class="crossword-cell bg-transparent"></div>`;
                     }
                 }
             }
@@ -1195,24 +1338,84 @@
             // Render Clues
             const cluesEl = document.getElementById('crossword-clues');
             cluesEl.innerHTML = CROSSWORD_DATA.words.map(w => 
-                `<div class="mb-3">
-                    <span class="font-bold text-orange-800 inline-block w-6">${w.id}.</span> 
-                    <span class="font-semibold text-gray-500 text-xs uppercase">${w.dir === 'H' ? 'Horiz' : 'Vert'}:</span> 
-                    ${w.clue}
+                `<div class="mb-4 bg-white p-3 rounded-lg border border-orange-100 shadow-sm">
+                    <div class="flex items-start gap-2">
+                        <span class="font-black text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center text-xs shrink-0 mt-0.5">${w.id}</span>
+                        <div>
+                            <span class="font-bold text-orange-800 text-xs uppercase tracking-wider block mb-1">${w.dir === 'H' ? 'Horizontal' : 'Vertical'}</span>
+                            <span class="text-sm font-medium text-gray-800 leading-snug">${w.clue}</span>
+                        </div>
+                    </div>
                 </div>`
             ).join('');
         }
 
         function handleCrosswordInput(inputEl, r, c) {
             const val = inputEl.value.toUpperCase();
+            // Allow only letters
+            if (!/^[A-ZÑ]$/.test(val) && val !== "") {
+                inputEl.value = "";
+                return;
+            }
+            
             inputEl.value = val;
             appState.crosswordGrid[r][c].userInput = val;
-            playSound('click');
             
-            // Basic auto-advance logic (moves right if possible)
             if(val) {
-                 const nextInput = inputEl.parentElement.nextElementSibling?.querySelector('input');
-                 if(nextInput && !nextInput.disabled) nextInput.focus();
+                playSound('click');
+            }
+        }
+
+        // Added keyboard navigation for better UX
+        function handleCrosswordKeydown(e, r, c) {
+            if (appState.crosswordSolved) return;
+
+            let nextInput = null;
+            
+            // Move based on arrow keys
+            if (e.key === 'ArrowRight') {
+                for (let i = c + 1; i < CROSSWORD_DATA.width; i++) {
+                    if (appState.crosswordGrid[r][i].isActive) {
+                        nextInput = document.getElementById(`cw-${r}-${i}`);
+                        break;
+                    }
+                }
+            } else if (e.key === 'ArrowLeft') {
+                for (let i = c - 1; i >= 0; i--) {
+                    if (appState.crosswordGrid[r][i].isActive) {
+                        nextInput = document.getElementById(`cw-${r}-${i}`);
+                        break;
+                    }
+                }
+            } else if (e.key === 'ArrowDown') {
+                for (let i = r + 1; i < CROSSWORD_DATA.height; i++) {
+                    if (appState.crosswordGrid[i][c].isActive) {
+                        nextInput = document.getElementById(`cw-${i}-${c}`);
+                        break;
+                    }
+                }
+            } else if (e.key === 'ArrowUp') {
+                for (let i = r - 1; i >= 0; i--) {
+                    if (appState.crosswordGrid[i][c].isActive) {
+                        nextInput = document.getElementById(`cw-${i}-${c}`);
+                        break;
+                    }
+                }
+            } else if (e.key === 'Backspace') {
+                // If cell is empty and backspace is pressed, try to move back
+                if (document.getElementById(`cw-${r}-${c}`).value === '') {
+                    // Simple logic: prefer moving left if possible, else up
+                    if (c > 0 && appState.crosswordGrid[r][c-1].isActive) {
+                        nextInput = document.getElementById(`cw-${r}-${c-1}`);
+                    } else if (r > 0 && appState.crosswordGrid[r-1][c].isActive) {
+                         nextInput = document.getElementById(`cw-${r-1}-${c}`);
+                    }
+                }
+            }
+
+            if (nextInput && !nextInput.disabled) {
+                e.preventDefault(); // Prevent default scrolling behavior for arrows
+                nextInput.focus();
             }
         }
 
@@ -1269,4 +1472,5 @@
 
     </script>
 </body>
+</html>
 </html>
