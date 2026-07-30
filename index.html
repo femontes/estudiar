@@ -108,6 +108,10 @@
                 <button type="submit" id="btn-start" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors text-lg opacity-50 cursor-not-allowed" disabled>
                     ¡Comenzar la Aventura!
                 </button>
+                
+                <button type="button" id="btn-skip-login" class="mt-4 w-full bg-transparent hover:bg-amber-50 text-amber-700 font-medium py-3 rounded-xl transition-colors text-sm border border-transparent hover:border-amber-200">
+                    Entrar sin loguearse (Modo Invitado)
+                </button>
             </form>
         </div>
 
@@ -664,6 +668,9 @@
             });
             // No longer select the first by default to allow the "no avatar" option to be clearer initially
             // if(btns.length > 0) btns[0].click();
+            
+            // Handle "Entrar sin loguearse" button
+            document.getElementById('btn-skip-login').addEventListener('click', handleSkipLogin);
         }
 
         // --- CORE LOGIC ---
@@ -702,6 +709,30 @@
                 // Modo offline/local
                 appState.currentUser = { name, emoji, message, score: 0, id: 'local' };
             }
+
+            // Update UI
+            document.getElementById('header-name').textContent = appState.currentUser.name;
+            document.getElementById('header-emoji').textContent = appState.currentUser.emoji;
+            updateHeaderScore();
+            elHeaderUserInfo.classList.remove('hidden');
+
+            // Switch Screen
+            elScreenLogin.classList.add('hidden');
+            elScreenDashboard.classList.remove('hidden');
+            switchMainTab('study');
+        }
+
+        function handleSkipLogin() {
+            playSound('click');
+            
+            // Set up a guest user profile
+            appState.currentUser = {
+                name: 'Invitado',
+                emoji: '👤',
+                message: 'Explorando en modo incógnito.',
+                score: 0,
+                id: 'guest'
+            };
 
             // Update UI
             document.getElementById('header-name').textContent = appState.currentUser.name;
