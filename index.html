@@ -95,9 +95,6 @@
                     <div id="avatar-container" class="flex flex-wrap justify-center gap-3 mb-3">
                         <!-- Avatars will be injected here by JS -->
                     </div>
-                    <button type="button" id="btn-no-avatar" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 rounded-xl transition-colors text-sm border border-gray-300">
-                        Entrar sin avatar
-                    </button>
                 </div>
 
                 <div class="mb-8">
@@ -633,15 +630,8 @@
 
             document.getElementById('login-form').addEventListener('submit', handleLogin);
             
-            // Handle "Entrar sin avatar" button
-            document.getElementById('btn-no-avatar').addEventListener('click', () => {
-                const btns = document.querySelectorAll('.avatar-btn');
-                btns.forEach(b => {
-                    b.classList.remove('bg-amber-200', 'scale-110', 'ring-2', 'ring-amber-500');
-                    b.classList.add('bg-gray-50');
-                    b.setAttribute('aria-selected', 'false');
-                });
-            });
+            // Handle "Entrar sin loguearse" button
+            document.getElementById('btn-skip-login').addEventListener('click', handleSkipLogin);
         }
 
         function renderAvatars() {
@@ -659,6 +649,7 @@
                     btns.forEach(b => {
                         b.classList.remove('bg-amber-200', 'scale-110', 'ring-2', 'ring-amber-500');
                         b.classList.add('bg-gray-50');
+                        b.setAttribute('aria-selected', 'false');
                     });
                     const target = e.currentTarget;
                     target.classList.remove('bg-gray-50');
@@ -666,9 +657,6 @@
                     target.setAttribute('aria-selected', 'true');
                 });
             });
-            // No longer select the first by default to allow the "no avatar" option to be clearer initially
-            // if(btns.length > 0) btns[0].click();
-            
             // Handle "Entrar sin loguearse" button
             document.getElementById('btn-skip-login').addEventListener('click', handleSkipLogin);
         }
@@ -1513,7 +1501,7 @@
         }
 
         // Bootstrap the app
-        window.onload = init;
+        document.addEventListener('DOMContentLoaded', init);
 
     </script>
 </body>
