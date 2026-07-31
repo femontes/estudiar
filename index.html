@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- TRUCO: Le pedimos al navegador que no envíe información de origen para intentar saltar el bloqueo de Santillana -->
+    <meta name="referrer" content="no-referrer">
     <title>Estudio Interactivo Maya</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -361,6 +363,18 @@
             }
         }
         initFirebase(); // Iniciar silenciosamente
+
+        // --- PROTECCIÓN DE IMÁGENES ROTAS ---
+        // Si Santillana bloquea la imagen, mostramos un reemplazo bonito para que la web no se vea rota
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('img').forEach(img => {
+                img.onerror = function() {
+                    this.onerror = null; // Evita bucles infinitos
+                    this.src = 'https://placehold.co/600x400/fef3c7/78350f?text=Imagen+Protegida+por+Editorial%5Cn(Falta+iniciar+sesion)';
+                    this.classList.add('border-dashed', 'border-4', 'border-amber-300', 'opacity-80');
+                };
+            });
+        });
 
         // --- FUNCIONES DE LOGIN ---
         window.validateLogin = function() {
