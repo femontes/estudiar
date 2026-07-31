@@ -83,6 +83,13 @@
                         <button type="button" onclick="window.selectEmoji(this, '🐍')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐍</button>
                         <button type="button" onclick="window.selectEmoji(this, '🦅')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦅</button>
                         <button type="button" onclick="window.selectEmoji(this, '🐒')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐒</button>
+                        <!-- NUEVOS AVATARES -->
+                        <button type="button" onclick="window.selectEmoji(this, '🦋')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦋</button>
+                        <button type="button" onclick="window.selectEmoji(this, '🦎')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦎</button>
+                        <button type="button" onclick="window.selectEmoji(this, '🐢')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐢</button>
+                        <button type="button" onclick="window.selectEmoji(this, '🦇')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦇</button>
+                        <button type="button" onclick="window.selectEmoji(this, '🐊')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐊</button>
+                        <button type="button" onclick="window.selectEmoji(this, '🦉')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦉</button>
                     </div>
                 </div>
 
@@ -113,12 +120,46 @@
                         <div>
                             <h3 class="text-xl font-bold text-gray-800 mb-3">⏱️ Los Mayas en el Tiempo</h3>
                             <p class="text-gray-700 mb-4">Se dividen en dos grandes períodos: <strong>Clásico</strong> (máximo desarrollo en la selva, ej: Tikal) y <strong>Posclásico</strong> (desarrollo en tierras bajas, ej: Chichén Itzá).</p>
-                            <img src="https://raw.githubusercontent.com/femontes/estudiar/944df43c31b22f918d59b2ed6c6983d62ef8c680/ce2f6b89-7827-4096-a5f8-7986e0ac9940.png" class="w-full rounded-xl shadow-md border" />
+                            <img src="https://raw.githubusercontent.com/femontes/estudiar/944df43c31b22f918d59b2ed6c6983d62ef8c680/ce2f6b89-7827-4096-a5f8-7986e0ac9940.png" class="w-full rounded-xl shadow-md border" alt="Linea de tiempo maya"/>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-3">🗺️ Entorno Geográfico</h3>
-                            <p class="text-gray-700 mb-4">Habitaron <strong>Mesoamérica</strong>. Se adaptaron a 3 zonas: Tierras altas (bosques), Selva (tropical), y Tierras bajas (seco, con cenotes).</p>
-                            <img src="https://raw.githubusercontent.com/femontes/estudiar/bdc3bc0844604f917bc3e4c333d124c5fc07b381/hi_4b_u2_f3.png" class="w-full rounded-xl shadow-md border" />
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3 flex items-center gap-2">🗺️ Entorno Geográfico</h3>
+                            <p class="text-gray-700 mb-4">
+                                Habitaron el área de <strong>Mesoamérica</strong> (hoy sur de México, Guatemala, Belice, Honduras y El Salvador). 
+                                Se adaptaron a <strong>tres zonas geográficas</strong> muy diferentes:
+                            </p>
+                            
+                            <div class="space-y-4 mb-4">
+                                <!-- Zona 1 -->
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm transition-transform hover:scale-105">
+                                    <h4 class="font-bold text-blue-800 flex items-center gap-2 text-lg"><span class="text-2xl">🏔️</span> 1. Tierras Altas</h4>
+                                    <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
+                                        <li><strong>Clima:</strong> Templado y frío.</li>
+                                        <li><strong>Vegetación:</strong> Bosques.</li>
+                                        <li><strong>Agua:</strong> Ríos y lagos.</li>
+                                    </ul>
+                                </div>
+                                <!-- Zona 2 -->
+                                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl shadow-sm transition-transform hover:scale-105">
+                                    <h4 class="font-bold text-green-800 flex items-center gap-2 text-lg"><span class="text-2xl">🌴</span> 2. Selva</h4>
+                                    <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
+                                        <li><strong>Clima:</strong> Tropical (caluroso y húmedo).</li>
+                                        <li><strong>Vegetación:</strong> Selvas muy espesas.</li>
+                                        <li><strong>Agua:</strong> Múltiples ríos caudalosos.</li>
+                                    </ul>
+                                </div>
+                                <!-- Zona 3 -->
+                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-xl shadow-sm transition-transform hover:scale-105">
+                                    <h4 class="font-bold text-yellow-800 flex items-center gap-2 text-lg"><span class="text-2xl">🏜️</span> 3. Tierras Bajas</h4>
+                                    <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
+                                        <li><strong>Clima:</strong> Seco.</li>
+                                        <li><strong>Vegetación:</strong> Matorrales.</li>
+                                        <li><strong>Agua:</strong> Lagunas y <strong class="text-yellow-900 bg-yellow-200 px-1 rounded">Cenotes</strong> (grandes pozos de agua subterránea, ¡vitales para la agricultura y ceremonias!).</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <img src="https://raw.githubusercontent.com/femontes/estudiar/bdc3bc0844604f917bc3e4c333d124c5fc07b381/hi_4b_u2_f3.png" class="w-full rounded-xl shadow-md border" alt="Mapa Entorno Geografico" />
                         </div>
                     </div>
                 </div>
