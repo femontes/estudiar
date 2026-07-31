@@ -601,13 +601,288 @@
             
             // Iniciar juego específico
             if(id === 'crossword') window.initCrossword();
-            // (Aquí se inicializarían los demás, pero para simplificar, el crucigrama es el complejo)
+            if(id === 'trivia') window.initTrivia();
+            if(id === 'tf') window.initTF();
+            if(id === 'pyramid') window.initPyramid();
+            if(id === 'memory') window.initMemory();
+            if(id === 'word') window.initWord();
         };
 
         window.closeGame = function() {
             window.playSound('click');
             document.getElementById('games-menu').classList.remove('hidden-view');
             document.querySelectorAll('.game-container').forEach(el => el.classList.add('hidden-view'));
+        };
+
+        // --- 1. JUEGO: TRIVIA ---
+        const dbTrivia = [
+            {q: "¿En qué área geográfica habitaron los mayas?", opts: ["Los Andes", "Mesoamérica", "América del Norte"], ans: 1},
+            {q: "¿Quién era la máxima autoridad de una ciudad-Estado maya?", opts: ["El Consejo", "El Ahau", "El Sacerdote Mayor"], ans: 1},
+            {q: "¿Cuál fue el principal cultivo y base de su alimentación?", opts: ["Trigo", "Maíz", "Papa"], ans: 1},
+            {q: "¿Qué utilizaban como moneda en el mercado maya?", opts: ["Monedas de oro", "Semillas de cacao", "Conchas de mar"], ans: 1},
+            {q: "La religión maya era politeísta. ¿Qué significa esto?", opts: ["No tenían dioses", "Creían en un solo dios", "Creían en muchos dioses"], ans: 2}
+        ];
+        let triviaIdx = 0; let triviaScore = 0;
+
+        window.initTrivia = function() { triviaIdx = 0; triviaScore = 0; window.renderTrivia(); };
+        window.renderTrivia = function() {
+            const container = document.getElementById('game-trivia');
+            if(triviaIdx >= dbTrivia.length) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-blue-400 text-center"><h2 class="text-3xl font-bold text-blue-600 mb-4">¡Trivia Completada!</h2><p class="text-xl mb-6">Ganaste ${triviaScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-blue-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-blue-600">Volver a Juegos</button></div>`;
+                window.addScore(triviaScore);
+                return;
+            }
+            const q = dbTrivia[triviaIdx];
+            let optsHtml = q.opts.map((o, i) => `<button onclick="window.ansTrivia(${i})" class="block w-full p-4 mb-3 text-left text-lg font-medium bg-gray-50 hover:bg-blue-50 border-2 border-gray-200 rounded-xl transition-all shadow-sm">${o}</button>`).join('');
+            
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                    <span class="font-bold text-blue-800 bg-blue-100 px-4 py-2 rounded-full shadow">Pregunta ${triviaIdx+1}/${dbTrivia.length}</span>
+                </div>
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-blue-500">
+                    <h3 class="text-2xl font-bold mb-8 text-gray-800 text-center">${q.q}</h3>
+                    <div id="trivia-opts">${optsHtml}</div>
+                </div>
+            `;
+        };
+        window.ansTrivia = function(idx) {
+            const q = dbTrivia[triviaIdx];
+            const buttons = document.getElementById('trivia-opts').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            
+            if(idx === q.ans) {
+                buttons[idx].classList.replace('bg-gray-50', 'bg-green-100');
+                buttons[idx].classList.replace('border-gray-200', 'border-green-500');
+                window.playSound('success');
+                triviaScore += 10;
+            } else {
+                buttons[idx].classList.replace('bg-gray-50', 'bg-red-100');
+                buttons[idx].classList.replace('border-gray-200', 'border-red-500');
+                buttons[q.ans].classList.replace('bg-gray-50', 'bg-green-100');
+                buttons[q.ans].classList.replace('border-gray-200', 'border-green-500');
+                window.playSound('error');
+            }
+            setTimeout(() => { triviaIdx++; window.renderTrivia(); }, 1800);
+        };
+
+        // --- 2. JUEGO: VERDADERO O FALSO ---
+        const dbTF = [
+            {q: "El sistema agrícola usado en la selva maya se llamaba 'Tala y Roza'.", ans: true},
+            {q: "Los esclavos eran la clase social con más privilegios.", ans: false},
+            {q: "Las ciudades mayas eran ciudades-Estado independientes unas de otras.", ans: true},
+            {q: "Los cenotes eran pozos de agua subterránea vitales en zonas secas.", ans: true}
+        ];
+        let tfIdx = 0; let tfScore = 0;
+
+        window.initTF = function() { tfIdx = 0; tfScore = 0; window.renderTF(); };
+        window.renderTF = function() {
+            const container = document.getElementById('game-tf');
+            if(tfIdx >= dbTF.length) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-green-400 text-center"><h2 class="text-3xl font-bold text-green-600 mb-4">¡Desafío Completado!</h2><p class="text-xl mb-6">Ganaste ${tfScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-green-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-green-600">Volver a Juegos</button></div>`;
+                window.addScore(tfScore);
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                    <span class="font-bold text-green-800 bg-green-100 px-4 py-2 rounded-full shadow">Pregunta ${tfIdx+1}/${dbTF.length}</span>
+                </div>
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-green-500 text-center">
+                    <h3 class="text-2xl font-bold mb-10 text-gray-800">${dbTF[tfIdx].q}</h3>
+                    <div class="flex gap-4 justify-center" id="tf-opts">
+                        <button onclick="window.ansTF(true)" class="w-1/2 py-6 text-xl font-bold bg-gray-50 text-green-700 hover:bg-green-100 rounded-2xl border-b-4 border-green-400 transition-all shadow-sm">Verdadero</button>
+                        <button onclick="window.ansTF(false)" class="w-1/2 py-6 text-xl font-bold bg-gray-50 text-red-700 hover:bg-red-100 rounded-2xl border-b-4 border-red-400 transition-all shadow-sm">Falso</button>
+                    </div>
+                </div>
+            `;
+        };
+        window.ansTF = function(ans) {
+            const q = dbTF[tfIdx];
+            const buttons = document.getElementById('tf-opts').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            
+            if(ans === q.ans) {
+                window.playSound('success');
+                tfScore += 10;
+                buttons[ans ? 0 : 1].classList.replace('bg-gray-50', ans ? 'bg-green-200' : 'bg-red-200');
+            } else {
+                window.playSound('error');
+                buttons[ans ? 0 : 1].classList.add('opacity-50');
+                buttons[q.ans ? 0 : 1].classList.replace('bg-gray-50', q.ans ? 'bg-green-200' : 'bg-red-200');
+            }
+            setTimeout(() => { tfIdx++; window.renderTF(); }, 1500);
+        };
+
+        // --- 3. JUEGO: PIRÁMIDE SOCIAL ---
+        const dbPyramid = [
+            {role: "El Ahau y su familia", bg: "bg-red-500"},
+            {role: "La Nobleza (Privilegiados)", bg: "bg-orange-500"},
+            {role: "Sacerdotes", bg: "bg-yellow-500"},
+            {role: "Pueblo y Campesinos", bg: "bg-green-500"},
+            {role: "Esclavos", bg: "bg-gray-500"}
+        ];
+        let pyrIdx = 0; let pyrScore = 0;
+
+        window.initPyramid = function() { pyrIdx = 0; pyrScore = 0; window.renderPyramid(); };
+        window.renderPyramid = function() {
+            const container = document.getElementById('game-pyramid');
+            if(pyrIdx >= dbPyramid.length) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-purple-400 text-center"><h2 class="text-3xl font-bold text-purple-600 mb-4">¡Pirámide Armada! 🛕</h2><p class="text-xl mb-6">Ganaste ${pyrScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-purple-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-purple-600">Volver a Juegos</button></div>`;
+                window.addScore(pyrScore);
+                return;
+            }
+            
+            let opts = [...dbPyramid].sort(()=>Math.random()-0.5); // Shuffle
+            let optsHtml = opts.map(o => `<button onclick="window.ansPyramid('${o.role}')" class="m-2 px-4 py-3 bg-purple-50 text-purple-900 rounded-xl font-bold hover:bg-purple-100 border-2 border-purple-300 transition-transform hover:scale-105 shadow-sm">${o.role}</button>`).join('');
+
+            let pyramidHtml = dbPyramid.map((lvl, i) => {
+                let isFilled = i < pyrIdx;
+                let color = isFilled ? `${lvl.bg} text-white shadow-inner` : 'bg-gray-100 text-gray-400 border-2 border-dashed border-gray-300';
+                let text = isFilled ? lvl.role : `Nivel ${i+1} (¿Quién va aquí?)`;
+                let width = 50 + (i*10); // Pirámide se ensancha hacia abajo
+                return `<div class="mx-auto text-center p-3 mb-1 rounded-t-lg font-bold transition-all ${color}" style="width: ${width}%;">${text}</div>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                    <span class="font-bold text-purple-800 bg-purple-100 px-4 py-2 rounded-full shadow">Construyendo Nivel ${pyrIdx+1}</span>
+                </div>
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border-t-8 border-purple-500">
+                    <p class="text-center text-gray-700 mb-6 bg-purple-50 p-3 rounded-xl border border-purple-100">Selecciona el grupo que corresponde al <strong>Nivel ${pyrIdx+1}</strong> de la pirámide (partiendo desde la punta hacia abajo).</p>
+                    <div class="mb-8">${pyramidHtml}</div>
+                    <div class="flex flex-wrap justify-center border-t border-gray-100 pt-6">${optsHtml}</div>
+                </div>
+            `;
+        }
+        window.ansPyramid = function(role) {
+            if(role === dbPyramid[pyrIdx].role) {
+                window.playSound('success'); pyrScore += 10; pyrIdx++; window.renderPyramid();
+            } else {
+                window.playSound('error');
+            }
+        };
+
+        // --- 4. JUEGO: MEMORIA ---
+        const memoryItems = ['☀️', '🌽', '🛕', '🐆', '☀️', '🌽', '🛕', '🐆'];
+        let memoryCards = []; let memFlipped = []; let memMatched = [];
+        
+        window.initMemory = function() {
+            memoryCards = memoryItems.sort(() => Math.random() - 0.5);
+            memFlipped = []; memMatched = []; window.renderMemory();
+        };
+        window.renderMemory = function() {
+            const container = document.getElementById('game-memory');
+            if(memMatched.length === memoryItems.length) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-pink-400 text-center"><h2 class="text-3xl font-bold text-pink-600 mb-4">¡Memoria de Jaguar! 🧠</h2><p class="text-xl mb-6">Ganaste 20 semillas 🍫</p><button onclick="window.closeGame()" class="bg-pink-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-pink-600">Volver a Juegos</button></div>`;
+                window.addScore(20);
+                return;
+            }
+            
+            let gridHtml = memoryCards.map((icon, i) => {
+                let isFlipped = memFlipped.includes(i) || memMatched.includes(i);
+                let content = isFlipped ? icon : '?';
+                let bg = isFlipped ? 'bg-pink-50 border-pink-200 text-pink-700' : 'bg-pink-400 border-pink-500 text-pink-100 hover:bg-pink-500 hover:-translate-y-1';
+                return `<button onclick="window.flipMemory(${i})" class="flex items-center justify-center h-24 md:h-32 text-5xl cursor-pointer rounded-2xl border-b-4 shadow-sm transition-all ${bg}">${content}</button>`;
+            }).join('');
+            
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                    <span class="font-bold text-pink-800 bg-pink-100 px-4 py-2 rounded-full shadow">Parejas: ${memMatched.length/2}/4</span>
+                </div>
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-pink-500">
+                    <p class="text-center text-gray-600 mb-6">Encuentra los pares de símbolos mayas.</p>
+                    <div class="grid grid-cols-4 gap-3 md:gap-4 max-w-xl mx-auto">${gridHtml}</div>
+                </div>
+            `;
+        }
+        window.flipMemory = function(idx) {
+            if(memFlipped.length >= 2 || memFlipped.includes(idx) || memMatched.includes(idx)) return;
+            window.playSound('click');
+            memFlipped.push(idx);
+            window.renderMemory();
+
+            if(memFlipped.length === 2) {
+                setTimeout(() => {
+                    let [i1, i2] = memFlipped;
+                    if(memoryCards[i1] === memoryCards[i2]) {
+                        memMatched.push(i1, i2);
+                        window.playSound('success');
+                    } else {
+                        window.playSound('error');
+                    }
+                    memFlipped = [];
+                    window.renderMemory();
+                }, 1000);
+            }
+        };
+
+        // --- 5. JUEGO: ADIVINA LA PALABRA ---
+        const dbWords = [
+            {w: "CENOTE", c: "Pozo de agua subterránea (vital en zonas secas)"},
+            {w: "AHAU", c: "Rey o máxima autoridad de la ciudad-Estado"},
+            {w: "MILPA", c: "Terreno de cultivo usado en el sistema de tala y roza"},
+            {w: "CACAO", c: "Semilla tan valiosa que se usaba como moneda"}
+        ];
+        let wordIdx = 0; let wordScore = 0; let wordGuessed = [];
+        
+        window.initWord = function() { wordIdx = 0; wordScore = 0; wordGuessed = []; window.renderWord(); };
+        window.renderWord = function() {
+            const container = document.getElementById('game-word');
+            if(wordIdx >= dbWords.length) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-teal-400 text-center"><h2 class="text-3xl font-bold text-teal-600 mb-4">¡Gran Descifrador! 📜</h2><p class="text-xl mb-6">Ganaste ${wordScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-teal-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-teal-600">Volver a Juegos</button></div>`;
+                window.addScore(wordScore);
+                return;
+            }
+            
+            const current = dbWords[wordIdx];
+            let displayWord = current.w.split('').map(l => wordGuessed.includes(l) ? l : '_').join(' ');
+            
+            const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+            let keyboard = alphabet.map(l => {
+                let disabled = wordGuessed.includes(l) ? 'disabled class="m-1 w-10 h-10 md:w-12 md:h-12 bg-gray-100 text-gray-300 rounded-lg"' : `onclick="window.guessWord('${l}')" class="m-1 w-10 h-10 md:w-12 md:h-12 bg-teal-50 text-teal-800 font-bold rounded-lg shadow-sm border-b-4 border-teal-200 hover:bg-teal-100 transition-all hover:-translate-y-0.5 active:translate-y-0 active:border-b-0"`;
+                return `<button ${disabled}>${l}</button>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
+                    <span class="font-bold text-teal-800 bg-teal-100 px-4 py-2 rounded-full shadow">Palabra ${wordIdx+1}/${dbWords.length}</span>
+                </div>
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-teal-500 text-center">
+                    <div class="bg-teal-50 border border-teal-100 p-4 rounded-xl mb-8 inline-block shadow-inner">
+                        <p class="text-teal-900 font-bold">💡 Pista:</p>
+                        <p class="text-lg md:text-xl text-teal-800 italic">"${current.c}"</p>
+                    </div>
+                    <div class="text-3xl md:text-5xl tracking-[0.3em] font-black mb-10 text-gray-800 min-h-[60px]">${displayWord}</div>
+                    <div class="flex flex-wrap justify-center max-w-lg mx-auto">${keyboard}</div>
+                </div>
+            `;
+        }
+        window.guessWord = function(l) {
+            wordGuessed.push(l);
+            const current = dbWords[wordIdx];
+            
+            // Checkear si la palabra está completa
+            let isComplete = current.w.split('').every(char => wordGuessed.includes(char));
+            
+            if (isComplete) {
+                window.playSound('success');
+                window.renderWord(); // Para mostrar la letra final
+                setTimeout(() => {
+                    wordScore += 15;
+                    wordIdx++;
+                    wordGuessed = [];
+                    window.renderWord();
+                }, 1500);
+            } else {
+                if(!current.w.includes(l)) window.playSound('error');
+                else window.playSound('click');
+                window.renderWord();
+            }
         };
 
         // --- CRUCIGRAMA MAYA (Reconstruido) ---
