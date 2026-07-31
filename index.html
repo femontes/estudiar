@@ -598,23 +598,7 @@
         async function init() {
             renderAvatars();
             
-            // Firebase setup
-            if (window.firebaseAPI && window.firebaseAPI.auth) {
-                const { auth, signInAnonymously, signInWithCustomToken } = window.firebaseAPI;
-                try {
-                    if (typeof __initial_auth_token !== 'undefined') {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                    console.log("Conectado al servidor de la escuela.");
-                    setupRankingListener();
-                } catch (e) {
-                    console.error("Error al conectar:", e);
-                }
-            }
-
-            // Setup Login Form Validation
+            // 1. Configurar botones y validaciones INMEDIATAMENTE
             const inputName = document.getElementById('login-name');
             const btnStart = document.getElementById('btn-start');
             
@@ -635,10 +619,25 @@
                 loginForm.addEventListener('submit', handleLogin);
             }
             
-            // Handle "Entrar sin loguearse" button (con precaución por si no existe)
             const skipBtn = document.getElementById('btn-skip-login');
             if (skipBtn) {
                 skipBtn.addEventListener('click', handleSkipLogin);
+            }
+
+            // 2. Conectar a la base de datos de fondo (sin bloquear la pantalla)
+            if (window.firebaseAPI && window.firebaseAPI.auth) {
+                const { auth, signInAnonymously, signInWithCustomToken } = window.firebaseAPI;
+                try {
+                    if (typeof __initial_auth_token !== 'undefined') {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    console.log("Conectado al servidor de la escuela.");
+                    setupRankingListener();
+                } catch (e) {
+                    console.error("Error al conectar:", e);
+                }
             }
         }
 
@@ -679,8 +678,8 @@
 
             playSound('success');
 
-            // Firebase: Guardar usuario
-            if (window.firebaseAPI && window.firebaseAPI.auth.currentUser) {
+            // Firebase: Guardar usuario (ahora verifica de forma 100% segura)
+            if (window.firebaseAPI && window.firebaseAPI.auth && window.firebaseAPI.auth.currentUser) {
                 const { db, doc, setDoc, appId, auth } = window.firebaseAPI;
                 const userId = auth.currentUser.uid;
                 
@@ -744,7 +743,7 @@
 
         // Firebase: Escuchar cambios en el ranking
         function setupRankingListener() {
-            if (!window.firebaseAPI || !window.firebaseAPI.auth.currentUser) return;
+            if (!window.firebaseAPI || !window.firebaseAPI.auth || !window.firebaseAPI.auth.currentUser) return;
             const { db, onSnapshot, collection, appId } = window.firebaseAPI;
 
             const rankingRef = collection(db, 'artifacts', appId, 'public', 'data', 'ranking');
@@ -807,7 +806,7 @@
                 updateHeaderScore();
 
                 // Guardar en Firebase
-                if (window.firebaseAPI && window.firebaseAPI.auth.currentUser && appState.currentUser.id !== 'local') {
+                if (window.firebaseAPI && window.firebaseAPI.auth && window.firebaseAPI.auth.currentUser && appState.currentUser.id !== 'local') {
                     const { db, doc, updateDoc, appId } = window.firebaseAPI;
                     try {
                         const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'ranking', appState.currentUser.id);
