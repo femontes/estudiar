@@ -74,6 +74,7 @@
             display: none;
             flex-direction: column;
             padding: 20px;
+            padding-bottom: 110px; /* NUEVO: Margen seguro para que la barra inferior no tape el contenido en PC */
             background-size: cover;
             background-position: center;
         }
@@ -102,9 +103,9 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: calc(100% - 100px);
             padding: 20px;
             animation: slideInUp 0.6s ease-out 0.2s both;
+            overflow-y: auto; /* Permite hacer scroll interno si el monitor es muy bajito */
         }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; height: 100%; }
@@ -216,8 +217,9 @@
         .quiz-feedback { margin-top: 20px; font-size: 1.5rem; font-weight: 800; display: none; }
 
         @media (max-width: 768px) {
-            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 10px; overflow-y: auto; padding-bottom: 70px; }
-            .content-area { padding-top: 10px; height: calc(100% - 70px); }
+            .slide { padding-bottom: 80px; padding-top: 10px; } /* Ajuste del margen seguro para celular */
+            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 10px; overflow-y: auto; padding-bottom: 20px; }
+            .content-area { padding-top: 10px; }
             
             /* Menú inferior adaptativo (Estilo dock de app móvil) */
             .nav-bar { 
