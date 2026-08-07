@@ -3,954 +3,832 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- TRUCO: Le pedimos al navegador que no envíe información de origen para intentar saltar el bloqueo de Santillana -->
-    <meta name="referrer" content="no-referrer">
-    <title>Estudio Interactivo Maya</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Aventura en el Tiempo - 4° A Carlos Mahns</title>
+    <!-- Tipografía: Raleway -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
-        .hidden-view { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        :root {
+            /* Paleta de Colores Dinámica */
+            --color-bg: #1e1b4b; /* Fondo oscuro espacial */
+            --color-primary: #8b5cf6; /* Morado vibrante */
+            --color-secondary: #f97316; /* Naranja energía */
+            --color-tertiary: #10b981; /* Verde éxito */
+            --color-accent: #06b6d4; /* Cian tech */
+            --color-yellow: #f59e0b;
+            --color-error: #ef4444; /* Rojo error */
+            --color-text-dark: #1e293b;
+            --color-text-light: #ffffff;
+            --font-main: 'Raleway', sans-serif;
         }
-        .card-flip {
-            transform-style: preserve-3d;
-            transition: transform 0.5s;
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
         }
-        .card-flip.flipped {
-            transform: rotateY(180deg);
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            background-image: radial-gradient(circle at center, #312e81 0%, #1e1b4b 100%);
+            color: var(--color-text-dark);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .card-front, .card-back {
-            backface-visibility: hidden;
+
+        #game-container {
+            width: 100%;
+            height: 100%;
+            max-width: 1280px;
+            max-height: 720px;
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border-radius: 0;
+        }
+
+        @media (min-width: 1281px) {
+            #game-container {
+                border-radius: 20px;
+                border: 8px solid var(--color-accent);
+            }
+        }
+
+        .slide {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            background-size: cover;
+            background-position: center;
         }
-        .card-back {
-            transform: rotateY(180deg);
+
+        .slide.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        h1, h2, h3 { font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        h1 { font-size: clamp(3rem, 8vw, 6rem); text-align: center; line-height: 1.1; margin-bottom: 20px; }
+        h2 { font-size: clamp(2rem, 5vw, 4rem); margin-bottom: 20px; text-align: center; }
+        h3 { font-size: clamp(1.5rem, 3vw, 2.5rem); margin-bottom: 15px; }
+        p, li { font-weight: 600; font-size: clamp(1.1rem, 2.5vw, 1.5rem); line-height: 1.5; }
+
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: calc(100% - 100px);
+            padding: 20px;
+            animation: slideInUp 0.6s ease-out 0.2s both;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; height: 100%; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
+
+        .box {
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            border: 5px solid var(--color-text-dark);
+            box-shadow: 8px 8px 0px var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .box:hover { transform: translateY(-5px); }
+        .box ul { text-align: left; margin-left: 20px; padding-right: 10px;}
+        .box li { margin-bottom: 15px; }
+
+        .bg-purple { background-color: var(--color-primary); color: white; }
+        .bg-orange { background-color: var(--color-secondary); color: white; }
+        .bg-green { background-color: var(--color-tertiary); color: white; }
+        .bg-cyan { background-color: var(--color-accent); color: white; }
+        .bg-yellow { background-color: var(--color-yellow); color: var(--color-text-dark); }
+        
+        .bg-purple .box, .bg-orange .box, .bg-green .box, .bg-cyan .box { color: var(--color-text-dark); }
+
+        .big-icon { font-size: clamp(4rem, 10vw, 8rem); margin-bottom: 20px; animation: float 4s ease-in-out infinite; }
+
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 4px solid var(--color-text-dark);
+            z-index: 100;
+        }
+
+        .nav-group { display: flex; gap: 15px; }
+
+        .btn {
+            font-family: var(--font-main);
+            font-weight: 800;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 4px solid var(--color-text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.1s;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0px var(--color-text-dark);
+        }
+        .btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px var(--color-text-dark); }
+        .btn-primary { background-color: var(--color-yellow); color: var(--color-text-dark); }
+        .btn-secondary { background-color: var(--color-accent); color: var(--color-text-dark); }
+        .btn-danger { background-color: var(--color-error); color: white; }
+        .btn-success { background-color: var(--color-tertiary); color: white; font-size: 1.5rem; padding: 15px 30px;}
+
+        .math-formula {
+            background-color: var(--color-text-dark); color: var(--color-yellow);
+            padding: 15px 25px; border-radius: 15px;
+            font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 900;
+            letter-spacing: 2px; margin: 15px 0; display: inline-block;
+        }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; border: 4px solid var(--color-text-dark); color: var(--color-text-dark); }
+        th, td { padding: 15px; text-align: center; border-bottom: 2px solid #cbd5e1; font-size: clamp(1rem, 2vw, 1.5rem); font-weight: 600; }
+        th { background-color: var(--color-accent); color: var(--color-text-dark); font-weight: 900; text-transform: uppercase; }
+
+        /* Estilos de Quiz / Minijuegos */
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .quiz-btn {
+            background-color: #f1f5f9;
+            border: 4px solid var(--color-text-dark);
+            border-radius: 15px;
+            padding: 15px 25px;
+            font-family: var(--font-main);
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 4px 4px 0px var(--color-text-dark);
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .quiz-btn:hover { transform: translateX(10px); background-color: #e2e8f0; }
+        .quiz-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px var(--color-text-dark); }
+        .quiz-btn.correct { background-color: var(--color-tertiary); color: white; border-color: white; box-shadow: 4px 4px 0px white; pointer-events: none; }
+        .quiz-btn.wrong { background-color: var(--color-error); color: white; border-color: white; box-shadow: 4px 4px 0px white; animation: shake 0.4s; }
+        .quiz-feedback { margin-top: 20px; font-size: 1.5rem; font-weight: 800; display: none; }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 10px; overflow-y: auto; padding-bottom: 70px; }
+            .content-area { padding-top: 10px; height: calc(100% - 70px); }
+            
+            /* Menú inferior adaptativo (Estilo dock de app móvil) */
+            .nav-bar { 
+                padding: 10px 8px; 
+                flex-wrap: nowrap; 
+                justify-content: space-between; 
+                gap: 5px; 
+                border-top-width: 2px;
+            }
+            .nav-group { gap: 8px; }
+            
+            /* Botones compactos para celular para no estorbar el juego */
+            .btn { 
+                padding: 10px; 
+                font-size: 1.2rem; /* Iconos más grandes para toque fácil */
+                width: 45px; 
+                height: 45px; 
+                justify-content: center;
+                border-width: 2px;
+                box-shadow: 2px 2px 0px var(--color-text-dark);
+                border-radius: 12px; /* Más cuadrados para encajar mejor */
+            }
+            .btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--color-text-dark); }
+            .btn span { display: none; }
+            
+            /* El botón de COMENZAR sigue siendo grande */
+            .btn-success { 
+                width: auto; 
+                height: auto; 
+                padding: 12px 20px; 
+                border-radius: 30px; 
+                font-size: 1.2rem; 
+            }
+            .btn-success span { display: inline; }
+            
+            .quiz-btn { font-size: 1rem; padding: 10px; }
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.8rem; }
+        }
+        
+        @media (max-width: 360px) {
+            /* Ajuste extra para celulares muy pequeños */
+            .btn { width: 40px; height: 40px; font-size: 1.1rem; padding: 8px; }
+            .nav-group { gap: 4px; }
+            .nav-bar { padding: 8px 4px; }
         }
     </style>
 </head>
-<body class="bg-orange-50 font-sans text-gray-800 min-h-screen flex flex-col">
+<body>
 
-    <!-- Header -->
-    <header class="bg-amber-700 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <span class="text-3xl">🛕</span>
-            <h1 class="text-xl md:text-2xl font-bold tracking-tight">Estudio Maya - 4º Básico</h1>
+<div id="game-container">
+
+    <!-- PANTALLA 1: INICIO -->
+    <div class="slide bg-purple active" id="slide-0">
+        <div class="content-area" style="justify-content: center; text-align: center;">
+            <i class="fa-solid fa-rocket big-icon" style="color: var(--color-yellow);"></i>
+            <h1 style="color: var(--color-yellow); text-shadow: 4px 4px 0 var(--color-text-dark);">AVENTURA EN EL TIEMPO</h1>
+            <h3 style="color: white; margin-bottom: 40px;">¡Misión especial para el 4° A!</h3>
+            <p style="color: #cbd5e1; margin-bottom: 40px;">Escuela Carlos Mahns</p>
+            
+            <button class="btn btn-success" onclick="nextSlide(); playSound('start');">
+                <i class="fa-solid fa-play"></i> <span>COMENZAR JUEGO</span>
+            </button>
+            <p style="margin-top: 20px; font-size: 1rem; color: #94a3b8;"><i class="fa-solid fa-headphones"></i> ¡Enciende el sonido abajo para jugar mejor!</p>
         </div>
-        <!-- Información del usuario (Oculta al inicio) -->
-        <div id="header-user-info" class="hidden-view flex items-center gap-2 md:gap-4">
-             <div class="bg-amber-800 px-3 py-1.5 rounded-full flex items-center gap-1 md:gap-2 border border-amber-600 shadow-inner">
-                <span class="text-lg md:text-xl">🍫</span>
-                <span id="header-score" class="font-bold text-sm md:text-base">0 Semillas</span>
-             </div>
-             <div class="flex items-center gap-2 bg-amber-800/50 px-3 py-1 rounded-full">
-                 <span id="header-emoji" class="text-xl md:text-2xl"></span>
-                 <span id="header-name" class="font-semibold text-sm md:text-base truncate max-w-[100px] md:max-w-[200px]"></span>
-             </div>
+    </div>
+
+    <!-- PANTALLA 2: NIVEL 1 TITULO -->
+    <div class="slide bg-cyan" id="slide-1">
+        <div class="content-area" style="justify-content: center; text-align: center;">
+            <h2 style="font-size: clamp(4rem, 10vw, 8rem); color: white; text-shadow: 4px 4px 0 var(--color-text-dark);">NIVEL 1</h2>
+            <div style="width: 100px; height: 8px; background: var(--color-text-dark); margin: 20px auto; border-radius: 4px;"></div>
+            <h3 style="color: var(--color-text-dark);">Conociendo los Relojes</h3>
+            <i class="fa-regular fa-clock big-icon" style="color: var(--color-text-dark); margin-top: 30px;"></i>
         </div>
-    </header>
+    </div>
 
-    <main class="container mx-auto p-4 md:p-8 flex-grow">
-        
-        <!-- Menú de Navegación Principal -->
-        <nav id="dashboard-nav" class="hidden-view flex flex-wrap justify-center gap-2 md:gap-4 mb-8 bg-white p-3 rounded-2xl shadow-sm border border-amber-100">
-            <button onclick="window.showView('view-study')" data-target="view-study" class="nav-btn bg-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-sm ring-2 ring-amber-600 ring-offset-2">📖 Módulos de Estudio</button>
-            <button onclick="window.showView('view-games')" data-target="view-games" class="nav-btn bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-amber-800 px-6 py-3 rounded-xl font-bold transition-all shadow-sm">🎮 Zona de Juegos</button>
-            <button onclick="window.showView('view-ranking')" data-target="view-ranking" class="nav-btn bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-amber-800 px-6 py-3 rounded-xl font-bold transition-all shadow-sm">🏆 Salón de la Fama</button>
-        </nav>
-
-        <!-- VIEW: LOGIN -->
-        <div id="view-login" class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 border-amber-600 fade-in">
-            <div class="bg-amber-100 p-8 text-center border-b border-amber-200">
-                <h2 class="text-3xl font-extrabold text-amber-900 mb-2">¡Bienvenido Explorador!</h2>
-                <p class="text-amber-700">Regístrate para comenzar tu aventura maya.</p>
+    <!-- PANTALLA 3: ANALOGO VS DIGITAL -->
+    <div class="slide bg-yellow" id="slide-2">
+        <h2>Tipos de Relojes</h2>
+        <div class="content-area">
+            <div class="grid-2">
+                <div class="box bg-orange" style="color: white; border-color: white; box-shadow: 8px 8px 0px white;">
+                    <!-- Múltiples ejemplos visuales de relojes análogos -->
+                    <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; align-items: flex-end;">
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: float 4s ease-in-out infinite;">
+                            <svg viewBox="0 0 100 100" style="width: 80px; height: 80px; filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.2));">
+                                <circle cx="50" cy="50" r="45" fill="white" stroke="#1e293b" stroke-width="6"/>
+                                <text x="50" y="22" font-family="Arial" font-size="14" font-weight="bold" fill="black" text-anchor="middle">12</text>
+                                <text x="50" y="86" font-family="Arial" font-size="14" font-weight="bold" fill="black" text-anchor="middle">6</text>
+                                <text x="14" y="55" font-family="Arial" font-size="14" font-weight="bold" fill="black" text-anchor="middle">9</text>
+                                <text x="86" y="55" font-family="Arial" font-size="14" font-weight="bold" fill="black" text-anchor="middle">3</text>
+                                <line x1="50" y1="50" x2="35" y2="40" stroke="#1e293b" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="50" y1="50" x2="65" y2="25" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="50" y1="50" x2="50" y2="70" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="50" cy="50" r="4" fill="#ef4444"/>
+                            </svg>
+                            <span style="font-size: 1rem; font-weight: 800; margin-top: 8px; background: rgba(0,0,0,0.2); padding: 2px 10px; border-radius: 10px;">De Pared</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: float 4s ease-in-out infinite; animation-delay: 1s;">
+                            <svg viewBox="0 0 100 150" style="width: 55px; height: 82px; filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.2));">
+                                <rect x="25" y="5" width="50" height="140" rx="5" fill="#334155" />
+                                <circle cx="50" cy="75" r="35" fill="#fbbf24" stroke="#b45309" stroke-width="4"/>
+                                <circle cx="50" cy="75" r="28" fill="white" />
+                                <line x1="50" y1="75" x2="60" y2="65" stroke="black" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="50" y1="75" x2="40" y2="50" stroke="black" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="50" cy="75" r="3" fill="black"/>
+                            </svg>
+                            <span style="font-size: 1rem; font-weight: 800; margin-top: 8px; background: rgba(0,0,0,0.2); padding: 2px 10px; border-radius: 10px;">De Pulsera</span>
+                        </div>
+                    </div>
+                    <h3>Reloj Análogo</h3>
+                    <p>Usa <strong>manecillas</strong> para apuntar a las horas, minutos y segundos. ¡Es circular como una pizza!</p>
+                </div>
+                <div class="box bg-purple" style="color: white; border-color: white; box-shadow: 8px 8px 0px white;">
+                    <!-- Múltiples ejemplos visuales de relojes digitales -->
+                    <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; align-items: flex-end;">
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: float 4s ease-in-out infinite; animation-delay: 0.5s;">
+                            <div style="background: #06b6d4; padding: 10px; border-radius: 10px; border: 4px solid #0891b2; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 0px rgba(0,0,0,0.2); position: relative; margin-top: 15px;">
+                                <div style="position: absolute; top: -10px; left: 15px; width: 15px; height: 8px; background: #ef4444; border-radius: 5px 5px 0 0;"></div>
+                                <div style="position: absolute; top: -10px; right: 15px; width: 15px; height: 8px; background: #ef4444; border-radius: 5px 5px 0 0;"></div>
+                                <div style="background: #0f172a; padding: 5px 12px; border-radius: 5px; text-align: center;">
+                                    <span style="font-family: 'Courier New', Courier, monospace; color: #22d3ee; font-size: 1.5rem; font-weight: 900; display: block;">07:30</span>
+                                </div>
+                            </div>
+                            <span style="font-size: 1rem; font-weight: 800; margin-top: 11px; background: rgba(0,0,0,0.2); padding: 2px 10px; border-radius: 10px;">Despertador</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: float 4s ease-in-out infinite; animation-delay: 1.5s;">
+                            <div style="background: #1e293b; width: 55px; height: 95px; border-radius: 10px; border: 3px solid #94a3b8; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-shadow: 4px 4px 0px rgba(0,0,0,0.2); padding-top: 20px;">
+                                <span style="font-family: sans-serif; color: white; font-size: 1.1rem; font-weight: 900; line-height: 1;">15:45</span>
+                                <span style="font-family: sans-serif; color: #cbd5e1; font-size: 0.5rem; font-weight: bold; margin-top: 3px;">Jueves 12</span>
+                            </div>
+                            <span style="font-size: 1rem; font-weight: 800; margin-top: 8px; background: rgba(0,0,0,0.2); padding: 2px 10px; border-radius: 10px;">Celular</span>
+                        </div>
+                    </div>
+                    <h3>Reloj Digital</h3>
+                    <p>Usa <strong>números directos</strong> en una pantalla. Es más rápido de leer y nos muestra la hora exacta al instante.</p>
+                </div>
             </div>
-            
-            <form onsubmit="window.handleLogin(event)" class="p-8">
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Tu Nombre:</label>
-                    <input type="text" id="login-name" oninput="window.validateLogin()" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-lg" placeholder="Ej: Juan Pérez" required minlength="3">
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-3">Elige tu Avatar Maya:</label>
-                    <div class="flex flex-wrap justify-center gap-3">
-                        <button type="button" onclick="window.selectEmoji(this, '🐆')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-amber-200 scale-110 shadow-md ring-2 ring-amber-500">🐆</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🦜')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦜</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🐸')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐸</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🐍')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐍</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🦅')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦅</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🐒')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐒</button>
-                        <!-- NUEVOS AVATARES -->
-                        <button type="button" onclick="window.selectEmoji(this, '🦋')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦋</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🦎')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦎</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🐢')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐢</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🦇')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦇</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🐊')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🐊</button>
-                        <button type="button" onclick="window.selectEmoji(this, '🦉')" class="avatar-btn text-4xl p-2 rounded-2xl transition-all bg-gray-50 hover:bg-gray-100">🦉</button>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Mensaje (Opcional):</label>
-                    <input type="text" id="login-message" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-amber-500 outline-none text-sm italic" placeholder="¡Vamos a sacar un 7!" maxlength="50">
-                </div>
-
-                <div class="space-y-3">
-                    <button type="submit" id="btn-start" disabled class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg">
-                        ¡Comenzar la Aventura!
-                    </button>
-                    <button type="button" onclick="window.handleSkipLogin()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors text-sm">
-                        Entrar sin loguearse (Invitado)
-                    </button>
-                </div>
-            </form>
         </div>
+    </div>
 
-        <!-- VIEW: STUDY -->
-        <div id="view-study" class="hidden-view space-y-12 fade-in">
-            <!-- Introducción -->
-            <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-                <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/3e0f4488-d951-4176-b172-9bac465c053a.png" alt="Intro Mayas" class="w-full h-auto object-contain bg-gray-900 max-h-96" />
-                <div class="p-6 md:p-10">
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4 border-b-4 border-amber-200 inline-block pb-2">1. Ubicación Temporal y Geográfica</h2>
-                    <div class="grid md:grid-cols-2 gap-8 mt-6">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-3">⏱️ Los Mayas en el Tiempo</h3>
-                            <p class="text-gray-700 mb-4">Se dividen en dos grandes períodos: <strong>Clásico</strong> (máximo desarrollo en la selva, ej: Tikal) y <strong>Posclásico</strong> (desarrollo en tierras bajas, ej: Chichén Itzá).</p>
-                            <img src="https://raw.githubusercontent.com/femontes/estudiar/944df43c31b22f918d59b2ed6c6983d62ef8c680/ce2f6b89-7827-4096-a5f8-7986e0ac9940.png" class="w-full rounded-xl shadow-md border" alt="Linea de tiempo maya"/>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-3 flex items-center gap-2">🗺️ Entorno Geográfico</h3>
-                            <p class="text-gray-700 mb-4">
-                                Habitaron el área de <strong>Mesoamérica</strong> (hoy sur de México, Guatemala, Belice, Honduras y El Salvador). 
-                                Se adaptaron a <strong>tres zonas geográficas</strong> muy diferentes:
-                            </p>
-                            
-                            <div class="space-y-4 mb-4">
-                                <!-- Zona 1 -->
-                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm transition-transform hover:scale-105">
-                                    <h4 class="font-bold text-blue-800 flex items-center gap-2 text-lg"><span class="text-2xl">🏔️</span> 1. Tierras Altas</h4>
-                                    <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
-                                        <li><strong>Clima:</strong> Templado y frío.</li>
-                                        <li><strong>Vegetación:</strong> Bosques.</li>
-                                        <li><strong>Agua:</strong> Ríos y lagos.</li>
-                                    </ul>
-                                </div>
-                                <!-- Zona 2 -->
-                                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl shadow-sm transition-transform hover:scale-105">
-                                    <h4 class="font-bold text-green-800 flex items-center gap-2 text-lg"><span class="text-2xl">🌴</span> 2. Selva</h4>
-                                    <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
-                                        <li><strong>Clima:</strong> Tropical (caluroso y húmedo).</li>
-                                        <li><strong>Vegetación:</strong> Selvas muy espesas.</li>
-                                        <li><strong>Agua:</strong> Múltiples ríos caudalosos.</li>
-                                    </ul>
-                                </div>
-                                <!-- Zona 3 -->
-                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-xl shadow-sm transition-transform hover:scale-105">
-                                    <h4 class="font-bold text-yellow-800 flex items-center gap-2 text-lg"><span class="text-2xl">🏜️</span> 3. Tierras Bajas</h4>
-                                    <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
-                                        <li><strong>Clima:</strong> Seco.</li>
-                                        <li><strong>Vegetación:</strong> Matorrales.</li>
-                                        <li><strong>Agua:</strong> Lagunas y <strong class="text-yellow-900 bg-yellow-200 px-1 rounded">Cenotes</strong> (grandes pozos de agua subterránea, ¡vitales para la agricultura y ceremonias!).</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <img src="https://raw.githubusercontent.com/femontes/estudiar/bdc3bc0844604f917bc3e4c333d124c5fc07b381/hi_4b_u2_f3.png" class="w-full rounded-xl shadow-md border" alt="Mapa Entorno Geografico" />
-                        </div>
-                    </div>
+    <!-- PANTALLA 4: AM y PM -->
+    <div class="slide bg-green" id="slide-3">
+        <h2>El Misterio de a.m. y p.m.</h2>
+        <div class="content-area">
+            <div class="box" style="max-width: 800px;">
+                <h3 style="color: var(--color-primary);">¡Carlos y Ana van a la Biblioteca!</h3>
+                <ul style="color: var(--color-text-dark);">
+                    <li>Ana llegó a las <strong>9:30 a.m.</strong></li>
+                    <li>Carlos llegó a las <strong>10:00 a.m.</strong></li>
+                </ul>
+                <div style="margin: 20px 0; padding: 15px; background: #f1f5f9; border-radius: 10px; border-left: 5px solid var(--color-secondary);">
+                    <p><strong>¿Sabías qué?</strong><br>
+                    "a.m." significa <em>ante meridiem</em> (antes del mediodía)<br>
+                    "p.m." significa <em>post meridiem</em> (después del mediodía)</p>
                 </div>
-            </section>
-
-            <!-- Organización Política -->
-            <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-                <div class="p-6 md:p-10">
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4 border-b-4 border-amber-200 inline-block pb-2">2. Organización Política</h2>
-                    <div class="grid md:grid-cols-2 gap-8 mt-6 items-center">
-                        <div>
-                            <p class="text-gray-700 text-lg mb-4">Se organizaron en <strong>ciudades-Estado independientes</strong>. Cada una tenía su gobierno encabezado por un <strong>Ahau (rey)</strong> considerado un ser divino.</p>
-                            <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-07-30%20205148.png" class="w-48 mx-auto rounded-xl shadow-md border mb-4" />
-                            <p class="text-gray-700">Las ciudades tenían una zona urbana (templos, palacios) y una zona rural (chozas y campos).</p>
-                        </div>
-                        <div>
-                            <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-07-30%20205232.png" class="w-full rounded-xl shadow-lg border" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Sociedad y Economía -->
-            <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-                <div class="p-6 md:p-10">
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4 border-b-4 border-amber-200 inline-block pb-2">3. Sociedad y Economía</h2>
-                    
-                    <div class="mt-6 space-y-12">
-                        <!-- Pirámide Social -->
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">🔼 Una Sociedad Jerárquica y Piramidal</h3>
-                            <p class="text-gray-700 text-lg mb-6">La sociedad maya estaba dividida en grupos con funciones específicas. Había grandes diferencias entre los grupos privilegiados y los sin privilegios.</p>
-                            
-                            <div class="grid md:grid-cols-2 gap-6 items-center">
-                                <div>
-                                    <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-07-30%20205319.png" class="w-full rounded-xl shadow-md border block" alt="Pirámide Social Maya"/>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg shadow-sm">
-                                        <strong class="text-red-700">1. Ahau y su familia:</strong> Vivían en palacios rodeados de sirvientes, músicos y bufones.
-                                    </div>
-                                    <div class="bg-orange-50 border-l-4 border-orange-500 p-3 rounded-lg shadow-sm">
-                                        <strong class="text-orange-700">2. Nobleza (Privilegiados):</strong> Ocupaban altos cargos políticos y militares. <span class="underline">No pagaban tributos</span>.
-                                    </div>
-                                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded-lg shadow-sm">
-                                        <strong class="text-yellow-700">3. Sacerdotes:</strong> Encargados del horóscopo, calendario, libros sagrados y sacrificios.
-                                    </div>
-                                    <div class="bg-green-50 border-l-4 border-green-500 p-3 rounded-lg shadow-sm">
-                                        <strong class="text-green-700">4. Pueblo y campesinos:</strong> Habitaban la zona rural. Eran agricultores, constructores y artesanos. Ellos <strong class="text-green-900">sí pagaban tributos</strong> (impuestos) con trabajo o productos.
-                                    </div>
-                                    <div class="bg-gray-100 border-l-4 border-gray-500 p-3 rounded-lg shadow-sm">
-                                        <strong class="text-gray-700">5. Esclavos:</strong> Prisioneros de guerra o por deudas. Hacían trabajos forzados y eran sacrificados a los dioses.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Vida Cotidiana -->
-                        <div class="bg-amber-50 p-6 md:p-8 rounded-2xl border border-amber-200 shadow-inner">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">👨‍👩‍👧‍👦 La Vida Cotidiana de las Familias</h3>
-                            <p class="text-gray-700 mb-6">Las actividades diarias en los grupos no privilegiados se dividían según quién las realizaba:</p>
-                            <div class="grid md:grid-cols-3 gap-4">
-                                <div class="bg-white p-5 rounded-xl shadow border-b-4 border-pink-400">
-                                    <h4 class="font-bold text-pink-700 mb-2 text-lg">Las Mujeres</h4>
-                                    <p class="text-sm text-gray-700">Se levantaban muy temprano a preparar tortillas de maíz, se dedicaban a tejer en telares y también ayudaban en las tareas agrícolas.</p>
-                                </div>
-                                <div class="bg-white p-5 rounded-xl shadow border-b-4 border-blue-400">
-                                    <h4 class="font-bold text-blue-700 mb-2 text-lg">Los Hombres</h4>
-                                    <p class="text-sm text-gray-700">Trabajaban en el campo sembrando, se encargaban de la caza de animales silvestres y elaboraban objetos de madera o jade.</p>
-                                </div>
-                                <div class="bg-white p-5 rounded-xl shadow border-b-4 border-teal-400">
-                                    <h4 class="font-bold text-teal-700 mb-2 text-lg">Los Niños</h4>
-                                    <p class="text-sm text-gray-700">Jugaban con muñecos de palo y ayudaban a cuidar a los animales domésticos de la familia, como pavos y perros.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Agricultura y Mercado -->
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div class="bg-green-50 p-6 rounded-2xl border border-green-200">
-                                <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">🌱 Sistema de Tala y Roza</h3>
-                                <p class="text-gray-700 mb-4 text-sm">Para cultivar en la selva, crearon campos llamados <strong>milpas</strong>. El proceso tenía 4 pasos:</p>
-                                <ol class="list-decimal list-inside text-sm text-gray-800 space-y-2 mb-4 font-semibold">
-                                    <li>Tala de árboles (cortarlos).</li>
-                                    <li>Quema controlada (la ceniza era abono).</li>
-                                    <li>Siembra (principalmente <span class="text-green-700">maíz</span>, zapallos, porotos).</li>
-                                    <li>Cosecha de los productos.</li>
-                                </ol>
-                                <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-07-30%20205405.png" class="w-full rounded-xl shadow-md border" alt="Tala y Roza" />
-                            </div>
-                            
-                            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-200">
-                                <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">🛍️ El Mercado Maya</h3>
-                                <p class="text-gray-700 mb-4 text-sm">Era un punto de encuentro para todos los grupos sociales. Sus puestos se construían con madera y techos de ramas secas.</p>
-                                <ul class="list-disc list-inside text-sm text-gray-800 space-y-2 mb-4">
-                                    <li><strong>¿Qué vendían?</strong> Alimentos (carnes, frutas, pescado), telas, joyas y jarrones.</li>
-                                    <li><strong>Moneda:</strong> Utilizaban la <strong>semilla de cacao</strong> como moneda principal, además de practicar el trueque (intercambio directo).</li>
-                                </ul>
-                                <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-07-30%20205532.png" class="w-full rounded-xl shadow-md border" alt="Mercado Maya" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                <i class="fa-solid fa-sun" style="font-size: 3rem; color: var(--color-yellow);"></i>
+            </div>
         </div>
+    </div>
 
-        <!-- VIEW: GAMES -->
-        <div id="view-games" class="hidden-view fade-in">
-            
-            <!-- Menú de Juegos -->
-            <div id="games-menu" class="text-center py-6">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-amber-900 mb-4">¡Hora de jugar y ganar Cacao!</h2>
-                <p class="text-lg text-gray-700 mb-8 font-medium">Elige un desafío para demostrar lo que has aprendido.</p>
+    <!-- PANTALLA 5: NIVEL 2 TITULO -->
+    <div class="slide bg-orange" id="slide-4">
+        <div class="content-area" style="justify-content: center; text-align: center;">
+            <h2 style="font-size: clamp(4rem, 10vw, 8rem); color: white; text-shadow: 4px 4px 0 var(--color-text-dark);">NIVEL 2</h2>
+            <div style="width: 100px; height: 8px; background: var(--color-text-dark); margin: 20px auto; border-radius: 4px;"></div>
+            <h3 style="color: white;">Transformando el Tiempo</h3>
+            <i class="fa-solid fa-wand-magic-sparkles big-icon" style="color: var(--color-yellow); margin-top: 30px;"></i>
+        </div>
+    </div>
+
+    <!-- PANTALLA 6: EQUIVALENCIAS -->
+    <div class="slide bg-cyan" id="slide-5">
+        <h2>Poderes del Tiempo</h2>
+        <div class="content-area">
+            <div class="grid-3">
+                <div class="box">
+                    <i class="fa-solid fa-calendar-day big-icon" style="color: var(--color-primary);"></i>
+                    <div class="math-formula">1 Día = 24 hrs</div>
+                </div>
+                <div class="box">
+                    <i class="fa-solid fa-hourglass-half big-icon" style="color: var(--color-secondary);"></i>
+                    <div class="math-formula">1 Hora = 60 min</div>
+                </div>
+                <div class="box">
+                    <i class="fa-solid fa-stopwatch big-icon" style="color: var(--color-tertiary);"></i>
+                    <div class="math-formula">1 Min = 60 seg</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 7: TABLA -->
+    <div class="slide bg-yellow" id="slide-6">
+        <h2>La Tabla Mágica</h2>
+        <div class="content-area">
+            <div class="box" style="width: 100%; max-width: 800px; padding: 0; overflow: hidden;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tiempo Mayor</th>
+                            <th>Tiempo Menor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>1 Semana</strong></td><td>7 Días</td></tr>
+                        <tr><td><strong>1 Mes</strong></td><td>30 Días (en general)</td></tr>
+                        <tr><td><strong>1 Trimestre</strong></td><td>3 Meses</td></tr>
+                        <tr><td><strong>1 Semestre</strong></td><td>6 Meses</td></tr>
+                        <tr><td><strong>1 Año</strong></td><td>12 Meses</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 8: NIVEL 3 (NUEVO) TITULO -->
+    <div class="slide bg-purple" id="slide-7">
+        <div class="content-area" style="justify-content: center; text-align: center;">
+            <h2 style="font-size: clamp(4rem, 10vw, 8rem); color: var(--color-yellow); text-shadow: 4px 4px 0 var(--color-text-dark);">NIVEL 3</h2>
+            <div style="width: 100px; height: 8px; background: white; margin: 20px auto; border-radius: 4px;"></div>
+            <h3 style="color: white;">El Mundo de los Calendarios</h3>
+            <i class="fa-solid fa-calendar-days big-icon" style="color: var(--color-accent); margin-top: 30px;"></i>
+        </div>
+    </div>
+
+    <!-- PANTALLA 9: SECRETOS DEL CALENDARIO -->
+    <div class="slide bg-green" id="slide-8">
+        <h2>Secretos del Año</h2>
+        <div class="content-area">
+            <div class="grid-2">
+                <div class="box bg-yellow" style="border-color: white; box-shadow: 8px 8px 0px white;">
+                    <h3 style="color: var(--color-text-dark);">El Año Normal</h3>
+                    <p>La Tierra da una vuelta al sol.</p>
+                    <div class="math-formula" style="background: var(--color-primary); color: white;">365 Días</div>
+                    <p>Tiene exactamente <strong>52 semanas</strong>.</p>
+                </div>
+                <div class="box bg-orange" style="border-color: white; box-shadow: 8px 8px 0px white;">
+                    <h3 style="color: white;">¡El Año Bisiesto!</h3>
+                    <p style="color: white;">Ocurre cada 4 años. ¡Febrero tiene un día extra!</p>
+                    <div class="math-formula" style="background: var(--color-text-dark); color: var(--color-yellow);">366 Días</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 10: NIVEL 4 (MINIJUEGOS) TITULO -->
+    <div class="slide bg-text-dark" style="background-color: var(--color-text-dark);" id="slide-9">
+        <div class="content-area" style="justify-content: center; text-align: center;">
+            <h2 style="font-size: clamp(4rem, 10vw, 8rem); color: var(--color-tertiary);">NIVEL 4</h2>
+            <div style="width: 100px; height: 8px; background: white; margin: 20px auto; border-radius: 4px;"></div>
+            <h3 style="color: white;">¡Minijuegos Interactivos!</h3>
+            <p style="color: var(--color-accent);">Haz clic en la respuesta correcta</p>
+            <i class="fa-solid fa-gamepad big-icon" style="color: var(--color-secondary); margin-top: 30px;"></i>
+        </div>
+    </div>
+
+    <!-- PANTALLA 11: QUIZ 1 (V/F) -->
+    <div class="slide bg-cyan" id="slide-10">
+        <h2>Reto 1: Verdadero o Falso</h2>
+        <div class="content-area">
+            <div class="box" style="max-width: 700px; width: 100%;">
+                <h3 style="color: var(--color-primary); margin-bottom: 20px;">"Una hora y media es igual a 90 minutos"</h3>
+                <div class="quiz-options">
+                    <button class="quiz-btn" onclick="checkQuiz(this, true, 'q1')">
+                        <span>A) Verdadero</span> <i class="fa-solid fa-check"></i>
+                    </button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q1')">
+                        <span>B) Falso</span> <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="quiz-feedback" id="feedback-q1">
+                    <span style="color: var(--color-tertiary);">¡Correcto! 60 min (1 hr) + 30 min (media hr) = 90 min.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 12: QUIZ 2 (Opción Múltiple) -->
+    <div class="slide bg-yellow" id="slide-11">
+        <h2>Reto 2: El Recreo</h2>
+        <div class="content-area">
+            <div class="box" style="max-width: 700px; width: 100%;">
+                <h3 style="color: var(--color-text-dark); margin-bottom: 10px;">Si sales a recreo a las 10:15 hrs y dura exactamente 15 minutos...</h3>
+                <p><strong>¿A qué hora debes volver a clases?</strong></p>
+                <div class="quiz-options">
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q2')">
+                        <span>A) 10:45 hrs</span>
+                    </button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, true, 'q2')">
+                        <span>B) 10:30 hrs</span>
+                    </button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q2')">
+                        <span>C) 11:00 hrs</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback" id="feedback-q2">
+                    <span style="color: var(--color-tertiary);">¡Excelente! 10:15 + 15 minutos = 10:30.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 13: DESAFIO CINE -->
+    <div class="slide bg-purple" id="slide-12">
+        <h2>Reto 3: ¡Al Cine!</h2>
+        <div class="content-area">
+            <div class="box" style="max-width: 800px; text-align: center;">
+                <i class="fa-solid fa-film big-icon" style="color: var(--color-secondary); margin-bottom: 0;"></i>
+                <h3>Película: NIEBLA</h3>
+                <p>Comienza: <strong>10:00</strong> | Termina: <strong>12:50</strong></p>
                 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                    <button onclick="window.openGame('trivia')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-blue-500 hover:-translate-y-1 transition-all group flex flex-col items-center">
-                        <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">❓</div>
-                        <h3 class="text-xl font-extrabold text-blue-900">La Gran Trivia</h3>
-                    </button>
-                    <button onclick="window.openGame('pyramid')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-purple-500 hover:-translate-y-1 transition-all group flex flex-col items-center">
-                        <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">🛕</div>
-                        <h3 class="text-xl font-extrabold text-purple-900">Arma la Pirámide</h3>
-                    </button>
-                    <button onclick="window.openGame('tf')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-green-500 hover:-translate-y-1 transition-all group flex flex-col items-center">
-                        <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">✅</div>
-                        <h3 class="text-xl font-extrabold text-green-900">Verdadero o Falso</h3>
-                    </button>
-                    <button onclick="window.openGame('memory')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-pink-500 hover:-translate-y-1 transition-all group flex flex-col items-center">
-                        <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">🧠</div>
-                        <h3 class="text-xl font-extrabold text-pink-900">Memoria Maya</h3>
-                    </button>
-                    <button onclick="window.openGame('word')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-teal-500 hover:-translate-y-1 transition-all group flex flex-col items-center">
-                        <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">🔤</div>
-                        <h3 class="text-xl font-extrabold text-teal-900">Adivina la Palabra</h3>
-                    </button>
-                    <!-- NUEVO JUEGO: CRUCIGRAMA -->
-                    <button onclick="window.openGame('crossword')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-red-500 hover:-translate-y-1 transition-all group flex flex-col items-center">
-                        <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">➕</div>
-                        <h3 class="text-xl font-extrabold text-red-900">Crucigrama Maya</h3>
-                    </button>
+                <h3 style="margin-top: 20px; color: var(--color-primary);">¿Cuántos minutos duró en total?</h3>
+                <p style="font-size: 1rem; margin-bottom: 15px;"><em>(Pista: 2 horas y 50 minutos)</em></p>
+
+                <div class="quiz-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q3')">A) 120 minutos</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q3')">B) 150 minutos</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, true, 'q3')">C) 170 minutos</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q3')">D) 200 minutos</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-q3">
+                    <span style="color: var(--color-tertiary);">¡Muy bien! (2 hrs x 60) + 50 = 120 + 50 = 170 min.</span>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Contenedores de cada juego (inyectados por JS) -->
-            <div id="game-trivia" class="game-container hidden-view max-w-3xl mx-auto"></div>
-            <div id="game-pyramid" class="game-container hidden-view max-w-4xl mx-auto"></div>
-            <div id="game-tf" class="game-container hidden-view max-w-2xl mx-auto"></div>
-            <div id="game-memory" class="game-container hidden-view max-w-4xl mx-auto"></div>
-            <div id="game-word" class="game-container hidden-view max-w-3xl mx-auto"></div>
-            <div id="game-crossword" class="game-container hidden-view max-w-4xl mx-auto text-center">
-                <div class="flex justify-between items-center mb-6">
-                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
-                    <span class="font-bold text-red-800 bg-red-100 px-4 py-2 rounded-full shadow">Crucigrama Maya</span>
+    <!-- PANTALLA 14: DESAFIO TREN 1 (SUMA DE TIEMPO) -->
+    <div class="slide bg-cyan" id="slide-13">
+        <h2>Reto 4: El Horario del Tren</h2>
+        <div class="content-area">
+            <div class="box" style="max-width: 800px; text-align: center;">
+                <i class="fa-solid fa-train big-icon" style="color: var(--color-primary); margin-bottom: 0;"></i>
+                <h3 style="color: var(--color-text-dark);">El Tren L3 está retrasado...</h3>
+                <p>Normalmente sale a las <strong>12:30</strong>, pero hoy saldrá <strong>15 minutos tarde</strong>.</p>
+                <p>Si el viaje dura exactamente <strong>1 hora y 15 minutos</strong>...</p>
+                
+                <h3 style="margin-top: 20px; color: var(--color-secondary);">¿A qué hora llegará a su destino?</h3>
+                <p style="font-size: 1rem; margin-bottom: 15px;"><em>(Pista: Primero suma el retraso a la salida, y luego el tiempo de viaje)</em></p>
+
+                <div class="quiz-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q4')">A) 13:45 hrs</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, true, 'q4')">B) 14:00 hrs</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q4')">C) 14:15 hrs</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q4')">D) 13:30 hrs</button>
                 </div>
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-4 border-red-400">
-                    <div class="grid md:grid-cols-2 gap-8 mb-8 text-left text-sm md:text-base">
-                        <div class="bg-gray-50 p-4 rounded-xl border">
-                            <h4 class="font-bold text-red-800 mb-2 border-b border-red-200 pb-1">➡️ Horizontales</h4>
-                            <p class="mb-2"><strong>1.</strong> Principal cultivo y alimento base de los mayas.</p>
-                            <p><strong>2.</strong> Gran construcción de piedra escalonada, como las de Tikal o Chichén Itzá.</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-xl border">
-                            <h4 class="font-bold text-red-800 mb-2 border-b border-red-200 pb-1">⬇️ Verticales</h4>
-                            <p class="mb-2"><strong>1.</strong> Sistema de cultivo que consiste en cortar árboles y quemar la maleza.</p>
-                            <p><strong>3.</strong> Máxima autoridad política de una ciudad-Estado maya, considerado casi un dios.</p>
-                        </div>
-                    </div>
-                    <!-- El grid del crucigrama se dibuja aquí -->
-                    <div id="crossword-grid" class="grid gap-1 justify-center mx-auto" style="grid-template-columns: repeat(8, minmax(0, max-content));"></div>
-                    
-                    <div id="crossword-result" class="min-h-[60px] flex items-center justify-center"></div>
-
-                    <button onclick="window.checkCrossword()" class="mt-6 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg">Comprobar Respuestas</button>
+                <div class="quiz-feedback" id="feedback-q4">
+                    <span style="color: var(--color-tertiary);">¡Correcto! Sale a las 12:45. +1 hora = 13:45. +15 min = 14:00.</span>
                 </div>
             </div>
-
         </div>
+    </div>
 
-        <!-- VIEW: RANKING -->
-        <div id="view-ranking" class="hidden-view max-w-2xl mx-auto fade-in">
-             <div class="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-yellow-400">
-                <h2 class="text-3xl font-extrabold text-amber-900 mb-6 text-center">🏆 Salón de la Fama 4ºA</h2>
-                <p class="text-center text-gray-600 mb-8">¡Así va la cosecha de semillas de cacao!</p>
-                <div id="ranking-list" class="space-y-4">
-                    <!-- Generado por JS -->
+    <!-- PANTALLA 15: DESAFIO TREN 2 (CONVERSIÓN) -->
+    <div class="slide bg-green" id="slide-14">
+        <h2>Reto 5: El Tren Expreso</h2>
+        <div class="content-area">
+            <div class="box" style="max-width: 800px; text-align: center;">
+                <i class="fa-solid fa-train-subway big-icon" style="color: var(--color-text-dark); margin-bottom: 0;"></i>
+                <h3 style="color: var(--color-primary);">Viaje entre Estación A y B</h3>
+                <p>Este tren viaja súper rápido y demora exactamente <strong>320 segundos</strong>.</p>
+                
+                <h3 style="margin-top: 20px; color: var(--color-secondary);">¿A cuántos minutos y segundos equivale?</h3>
+                <p style="font-size: 1rem; margin-bottom: 15px;"><em>(Pista: 1 minuto = 60 seg. Piensa en la tabla del 6... ¡6 x 5 = 30!)</em></p>
+
+                <div class="quiz-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q5')">A) 4 minutos y 20 segundos</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, true, 'q5')">B) 5 minutos y 20 segundos</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q5')">C) 6 minutos exactos</button>
+                    <button class="quiz-btn" onclick="checkQuiz(this, false, 'q5')">D) 3 minutos y 20 segundos</button>
                 </div>
-             </div>
+                <div class="quiz-feedback" id="feedback-q5">
+                    <span style="color: var(--color-tertiary);">¡Excelente! 5 minutos son 300 segundos. Sobran 20 segundos. ¡5 min y 20 seg!</span>
+                </div>
+            </div>
         </div>
-    </main>
+    </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- PANTALLA 16: FINAL -->
+    <div class="slide bg-orange" id="slide-15">
+        <div class="content-area" style="justify-content: center; text-align: center;">
+            <i class="fa-solid fa-trophy big-icon" style="color: var(--color-yellow); font-size: clamp(6rem, 15vw, 12rem); animation: bounce 2s infinite;"></i>
+            <h1 style="color: white; text-shadow: 4px 4px 0 var(--color-text-dark); font-size: clamp(3.5rem, 8vw, 7rem);">¡MISIÓN CUMPLIDA!</h1>
+            <h3 style="color: white;">¡Felicidades, 4° A!</h3>
+            <p style="color: white;">Han dominado el arte del tiempo a la perfección.</p>
+        </div>
+    </div>
 
-        // --- ESTADO GLOBAL ---
-        window.appState = {
-            currentUser: null,
-            users: JSON.parse(localStorage.getItem('maya_users_v2')) || [],
-            score: 0,
-            selectedEmoji: '🐆',
-            db: null,
-            auth: null,
-            isFirebaseReady: false,
-            firestoreUsers: []
-        };
+    <!-- BARRA DE NAVEGACIÓN GLOBAL -->
+    <div class="nav-bar">
+        <div class="nav-group">
+            <button class="btn btn-secondary" onclick="goHome()" title="Volver al Inicio">
+                <i class="fa-solid fa-house"></i> <span>Inicio</span>
+            </button>
+            <button class="btn btn-danger" onclick="resetGame()" title="Jugar de Nuevo">
+                <i class="fa-solid fa-rotate-right"></i> <span>Reiniciar</span>
+            </button>
+        </div>
+        
+        <div class="nav-group">
+            <button class="btn" style="background: #e2e8f0;" id="btn-sound" onclick="toggleSound()" title="Sonido">
+                <i class="fa-solid fa-volume-xmark" id="sound-icon"></i> <span>Sonido</span>
+            </button>
+            <button class="btn btn-primary" onclick="prevSlide()" id="btn-prev" style="display: none;">
+                <i class="fa-solid fa-arrow-left"></i> <span>Atrás</span>
+            </button>
+            <button class="btn btn-primary" onclick="nextSlide()" id="btn-next">
+                <span>Siguiente</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
 
-        // --- SONIDOS ---
-        const sounds = {
-            click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
-            success: new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'),
-            error: new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3')
-        };
-        window.playSound = function(type) {
-            try { sounds[type].currentTime = 0; sounds[type].play().catch(()=>{}); } catch(e){}
-        };
+</div>
 
-        // --- FIREBASE (Para el modo multijugador) ---
-        async function initFirebase() {
-            if (typeof __firebase_config !== 'undefined' && typeof __app_id !== 'undefined') {
-                try {
-                    const app = initializeApp(JSON.parse(__firebase_config));
-                    window.appState.auth = getAuth(app);
-                    window.appState.db = getFirestore(app);
+<script>
+    // --- Lógica de Navegación ---
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
 
-                    if (typeof __initial_auth_token !== 'undefined') {
-                        await signInWithCustomToken(window.appState.auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(window.appState.auth);
-                    }
-                    
-                    window.appState.isFirebaseReady = true;
+    function updateNav() {
+        if (currentSlide === 0) { btnPrev.style.display = 'none'; } else { btnPrev.style.display = 'flex'; }
+        if (currentSlide === totalSlides - 1) { btnNext.style.display = 'none'; } else { btnNext.style.display = 'flex'; }
+    }
 
-                    // Escuchar cambios en el ranking global
-                    const rankingRef = collection(window.appState.db, 'artifacts', __app_id, 'public', 'data', 'ranking');
-                    onSnapshot(rankingRef, (snapshot) => {
-                        window.appState.firestoreUsers = [];
-                        snapshot.forEach(doc => window.appState.firestoreUsers.push(doc.data()));
-                        window.renderRanking();
-                    }, (e) => console.error("Firebase error", e));
-                } catch(e) { console.error("Firebase init falló", e); }
-            }
+    function showSlide(index) {
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        updateNav();
+        // Si llegamos a la final, reproducir sonido de victoria
+        if(index === totalSlides - 1) {
+            setTimeout(() => playSound('victory'), 300);
         }
-        initFirebase(); // Iniciar silenciosamente
+    }
 
-        // --- PROTECCIÓN DE IMÁGENES ROTAS ---
-        // Si Santillana bloquea la imagen, mostramos un reemplazo bonito para que la web no se vea rota
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('img').forEach(img => {
-                img.onerror = function() {
-                    this.onerror = null; // Evita bucles infinitos
-                    this.src = 'https://placehold.co/600x400/fef3c7/78350f?text=Imagen+Protegida+por+Editorial%5Cn(Falta+iniciar+sesion)';
-                    this.classList.add('border-dashed', 'border-4', 'border-amber-300', 'opacity-80');
-                };
-            });
+    function nextSlide() {
+        if (currentSlide < totalSlides - 1) {
+            currentSlide++;
+            showSlide(currentSlide);
+            playSound('click');
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            currentSlide--;
+            showSlide(currentSlide);
+            playSound('click');
+        }
+    }
+
+    function goHome() {
+        currentSlide = 0;
+        showSlide(currentSlide);
+        playSound('bloop');
+    }
+
+    function resetGame() {
+        // Reiniciar botones de quiz
+        document.querySelectorAll('.quiz-btn').forEach(btn => {
+            btn.classList.remove('correct', 'wrong');
+            btn.style.pointerEvents = 'auto'; // volver a habilitar clics
+        });
+        document.querySelectorAll('.quiz-feedback').forEach(fb => {
+            fb.style.display = 'none';
         });
 
-        // --- FUNCIONES DE LOGIN ---
-        window.validateLogin = function() {
-            const name = document.getElementById('login-name').value.trim();
-            const btn = document.getElementById('btn-start');
-            if (name.length >= 3) {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        };
+        playSound('start');
+        slides[currentSlide].style.animation = 'none';
+        setTimeout(() => {
+            currentSlide = 0;
+            showSlide(currentSlide);
+        }, 300);
+    }
 
-        window.selectEmoji = function(btn, emoji) {
-            document.querySelectorAll('.avatar-btn').forEach(b => {
-                b.classList.remove('bg-amber-200', 'scale-110', 'ring-2', 'ring-amber-500');
-                b.classList.add('bg-gray-50');
+    // --- Lógica de Quizzes (NUEVO) ---
+    function checkQuiz(btnElement, isCorrect, questionId) {
+        const parentDiv = btnElement.parentElement;
+        const allButtons = parentDiv.querySelectorAll('.quiz-btn');
+        const feedback = document.getElementById('feedback-' + questionId);
+
+        if (isCorrect) {
+            btnElement.classList.add('correct');
+            playSound('correct');
+            feedback.style.display = 'block';
+            
+            // Deshabilitar los otros botones
+            allButtons.forEach(b => {
+                b.style.pointerEvents = 'none';
+                if(b !== btnElement) b.style.opacity = '0.5';
             });
-            btn.classList.remove('bg-gray-50');
-            btn.classList.add('bg-amber-200', 'scale-110', 'ring-2', 'ring-amber-500');
-            window.appState.selectedEmoji = emoji;
-            window.playSound('click');
-        };
-
-        window.handleLogin = async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('login-name').value.trim();
-            if(name.length < 3) return;
-
-            // Busca si ya existía localmente
-            const existing = window.appState.users.find(u => u.name.toLowerCase() === name.toLowerCase());
+        } else {
+            btnElement.classList.add('wrong');
+            playSound('wrong');
             
-            window.appState.currentUser = {
-                id: existing ? existing.id : 'user_' + Date.now(),
-                name: name,
-                emoji: window.appState.selectedEmoji,
-                message: document.getElementById('login-message').value.trim(),
-                score: existing ? existing.score : 0,
-                timestamp: new Date().toISOString()
-            };
-            
-            window.appState.score = window.appState.currentUser.score;
-
-            if (!existing) {
-                window.appState.users.push(window.appState.currentUser);
-            } else {
-                const idx = window.appState.users.findIndex(u => u.id === existing.id);
-                window.appState.users[idx] = window.appState.currentUser;
-            }
-            
-            localStorage.setItem('maya_users_v2', JSON.stringify(window.appState.users));
-            
-            // Forzar subida inicial a Firebase si está listo
-            window.addScore(0); 
-
-            window.playSound('success');
-            window.startGameSession();
-        };
-
-        window.handleSkipLogin = function() {
-            window.appState.currentUser = { id: 'guest', name: 'Invitado', emoji: '👤', score: 0 };
-            window.appState.score = 0;
-            window.playSound('click');
-            window.startGameSession();
-        };
-
-        // --- SISTEMA DE PUNTOS Y UI ---
-        window.startGameSession = function() {
-            document.getElementById('header-user-info').classList.remove('hidden-view');
-            document.getElementById('dashboard-nav').classList.remove('hidden-view');
-            window.updateHeader();
-            window.showView('view-study');
-            window.renderRanking();
-        };
-
-        window.updateHeader = function() {
-            if(window.appState.currentUser) {
-                document.getElementById('header-score').innerText = `${window.appState.score} Semillas`;
-                document.getElementById('header-emoji').innerText = window.appState.currentUser.emoji;
-                document.getElementById('header-name').innerText = window.appState.currentUser.name;
-            }
-        };
-
-        window.showView = function(viewId) {
-            window.playSound('click');
-            ['view-login', 'view-study', 'view-games', 'view-ranking'].forEach(id => {
-                document.getElementById(id).classList.add('hidden-view');
-            });
-            document.getElementById(viewId).classList.remove('hidden-view');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-amber-600', 'text-white', 'ring-2', 'ring-amber-600', 'ring-offset-2');
-                btn.classList.add('bg-gray-50', 'text-gray-600');
-            });
-            if(viewId !== 'view-login') {
-                const active = document.querySelector(`.nav-btn[data-target="${viewId}"]`);
-                if(active) {
-                    active.classList.remove('bg-gray-50', 'text-gray-600');
-                    active.classList.add('bg-amber-600', 'text-white', 'ring-2', 'ring-amber-600', 'ring-offset-2');
-                }
-            }
-        };
-
-        window.addScore = async function(points) {
-            window.appState.score += points;
-            
-            if(window.appState.currentUser && window.appState.currentUser.id !== 'guest') {
-                window.appState.currentUser.score = window.appState.score;
-                
-                // Guardar local
-                const idx = window.appState.users.findIndex(u => u.id === window.appState.currentUser.id);
-                if(idx !== -1) window.appState.users[idx].score = window.appState.score;
-                localStorage.setItem('maya_users_v2', JSON.stringify(window.appState.users));
-
-                // Guardar Firebase
-                if (window.appState.isFirebaseReady && window.appState.auth.currentUser) {
-                    try {
-                        const uid = window.appState.auth.currentUser.uid;
-                        const userRef = doc(window.appState.db, 'artifacts', __app_id, 'public', 'data', 'ranking', uid);
-                        await setDoc(userRef, {
-                            name: window.appState.currentUser.name,
-                            emoji: window.appState.currentUser.emoji,
-                            message: window.appState.currentUser.message || '',
-                            score: window.appState.currentUser.score,
-                            timestamp: new Date().toISOString()
-                        }, { merge: true });
-                    } catch(e) { console.error("Error guardando en BD", e); }
-                }
-            }
-            window.updateHeader();
-            window.renderRanking();
-        };
-
-        window.renderRanking = function() {
-            const list = document.getElementById('ranking-list');
-            if(!list) return;
-
-            let map = new Map();
-            // 1. Cargar locales
-            window.appState.users.forEach(u => map.set(u.name.toLowerCase(), u));
-            // 2. Sobrescribir con Firebase (más actualizados)
-            window.appState.firestoreUsers.forEach(u => map.set(u.name.toLowerCase(), u));
-            // 3. Asegurar que YO estoy en la lista si estoy logueado
-            if(window.appState.currentUser && window.appState.currentUser.id !== 'guest') {
-                map.set(window.appState.currentUser.name.toLowerCase(), window.appState.currentUser);
-            }
-
-            let arr = Array.from(map.values()).sort((a, b) => b.score - a.score);
-
-            if(arr.length === 0) {
-                list.innerHTML = `<p class="text-center text-gray-500 italic py-8">Aún no hay exploradores.</p>`;
-                return;
-            }
-
-            list.innerHTML = arr.map((user, i) => {
-                let bg = i === 0 ? 'bg-yellow-50 border-yellow-200' : i === 1 ? 'bg-gray-50 border-gray-200' : i === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-100';
-                let medal = i === 0 ? 'text-yellow-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-orange-400' : 'text-gray-300';
-                return `
-                    <div class="flex items-center justify-between p-4 rounded-2xl border ${bg}">
-                        <div class="flex items-center gap-3 md:gap-4">
-                            <span class="text-xl md:text-2xl font-black ${medal}">#${i + 1}</span>
-                            <span class="text-2xl md:text-3xl">${user.emoji}</span>
-                            <div>
-                                <h4 class="font-bold text-gray-800 text-sm md:text-lg">${user.name}</h4>
-                                ${user.message ? `<p class="text-xs md:text-sm text-gray-500 italic">"${user.message}"</p>` : ''}
-                            </div>
-                        </div>
-                        <div class="font-black text-amber-700 bg-amber-100 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-sm md:text-base whitespace-nowrap">
-                            ${user.score} 🍫
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        };
-
-        // --- LÓGICA DE JUEGOS ---
-        window.openGame = function(id) {
-            window.playSound('click');
-            document.getElementById('games-menu').classList.add('hidden-view');
-            document.querySelectorAll('.game-container').forEach(el => el.classList.add('hidden-view'));
-            document.getElementById(`game-${id}`).classList.remove('hidden-view');
-            
-            // Iniciar juego específico
-            if(id === 'crossword') window.initCrossword();
-            if(id === 'trivia') window.initTrivia();
-            if(id === 'tf') window.initTF();
-            if(id === 'pyramid') window.initPyramid();
-            if(id === 'memory') window.initMemory();
-            if(id === 'word') window.initWord();
-        };
-
-        window.closeGame = function() {
-            window.playSound('click');
-            document.getElementById('games-menu').classList.remove('hidden-view');
-            document.querySelectorAll('.game-container').forEach(el => el.classList.add('hidden-view'));
-        };
-
-        // --- 1. JUEGO: TRIVIA ---
-        const dbTrivia = [
-            {q: "¿En qué área geográfica habitaron los mayas?", opts: ["Los Andes", "Mesoamérica", "América del Norte"], ans: 1},
-            {q: "¿Quién era la máxima autoridad de una ciudad-Estado maya?", opts: ["El Consejo", "El Ahau", "El Sacerdote Mayor"], ans: 1},
-            {q: "¿Cuál fue el principal cultivo y base de su alimentación?", opts: ["Trigo", "Maíz", "Papa"], ans: 1},
-            {q: "¿Qué utilizaban como moneda en el mercado maya?", opts: ["Monedas de oro", "Semillas de cacao", "Conchas de mar"], ans: 1},
-            {q: "La religión maya era politeísta. ¿Qué significa esto?", opts: ["No tenían dioses", "Creían en un solo dios", "Creían en muchos dioses"], ans: 2}
-        ];
-        let triviaIdx = 0; let triviaScore = 0;
-
-        window.initTrivia = function() { triviaIdx = 0; triviaScore = 0; window.renderTrivia(); };
-        window.renderTrivia = function() {
-            const container = document.getElementById('game-trivia');
-            if(triviaIdx >= dbTrivia.length) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-blue-400 text-center"><h2 class="text-3xl font-bold text-blue-600 mb-4">¡Trivia Completada!</h2><p class="text-xl mb-6">Ganaste ${triviaScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-blue-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-blue-600">Volver a Juegos</button></div>`;
-                window.addScore(triviaScore);
-                return;
-            }
-            const q = dbTrivia[triviaIdx];
-            let optsHtml = q.opts.map((o, i) => `<button onclick="window.ansTrivia(${i})" class="block w-full p-4 mb-3 text-left text-lg font-medium bg-gray-50 hover:bg-blue-50 border-2 border-gray-200 rounded-xl transition-all shadow-sm">${o}</button>`).join('');
-            
-            container.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
-                    <span class="font-bold text-blue-800 bg-blue-100 px-4 py-2 rounded-full shadow">Pregunta ${triviaIdx+1}/${dbTrivia.length}</span>
-                </div>
-                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-blue-500">
-                    <h3 class="text-2xl font-bold mb-8 text-gray-800 text-center">${q.q}</h3>
-                    <div id="trivia-opts">${optsHtml}</div>
-                </div>
-            `;
-        };
-        window.ansTrivia = function(idx) {
-            const q = dbTrivia[triviaIdx];
-            const buttons = document.getElementById('trivia-opts').querySelectorAll('button');
-            buttons.forEach(b => b.disabled = true);
-            
-            if(idx === q.ans) {
-                buttons[idx].classList.replace('bg-gray-50', 'bg-green-100');
-                buttons[idx].classList.replace('border-gray-200', 'border-green-500');
-                window.playSound('success');
-                triviaScore += 10;
-            } else {
-                buttons[idx].classList.replace('bg-gray-50', 'bg-red-100');
-                buttons[idx].classList.replace('border-gray-200', 'border-red-500');
-                buttons[q.ans].classList.replace('bg-gray-50', 'bg-green-100');
-                buttons[q.ans].classList.replace('border-gray-200', 'border-green-500');
-                window.playSound('error');
-            }
-            setTimeout(() => { triviaIdx++; window.renderTrivia(); }, 1800);
-        };
-
-        // --- 2. JUEGO: VERDADERO O FALSO ---
-        const dbTF = [
-            {q: "El sistema agrícola usado en la selva maya se llamaba 'Tala y Roza'.", ans: true},
-            {q: "Los esclavos eran la clase social con más privilegios.", ans: false},
-            {q: "Las ciudades mayas eran ciudades-Estado independientes unas de otras.", ans: true},
-            {q: "Los cenotes eran pozos de agua subterránea vitales en zonas secas.", ans: true}
-        ];
-        let tfIdx = 0; let tfScore = 0;
-
-        window.initTF = function() { tfIdx = 0; tfScore = 0; window.renderTF(); };
-        window.renderTF = function() {
-            const container = document.getElementById('game-tf');
-            if(tfIdx >= dbTF.length) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-green-400 text-center"><h2 class="text-3xl font-bold text-green-600 mb-4">¡Desafío Completado!</h2><p class="text-xl mb-6">Ganaste ${tfScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-green-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-green-600">Volver a Juegos</button></div>`;
-                window.addScore(tfScore);
-                return;
-            }
-            
-            container.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
-                    <span class="font-bold text-green-800 bg-green-100 px-4 py-2 rounded-full shadow">Pregunta ${tfIdx+1}/${dbTF.length}</span>
-                </div>
-                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-green-500 text-center">
-                    <h3 class="text-2xl font-bold mb-10 text-gray-800">${dbTF[tfIdx].q}</h3>
-                    <div class="flex gap-4 justify-center" id="tf-opts">
-                        <button onclick="window.ansTF(true)" class="w-1/2 py-6 text-xl font-bold bg-gray-50 text-green-700 hover:bg-green-100 rounded-2xl border-b-4 border-green-400 transition-all shadow-sm">Verdadero</button>
-                        <button onclick="window.ansTF(false)" class="w-1/2 py-6 text-xl font-bold bg-gray-50 text-red-700 hover:bg-red-100 rounded-2xl border-b-4 border-red-400 transition-all shadow-sm">Falso</button>
-                    </div>
-                </div>
-            `;
-        };
-        window.ansTF = function(ans) {
-            const q = dbTF[tfIdx];
-            const buttons = document.getElementById('tf-opts').querySelectorAll('button');
-            buttons.forEach(b => b.disabled = true);
-            
-            if(ans === q.ans) {
-                window.playSound('success');
-                tfScore += 10;
-                buttons[ans ? 0 : 1].classList.replace('bg-gray-50', ans ? 'bg-green-200' : 'bg-red-200');
-            } else {
-                window.playSound('error');
-                buttons[ans ? 0 : 1].classList.add('opacity-50');
-                buttons[q.ans ? 0 : 1].classList.replace('bg-gray-50', q.ans ? 'bg-green-200' : 'bg-red-200');
-            }
-            setTimeout(() => { tfIdx++; window.renderTF(); }, 1500);
-        };
-
-        // --- 3. JUEGO: PIRÁMIDE SOCIAL ---
-        const dbPyramid = [
-            {role: "El Ahau y su familia", bg: "bg-red-500"},
-            {role: "La Nobleza (Privilegiados)", bg: "bg-orange-500"},
-            {role: "Sacerdotes", bg: "bg-yellow-500"},
-            {role: "Pueblo y Campesinos", bg: "bg-green-500"},
-            {role: "Esclavos", bg: "bg-gray-500"}
-        ];
-        let pyrIdx = 0; let pyrScore = 0;
-
-        window.initPyramid = function() { pyrIdx = 0; pyrScore = 0; window.renderPyramid(); };
-        window.renderPyramid = function() {
-            const container = document.getElementById('game-pyramid');
-            if(pyrIdx >= dbPyramid.length) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-purple-400 text-center"><h2 class="text-3xl font-bold text-purple-600 mb-4">¡Pirámide Armada! 🛕</h2><p class="text-xl mb-6">Ganaste ${pyrScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-purple-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-purple-600">Volver a Juegos</button></div>`;
-                window.addScore(pyrScore);
-                return;
-            }
-            
-            let opts = [...dbPyramid].sort(()=>Math.random()-0.5); // Shuffle
-            let optsHtml = opts.map(o => `<button onclick="window.ansPyramid('${o.role}')" class="m-2 px-4 py-3 bg-purple-50 text-purple-900 rounded-xl font-bold hover:bg-purple-100 border-2 border-purple-300 transition-transform hover:scale-105 shadow-sm">${o.role}</button>`).join('');
-
-            let pyramidHtml = dbPyramid.map((lvl, i) => {
-                let isFilled = i < pyrIdx;
-                let color = isFilled ? `${lvl.bg} text-white shadow-inner` : 'bg-gray-100 text-gray-400 border-2 border-dashed border-gray-300';
-                let text = isFilled ? lvl.role : `Nivel ${i+1} (¿Quién va aquí?)`;
-                let width = 50 + (i*10); // Pirámide se ensancha hacia abajo
-                return `<div class="mx-auto text-center p-3 mb-1 rounded-t-lg font-bold transition-all ${color}" style="width: ${width}%;">${text}</div>`;
-            }).join('');
-
-            container.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
-                    <span class="font-bold text-purple-800 bg-purple-100 px-4 py-2 rounded-full shadow">Construyendo Nivel ${pyrIdx+1}</span>
-                </div>
-                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border-t-8 border-purple-500">
-                    <p class="text-center text-gray-700 mb-6 bg-purple-50 p-3 rounded-xl border border-purple-100">Selecciona el grupo que corresponde al <strong>Nivel ${pyrIdx+1}</strong> de la pirámide (partiendo desde la punta hacia abajo).</p>
-                    <div class="mb-8">${pyramidHtml}</div>
-                    <div class="flex flex-wrap justify-center border-t border-gray-100 pt-6">${optsHtml}</div>
-                </div>
-            `;
+            // Quitar la clase wrong después de la animación para poder intentar de nuevo
+            setTimeout(() => {
+                btnElement.classList.remove('wrong');
+            }, 500);
         }
-        window.ansPyramid = function(role) {
-            if(role === dbPyramid[pyrIdx].role) {
-                window.playSound('success'); pyrScore += 10; pyrIdx++; window.renderPyramid();
-            } else {
-                window.playSound('error');
-            }
-        };
+    }
 
-        // --- 4. JUEGO: MEMORIA ---
-        const memoryItems = ['☀️', '🌽', '🛕', '🐆', '☀️', '🌽', '🛕', '🐆'];
-        let memoryCards = []; let memFlipped = []; let memMatched = [];
+    // --- Sistema de Sonido Dinámico (Web Audio API) ---
+    let audioCtx = null;
+    let soundEnabled = false;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if(audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function toggleSound() {
+        initAudio();
+        soundEnabled = !soundEnabled;
+        const icon = document.getElementById('sound-icon');
+        const btn = document.getElementById('btn-sound');
         
-        window.initMemory = function() {
-            memoryCards = memoryItems.sort(() => Math.random() - 0.5);
-            memFlipped = []; memMatched = []; window.renderMemory();
-        };
-        window.renderMemory = function() {
-            const container = document.getElementById('game-memory');
-            if(memMatched.length === memoryItems.length) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-pink-400 text-center"><h2 class="text-3xl font-bold text-pink-600 mb-4">¡Memoria de Jaguar! 🧠</h2><p class="text-xl mb-6">Ganaste 20 semillas 🍫</p><button onclick="window.closeGame()" class="bg-pink-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-pink-600">Volver a Juegos</button></div>`;
-                window.addScore(20);
-                return;
-            }
-            
-            let gridHtml = memoryCards.map((icon, i) => {
-                let isFlipped = memFlipped.includes(i) || memMatched.includes(i);
-                let content = isFlipped ? icon : '?';
-                let bg = isFlipped ? 'bg-pink-50 border-pink-200 text-pink-700' : 'bg-pink-400 border-pink-500 text-pink-100 hover:bg-pink-500 hover:-translate-y-1';
-                return `<button onclick="window.flipMemory(${i})" class="flex items-center justify-center h-24 md:h-32 text-5xl cursor-pointer rounded-2xl border-b-4 shadow-sm transition-all ${bg}">${content}</button>`;
-            }).join('');
-            
-            container.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
-                    <span class="font-bold text-pink-800 bg-pink-100 px-4 py-2 rounded-full shadow">Parejas: ${memMatched.length/2}/4</span>
-                </div>
-                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-pink-500">
-                    <p class="text-center text-gray-600 mb-6">Encuentra los pares de símbolos mayas.</p>
-                    <div class="grid grid-cols-4 gap-3 md:gap-4 max-w-xl mx-auto">${gridHtml}</div>
-                </div>
-            `;
+        if (soundEnabled) {
+            icon.className = 'fa-solid fa-volume-high';
+            btn.style.background = 'var(--color-tertiary)';
+            btn.style.color = 'white';
+            playSound('bloop');
+        } else {
+            icon.className = 'fa-solid fa-volume-xmark';
+            btn.style.background = '#e2e8f0';
+            btn.style.color = 'var(--color-text-dark)';
         }
-        window.flipMemory = function(idx) {
-            if(memFlipped.length >= 2 || memFlipped.includes(idx) || memMatched.includes(idx)) return;
-            window.playSound('click');
-            memFlipped.push(idx);
-            window.renderMemory();
+    }
 
-            if(memFlipped.length === 2) {
-                setTimeout(() => {
-                    let [i1, i2] = memFlipped;
-                    if(memoryCards[i1] === memoryCards[i2]) {
-                        memMatched.push(i1, i2);
-                        window.playSound('success');
-                    } else {
-                        window.playSound('error');
-                    }
-                    memFlipped = [];
-                    window.renderMemory();
-                }, 1000);
-            }
-        };
+    function playSound(type) {
+        if (!soundEnabled || !audioCtx) return;
 
-        // --- 5. JUEGO: ADIVINA LA PALABRA ---
-        const dbWords = [
-            {w: "CENOTE", c: "Pozo de agua subterránea (vital en zonas secas)"},
-            {w: "AHAU", c: "Rey o máxima autoridad de la ciudad-Estado"},
-            {w: "MILPA", c: "Terreno de cultivo usado en el sistema de tala y roza"},
-            {w: "CACAO", c: "Semilla tan valiosa que se usaba como moneda"}
-        ];
-        let wordIdx = 0; let wordScore = 0; let wordGuessed = [];
-        
-        window.initWord = function() { wordIdx = 0; wordScore = 0; wordGuessed = []; window.renderWord(); };
-        window.renderWord = function() {
-            const container = document.getElementById('game-word');
-            if(wordIdx >= dbWords.length) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-teal-400 text-center"><h2 class="text-3xl font-bold text-teal-600 mb-4">¡Gran Descifrador! 📜</h2><p class="text-xl mb-6">Ganaste ${wordScore} semillas 🍫</p><button onclick="window.closeGame()" class="bg-teal-500 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-teal-600">Volver a Juegos</button></div>`;
-                window.addScore(wordScore);
-                return;
-            }
-            
-            const current = dbWords[wordIdx];
-            let displayWord = current.w.split('').map(l => wordGuessed.includes(l) ? l : '_').join(' ');
-            
-            const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
-            let keyboard = alphabet.map(l => {
-                let disabled = wordGuessed.includes(l) ? 'disabled class="m-1 w-10 h-10 md:w-12 md:h-12 bg-gray-100 text-gray-300 rounded-lg"' : `onclick="window.guessWord('${l}')" class="m-1 w-10 h-10 md:w-12 md:h-12 bg-teal-50 text-teal-800 font-bold rounded-lg shadow-sm border-b-4 border-teal-200 hover:bg-teal-100 transition-all hover:-translate-y-0.5 active:translate-y-0 active:border-b-0"`;
-                return `<button ${disabled}>${l}</button>`;
-            }).join('');
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
 
-            container.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <button onclick="window.closeGame()" class="text-gray-500 font-bold bg-white px-4 py-2 rounded-full shadow">← Salir</button>
-                    <span class="font-bold text-teal-800 bg-teal-100 px-4 py-2 rounded-full shadow">Palabra ${wordIdx+1}/${dbWords.length}</span>
-                </div>
-                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-8 border-teal-500 text-center">
-                    <div class="bg-teal-50 border border-teal-100 p-4 rounded-xl mb-8 inline-block shadow-inner">
-                        <p class="text-teal-900 font-bold">💡 Pista:</p>
-                        <p class="text-lg md:text-xl text-teal-800 italic">"${current.c}"</p>
-                    </div>
-                    <div class="text-3xl md:text-5xl tracking-[0.3em] font-black mb-10 text-gray-800 min-h-[60px]">${displayWord}</div>
-                    <div class="flex flex-wrap justify-center max-w-lg mx-auto">${keyboard}</div>
-                </div>
-            `;
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+        } else if (type === 'bloop') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } else if (type === 'start') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.setValueAtTime(600, now + 0.1);
+            osc.frequency.setValueAtTime(800, now + 0.2);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        } else if (type === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.setValueAtTime(800, now + 0.1);
+            osc.frequency.setValueAtTime(1200, now + 0.2);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        } else if (type === 'wrong') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        } else if (type === 'victory') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.setValueAtTime(554.37, now + 0.15); // C#
+            osc.frequency.setValueAtTime(659.25, now + 0.3);  // E
+            osc.frequency.setValueAtTime(880, now + 0.45);    // A (octava arriba)
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 1.0);
+            osc.start(now);
+            osc.stop(now + 1.0);
         }
-        window.guessWord = function(l) {
-            wordGuessed.push(l);
-            const current = dbWords[wordIdx];
-            
-            // Checkear si la palabra está completa
-            let isComplete = current.w.split('').every(char => wordGuessed.includes(char));
-            
-            if (isComplete) {
-                window.playSound('success');
-                window.renderWord(); // Para mostrar la letra final
-                setTimeout(() => {
-                    wordScore += 15;
-                    wordIdx++;
-                    wordGuessed = [];
-                    window.renderWord();
-                }, 1500);
-            } else {
-                if(!current.w.includes(l)) window.playSound('error');
-                else window.playSound('click');
-                window.renderWord();
-            }
-        };
+    }
 
-        // --- CRUCIGRAMA MAYA (Reconstruido) ---
-        window.crosswordData = [
-            // MAIZ (Horiz 0,0) y MILPA (Vert 0,0) - Comparten M
-            {r:0, c:0, ans:'M', num: 1}, {r:0, c:1, ans:'A'}, {r:0, c:2, ans:'I'}, {r:0, c:3, ans:'Z'},
-            {r:1, c:0, ans:'I'},
-            {r:2, c:0, ans:'L'},
-            // PIRAMIDE (Horiz 3,0) cruza con MILPA en la P(3,0)
-            {r:3, c:0, ans:'P', num: 2}, {r:3, c:1, ans:'I'}, {r:3, c:2, ans:'R'}, {r:3, c:3, ans:'A', num: 3}, {r:3, c:4, ans:'M'}, {r:3, c:5, ans:'I'}, {r:3, c:6, ans:'D'}, {r:3, c:7, ans:'E'},
-            {r:4, c:0, ans:'A'},
-            // AHAU (Vert 3,3) cruza con PIRAMIDE en la A(3,3)
-            {r:4, c:3, ans:'H'},
-            {r:5, c:3, ans:'A'},
-            {r:6, c:3, ans:'U'}
-        ];
+    // Atajos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+            prevSlide();
+        }
+    });
 
-        window.initCrossword = function() {
-            const grid = document.getElementById('crossword-grid');
-            let html = '';
-            // Tablero de 7 filas (0-6) x 8 columnas (0-7)
-            for(let r = 0; r <= 6; r++) {
-                for(let c = 0; c <= 7; c++) {
-                    const cell = window.crosswordData.find(x => x.r === r && x.c === c);
-                    if(cell) {
-                        html += `
-                            <div class="relative w-8 h-8 md:w-12 md:h-12 border border-gray-500 bg-white shadow-sm">
-                                ${cell.num ? `<span class="absolute top-0 left-0.5 text-[8px] md:text-[10px] font-bold text-gray-600">${cell.num}</span>` : ''}
-                                <input type="text" id="cw-${r}-${c}" maxlength="1" class="w-full h-full text-center text-lg md:text-2xl font-black uppercase outline-none focus:bg-yellow-100 text-blue-900" oninput="this.value = this.value.toUpperCase()">
-                            </div>
-                        `;
-                    } else {
-                        html += `<div class="w-8 h-8 md:w-12 md:h-12 bg-transparent"></div>`;
-                    }
-                }
-            }
-            grid.innerHTML = html;
-            document.getElementById('crossword-result').innerHTML = '';
-        };
-
-        window.checkCrossword = function() {
-            let allCorrect = true;
-            window.crosswordData.forEach(cell => {
-                const input = document.getElementById(`cw-${cell.r}-${cell.c}`);
-                if(input.value.toUpperCase() === cell.ans) {
-                    input.classList.add('bg-green-100', 'text-green-700');
-                    input.classList.remove('bg-red-100', 'text-red-700');
-                } else {
-                    input.classList.add('bg-red-100', 'text-red-700');
-                    input.classList.remove('bg-green-100', 'text-green-700');
-                    allCorrect = false;
-                }
-            });
-            
-            const resultDiv = document.getElementById('crossword-result');
-            if(allCorrect) {
-                window.playSound('success');
-                resultDiv.innerHTML = `<p class="text-green-600 font-bold text-xl md:text-2xl mt-4 animate-bounce">¡Excelente! +30 Semillas 🍫</p>`;
-                window.addScore(30);
-                setTimeout(() => { window.closeGame(); window.showView('view-ranking'); }, 3000);
-            } else {
-                window.playSound('error');
-                resultDiv.innerHTML = `<p class="text-red-600 font-bold text-lg mt-4">Hay errores, revisa las casillas marcadas.</p>`;
-            }
-        };
-
-        // Inicializar UI por defecto
-        document.getElementById('login-name').value = '';
-    </script>
+</script>
 </body>
 </html>
