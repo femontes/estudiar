@@ -38,8 +38,9 @@
             background-color: var(--color-bg);
             background-image: radial-gradient(circle at center, #312e81 0%, #1e1b4b 100%);
             color: var(--color-text-dark);
-            height: 100vh;
-            width: 100vw;
+            height: 100vh; /* Fallback para computadoras y pantallas antiguas */
+            height: 100dvh; /* ¡Solución mágica para la barra nativa de celulares! */
+            width: 100%;
             overflow: hidden;
             display: flex;
             justify-content: center;
