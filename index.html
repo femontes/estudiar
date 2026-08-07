@@ -422,26 +422,64 @@
         </div>
     </div>
 
-    <!-- PANTALLA 7: TABLA -->
+    <!-- PANTALLA 7: TABLA EXPLICATIVA -->
     <div class="slide bg-yellow" id="slide-6">
-        <h2>La Tabla Mágica</h2>
+        <h2>La Tabla Mágica del Tiempo</h2>
         <div class="content-area">
-            <div class="box" style="width: 100%; max-width: 800px; padding: 0; overflow: hidden;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tiempo Mayor</th>
-                            <th>Tiempo Menor</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>1 Semana</strong></td><td>7 Días</td></tr>
-                        <tr><td><strong>1 Mes</strong></td><td>30 Días (en general)</td></tr>
-                        <tr><td><strong>1 Trimestre</strong></td><td>3 Meses</td></tr>
-                        <tr><td><strong>1 Semestre</strong></td><td>6 Meses</td></tr>
-                        <tr><td><strong>1 Año</strong></td><td>12 Meses</td></tr>
-                    </tbody>
-                </table>
+            <div class="grid-2">
+                <!-- La Tabla Clásica -->
+                <div class="box" style="padding: 0; overflow: hidden; align-self: center;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Unidad</th>
+                                <th>Equivalencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>1 Semana</strong></td><td>7 Días</td></tr>
+                            <tr><td><strong>1 Mes</strong></td><td>30 Días <span style="font-size:0.8em; font-weight:normal;">(general)</span></td></tr>
+                            <tr><td><strong>1 Trimestre</strong></td><td>3 Meses</td></tr>
+                            <tr><td><strong>1 Semestre</strong></td><td>6 Meses</td></tr>
+                            <tr><td><strong>1 Año</strong></td><td>12 Meses</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Explicación Visual Didáctica (Basada en el PDF) -->
+                <div class="box bg-purple" style="border-color: white; color: white; align-self: center;">
+                    <h3 style="color: var(--color-yellow);">¡Armando un Año!</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1rem;">Según nuestro libro, podemos agrupar los meses como bloques:</p>
+                    
+                    <!-- Explicación Semestre -->
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px; width: 100%;">
+                        <h4 style="color: var(--color-accent); font-size: 1.2rem; margin-bottom: 8px; text-transform: uppercase;">1 Semestre = 6 meses</h4>
+                        <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                            <div style="background: var(--color-accent); color: var(--color-text-dark); padding: 5px 10px; border-radius: 5px; font-weight: 800;">6 meses</div>
+                            <div style="font-weight: 900;">+</div>
+                            <div style="background: var(--color-accent); color: var(--color-text-dark); padding: 5px 10px; border-radius: 5px; font-weight: 800;">6 meses</div>
+                            <div style="font-weight: 900;">=</div>
+                            <div style="background: var(--color-yellow); color: var(--color-text-dark); padding: 5px 10px; border-radius: 5px; font-weight: 900;">1 AÑO</div>
+                        </div>
+                    </div>
+
+                    <!-- Explicación Trimestre -->
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; width: 100%;">
+                        <h4 style="color: var(--color-tertiary); font-size: 1.2rem; margin-bottom: 8px; text-transform: uppercase;">1 Trimestre = 3 meses</h4>
+                        <div style="display: flex; gap: 5px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <div style="background: var(--color-tertiary); padding: 5px 10px; border-radius: 5px; font-weight: 800;">3</div>
+                            <div style="font-weight: 900;">+</div>
+                            <div style="background: var(--color-tertiary); padding: 5px 10px; border-radius: 5px; font-weight: 800;">3</div>
+                            <div style="font-weight: 900;">+</div>
+                            <div style="background: var(--color-tertiary); padding: 5px 10px; border-radius: 5px; font-weight: 800;">3</div>
+                            <div style="font-weight: 900;">+</div>
+                            <div style="background: var(--color-tertiary); padding: 5px 10px; border-radius: 5px; font-weight: 800;">3</div>
+                            <div style="font-weight: 900;">=</div>
+                            <div style="background: var(--color-yellow); color: var(--color-text-dark); padding: 5px 10px; border-radius: 5px; font-weight: 900;">1 AÑO</div>
+                        </div>
+                        <p style="font-size: 0.9rem; margin-top: 10px; color: #cbd5e1; font-weight: 800;">¡Por eso 1 año tiene exactamente 4 trimestres!</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
