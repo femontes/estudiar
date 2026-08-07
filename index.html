@@ -222,9 +222,12 @@
         .quiz-feedback { margin-top: 20px; font-size: 1.5rem; font-weight: 800; display: none; }
 
         @media (max-width: 768px) {
-            .slide { padding-bottom: 100px; padding-top: 10px; } /* Ajuste del margen seguro para menú flotante en celular */
-            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 10px; overflow-y: auto; padding-bottom: 20px; }
-            .content-area { padding-top: 10px; }
+            .slide { padding-bottom: 110px; padding-top: 10px; } /* Ajuste extra del margen seguro */
+            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 20px; height: auto; overflow-y: visible; padding-bottom: 20px; }
+            .content-area { padding-top: 10px; justify-content: flex-start; } /* Alinea arriba para permitir scroll correcto de bloques largos */
+            
+            /* Ajustes finos para la tabla mágica en celulares */
+            table th, table td { padding: 10px 5px; font-size: 0.95rem; }
             
             /* Menú inferior flotante adaptativo (Estilo dock de app móvil) */
             .nav-bar { 
@@ -428,7 +431,7 @@
         <div class="content-area">
             <div class="grid-2">
                 <!-- La Tabla Clásica -->
-                <div class="box" style="padding: 0; overflow: hidden; align-self: center;">
+                <div class="box" style="padding: 0; overflow: hidden;">
                     <table>
                         <thead>
                             <tr>
@@ -447,7 +450,7 @@
                 </div>
                 
                 <!-- Explicación Visual Didáctica (Basada en el PDF) -->
-                <div class="box bg-purple" style="border-color: white; color: white; align-self: center;">
+                <div class="box bg-purple" style="border-color: white; color: white;">
                     <h3 style="color: var(--color-yellow);">¡Armando un Año!</h3>
                     <p style="margin-bottom: 15px; font-size: 1.1rem;">Según nuestro libro, podemos agrupar los meses como bloques:</p>
                     
