@@ -3,748 +3,742 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magia Wonka - Repaso 4º Básico A</title>
+    <title>La Tierra Dinámica - Cuarto A</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts para tipografía amigable -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Tone.js para los sonidos interactivos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Paytone+One&display=swap');
-
         body {
-            font-family: 'Fredoka', sans-serif;
-            background-color: #2b0f4c; /* Morado Wonka */
-            background-image: radial-gradient(circle at center, #3d1466 0%, #1a092e 100%);
-            color: #ffffff;
-            min-height: 100vh;
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .seccion-contenido {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .seccion-contenido.activa {
+            display: block;
         }
 
-        h1, h2, h3, .title-font {
-            font-family: 'Paytone One', sans-serif;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .golden-border {
-            border: 4px solid #ffb703;
-            box-shadow: 0 0 15px rgba(255, 183, 3, 0.5);
-        }
-
-        .tab-btn.active {
-            background-color: #ffb703;
-            color: #2b0f4c;
-            transform: translateY(-4px);
-            box-shadow: 0 4px 15px rgba(255, 183, 3, 0.6);
-        }
-
-        .tab-btn {
-            transition: all 0.3s ease;
-        }
-
-        /* Animaciones */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .floating {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .flip-card-inner {
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
-
-        .card-matched {
-            animation: pulse-gold 1s ease-out;
-        }
-
-        @keyframes pulse-gold {
-            0% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 183, 3, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0); }
+        /* Animación para el Simulador de Terremoto */
+        .shake-hard {
+            animation: shake 0.4s infinite;
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-3px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
-        .shake-animation {
-            animation: shake 0.4s ease-in-out;
+        /* Estilos para el Volcán Interactivo */
+        .punto-volcan {
+            width: 30px;
+            height: 30px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+            transition: transform 0.2s;
+        }
+        .punto-volcan:hover {
+            transform: scale(1.2);
+            background-color: #dc2626;
         }
 
-        @keyframes pop {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(0); opacity: 0; }
+        /* Cartas Memorice */
+        .carta {
+            perspective: 1000px;
+            cursor: pointer;
+            height: 120px;
+        }
+        .carta-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .carta.volteada .carta-inner {
+            transform: rotateY(180deg);
+        }
+        .carta-front, .carta-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+            padding: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .carta-front {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            font-size: 2rem;
+        }
+        .carta-back {
+            background-color: white;
+            color: #1e293b;
+            transform: rotateY(180deg);
+            border: 2px solid #e2e8f0;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .carta.emparejada {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
-        .pop-out {
-            animation: pop 0.4s ease-out forwards;
+        /* Animación para el banner de inicio */
+        @keyframes pan-bg {
+            0% { transform: scale(1.1) translate(0, 0); }
+            50% { transform: scale(1.2) translate(-2%, 2%); }
+            100% { transform: scale(1.1) translate(0, 0); }
         }
-
-        /* Ocultar barra de scroll para estética */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1a092e; }
-        ::-webkit-scrollbar-thumb { background: #ffb703; border-radius: 4px; }
+        .animate-pan-bg {
+            animation: pan-bg 20s ease-in-out infinite;
+        }
     </style>
 </head>
-<body class="p-4 md:p-8" onload="initApp()">
+<body class="text-slate-800">
 
-    <header class="text-center mb-8">
-        <h1 class="text-4xl md:text-6xl text-[#ffb703] drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] floating mb-2">
-            🎩 La Fábrica de Wonka 🍫
-        </h1>
-        <p class="text-xl md:text-2xl text-pink-300 font-bold">Guía de Estudio Interactiva - 4º Básico A</p>
-    </header>
-
-    <!-- Navegación -->
-    <nav class="flex flex-wrap justify-center gap-3 mb-8">
-        <button onclick="showTab('personajes')" id="btn-personajes" class="tab-btn active bg-[#5e17eb] text-white px-5 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg golden-border hover:bg-[#722bf2]">
-            🧑🏽‍🤝‍🧑🏼 Personajes
-        </button>
-        <button onclick="showTab('trivia')" id="btn-trivia" class="tab-btn bg-[#5e17eb] text-white px-5 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg golden-border hover:bg-[#722bf2]">
-            ❓ Gran Trivia
-        </button>
-        <button onclick="showTab('orden')" id="btn-orden" class="tab-btn bg-[#5e17eb] text-white px-5 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg golden-border hover:bg-[#722bf2]">
-            ⏱️ Orden de Salida
-        </button>
-        <button onclick="showTab('memorice')" id="btn-memorice" class="tab-btn bg-[#5e17eb] text-white px-5 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg golden-border hover:bg-[#722bf2]">
-            🧠 Memorice
-        </button>
-        <button onclick="showTab('moralejas')" id="btn-moralejas" class="tab-btn bg-[#5e17eb] text-white px-5 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg golden-border hover:bg-[#722bf2]">
-            📚 Valores y Autor
-        </button>
+    <!-- NAVEGACIÓN -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-2 text-2xl font-black text-indigo-600">
+                    <i class="fa-solid fa-earth-americas"></i>
+                    <span>TierraDinámica</span>
+                </div>
+                <!-- Menú Desktop -->
+                <div class="hidden md:flex space-x-2">
+                    <button onclick="cambiarSeccion('inicio')" class="nav-btn px-4 py-2 rounded-full font-bold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition">Inicio</button>
+                    <button onclick="cambiarSeccion('placas')" class="nav-btn px-4 py-2 rounded-full font-bold text-slate-600 hover:bg-slate-100 transition">Placas</button>
+                    <button onclick="cambiarSeccion('volcanes')" class="nav-btn px-4 py-2 rounded-full font-bold text-slate-600 hover:bg-slate-100 transition">Volcanes</button>
+                    <button onclick="cambiarSeccion('terremotos')" class="nav-btn px-4 py-2 rounded-full font-bold text-slate-600 hover:bg-slate-100 transition">Terremotos</button>
+                    <button onclick="cambiarSeccion('tsunamis')" class="nav-btn px-4 py-2 rounded-full font-bold text-slate-600 hover:bg-slate-100 transition">Tsunamis</button>
+                    <button onclick="cambiarSeccion('juegos')" class="nav-btn px-4 py-2 rounded-full font-bold bg-yellow-400 text-yellow-900 hover:bg-yellow-500 transition shadow-sm"><i class="fa-solid fa-gamepad"></i> Juegos</button>
+                </div>
+                <!-- Menú Mobile -->
+                <div class="md:hidden flex gap-2">
+                    <select id="mobile-menu" onchange="cambiarSeccion(this.value)" class="bg-slate-100 border-none font-bold text-indigo-700 rounded-lg p-2 outline-none">
+                        <option value="inicio">Inicio</option>
+                        <option value="placas">Placas Tectónicas</option>
+                        <option value="volcanes">Volcanes</option>
+                        <option value="terremotos">Terremotos</option>
+                        <option value="tsunamis">Tsunamis</option>
+                        <option value="juegos">🎮 Juegos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-3xl p-6 md:p-8 golden-border shadow-2xl">
+    <main class="max-w-6xl mx-auto px-4 py-8">
         
-        <!-- SECCIÓN 1: PERSONAJES -->
-        <section id="personajes" class="tab-content block">
-            <h2 class="text-3xl title-font text-[#ffb703] text-center mb-6">Conoce a los Afortunados (y no tan afortunados)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white text-[#2b0f4c] rounded-2xl p-5 text-center transform transition hover:scale-105 border-b-8 border-[#ffb703]">
-                    <div class="text-6xl mb-2">👦</div>
-                    <h3 class="text-xl font-bold mb-2">Charlie Bucket</h3>
-                    <p class="text-sm">Un niño muy pobre, pero amable y respetuoso. Encontró el 5º Billete Dorado en una moneda que halló en la nieve. Al ser el único que se portó bien, ¡ganó la fábrica entera!</p>
-                </div>
-                <div class="bg-white text-[#2b0f4c] rounded-2xl p-5 text-center transform transition hover:scale-105 border-b-8 border-red-500">
-                    <div class="text-6xl mb-2">🍫</div>
-                    <h3 class="text-xl font-bold mb-2">Augustus Gloop</h3>
-                    <p class="text-sm">Un niño que solo pensaba en comer. Por desobedecer y tomar del Río de Chocolate, cayó en él y fue succionado por un gran tubo de cristal.</p>
-                </div>
-                <div class="bg-white text-[#2b0f4c] rounded-2xl p-5 text-center transform transition hover:scale-105 border-b-8 border-purple-500">
-                    <div class="text-6xl mb-2">🍬</div>
-                    <h3 class="text-xl font-bold mb-2">Violet Beauregarde</h3>
-                    <p class="text-sm">La campeona de mascar chicle. Ignoró las advertencias de Wonka, probó el chicle de comida completa (aún sin terminar) y se infló como un arándano gigante azul.</p>
-                </div>
-                <div class="bg-white text-[#2b0f4c] rounded-2xl p-5 text-center transform transition hover:scale-105 border-b-8 border-green-500">
-                    <div class="text-6xl mb-2">🐿️</div>
-                    <h3 class="text-xl font-bold mb-2">Veruca Salt</h3>
-                    <p class="text-sm">Una niña muy malcriada que exigía todo gritando. Quiso robar una ardilla amaestrada, pero las ardillas la evaluaron como una "nuez mala" y la tiraron al pozo de la basura.</p>
-                </div>
-                <div class="bg-white text-[#2b0f4c] rounded-2xl p-5 text-center transform transition hover:scale-105 border-b-8 border-blue-500">
-                    <div class="text-6xl mb-2">📺</div>
-                    <h3 class="text-xl font-bold mb-2">Mike Tevé</h3>
-                    <p class="text-sm">Obsesionado con la televisión y las pistolas de juguete. Quiso ser la primera persona enviada por la Televisión de Chocolate y terminó midiendo solo 2 centímetros de altura.</p>
-                </div>
-                <div class="bg-white text-[#2b0f4c] rounded-2xl p-5 text-center transform transition hover:scale-105 border-b-8 border-pink-500">
-                    <div class="text-6xl mb-2">🎩</div>
-                    <h3 class="text-xl font-bold mb-2">Willy Wonka</h3>
-                    <p class="text-sm">El excéntrico y brillante dueño de la fábrica. Organizó el concurso porque buscaba a un niño de buen corazón para dejarle su fábrica como herencia, ya que él estaba viejo.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 2: TRIVIA -->
-        <section id="trivia" class="tab-content hidden">
-            <h2 class="text-3xl title-font text-[#ffb703] text-center mb-6">La Gran Trivia de Wonka 🎫</h2>
-            
-            <div id="trivia-container" class="bg-white text-[#2b0f4c] rounded-2xl p-6 md:p-8 relative">
-                <div id="question-count" class="text-sm font-bold text-gray-400 mb-2">Pregunta 1 de 15</div>
-                <h3 id="question-text" class="text-2xl font-bold mb-6">¿Preparado?</h3>
-                
-                <div id="options-container" class="grid grid-cols-1 gap-3">
-                    <!-- Opciones se insertan vía JS -->
-                </div>
-
-                <div id="trivia-result" class="hidden mt-6 text-center animate-bounce">
-                    <p id="trivia-message" class="text-2xl font-bold text-green-600 mb-4">¡Correcto!</p>
-                    <button onclick="nextQuestion()" class="bg-[#ffb703] text-[#2b0f4c] px-6 py-2 rounded-full font-bold hover:bg-yellow-400">Siguiente ➡️</button>
-                </div>
-
-                <div id="trivia-final" class="hidden text-center">
-                    <div class="text-6xl mb-4">🏆</div>
-                    <h3 class="text-3xl font-bold mb-2">¡Trivia Completada!</h3>
-                    <p id="final-score" class="text-xl mb-6 font-bold"></p>
-                    <button onclick="restartTrivia()" class="bg-[#2b0f4c] text-white px-8 py-3 rounded-full font-bold hover:bg-[#5e17eb]">Intentar de nuevo</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 3: ORDEN DE SALIDA -->
-        <section id="orden" class="tab-content hidden">
-            <h2 class="text-3xl title-font text-[#ffb703] text-center mb-4">El Orden de los Castigos ⏱️</h2>
-            <p class="text-center text-white mb-8">Ordena a los niños desobedientes en la secuencia exacta en que tuvieron que abandonar la visita a la fábrica.</p>
-
-            <div class="flex flex-col md:flex-row justify-center gap-4 mb-8">
-                <div class="order-slot flex flex-col items-center">
-                    <span class="text-[#ffb703] font-bold mb-1">1º Lugar</span>
-                    <div id="slot-1" onclick="returnKidToPool(1)" class="w-24 h-24 bg-white/20 border-dashed border-2 border-white rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-white/30 text-4xl"></div>
-                </div>
-                <div class="order-slot flex flex-col items-center">
-                    <span class="text-[#ffb703] font-bold mb-1">2º Lugar</span>
-                    <div id="slot-2" onclick="returnKidToPool(2)" class="w-24 h-24 bg-white/20 border-dashed border-2 border-white rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-white/30 text-4xl"></div>
-                </div>
-                <div class="order-slot flex flex-col items-center">
-                    <span class="text-[#ffb703] font-bold mb-1">3º Lugar</span>
-                    <div id="slot-3" onclick="returnKidToPool(3)" class="w-24 h-24 bg-white/20 border-dashed border-2 border-white rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-white/30 text-4xl"></div>
-                </div>
-                <div class="order-slot flex flex-col items-center">
-                    <span class="text-[#ffb703] font-bold mb-1">4º Lugar</span>
-                    <div id="slot-4" onclick="returnKidToPool(4)" class="w-24 h-24 bg-white/20 border-dashed border-2 border-white rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-white/30 text-4xl"></div>
-                </div>
-            </div>
-
-            <div id="kids-pool" class="flex flex-wrap justify-center gap-4 mb-8 bg-white/10 p-4 rounded-xl">
-                <!-- Llenado por JS -->
-            </div>
-
-            <div class="text-center">
-                <button id="check-order-btn" onclick="checkOrder()" class="hidden bg-green-500 text-white px-8 py-3 rounded-full font-bold text-xl hover:bg-green-600 golden-border">
-                    ¡Comprobar Orden! ✅
-                </button>
-                <p id="order-message" class="text-xl font-bold mt-4"></p>
-                <button id="retry-order-btn" onclick="initOrderGame()" class="hidden mt-4 bg-gray-300 text-[#2b0f4c] px-6 py-2 rounded-full font-bold hover:bg-white">Reintentar</button>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 4: MEMORICE -->
-        <section id="memorice" class="tab-content hidden">
-            <h2 class="text-3xl title-font text-[#ffb703] text-center mb-4">Memorice de Causa y Efecto 🧠</h2>
-            <p class="text-center text-white mb-6">Une a cada personaje con su debilidad o el castigo que recibió. ¡Haz clic para voltear las cartas!</p>
-            
-            <div id="memory-board" class="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 max-w-3xl mx-auto mb-6">
-                <!-- Cartas insertadas vía JS -->
-            </div>
-
-            <div id="memory-win" class="hidden text-center bg-white/20 p-6 rounded-2xl animate-bounce border-2 border-[#ffb703]">
-                <div class="text-6xl mb-2">🎉🏆</div>
-                <p class="text-2xl font-bold text-[#ffb703] mb-4">¡Excelente memoria de Oompa-Loompa!</p>
-                <button onclick="initMemoryGame()" class="bg-[#ffb703] text-[#2b0f4c] font-bold py-2 px-6 rounded-full hover:bg-white transition-colors">Volver a Jugar</button>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 5: VALORES Y MORALEJAS -->
-        <section id="moralejas" class="tab-content hidden">
-            <h2 class="text-3xl title-font text-[#ffb703] text-center mb-4">El Caldero de los Valores ⚗️</h2>
-            
-            <div id="moralejas-game">
-                <p class="text-center text-white mb-6">Ayuda a Willy Wonka a preparar el "Chocolate del Verdadero Ganador". Haz clic <strong>solo en los valores positivos</strong> que demostró tener Charlie y evita los malos comportamientos de los otros niños.</p>
-                
-                <div class="flex flex-col items-center">
-                    <!-- Caldero -->
-                    <div class="text-8xl mb-6 relative floating">
-                        🍲
-                        <div id="cauldron-counter" class="absolute -top-2 -right-4 bg-green-500 text-white text-xl font-bold w-10 h-10 rounded-full flex items-center justify-center border-2 border-white">0/5</div>
+        <!-- SECCIÓN: INICIO -->
+        <section id="inicio" class="seccion-contenido activa">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-teal-100">
+                <div class="bg-teal-50 p-8 text-center">
+                    <h2 class="text-4xl md:text-5xl font-black text-teal-600 mb-6">¡Bienvenidos, Cuarto A! 🎓</h2>
+                    
+                    <!-- Banner Tipográfico Moderno con Imagen de Fondo -->
+                    <div class="relative bg-[#12b8a6] rounded-2xl shadow-lg mb-8 py-16 px-4 transform hover:scale-[1.01] transition-transform cursor-default overflow-hidden flex items-center justify-center min-h-[250px]">
+                        <!-- Imagen translúcida en movimiento -->
+                        <div class="absolute inset-0 w-full h-full opacity-30 bg-cover bg-center animate-pan-bg" style="background-image: url('https://raw.githubusercontent.com/femontes/estudiar/f8c1f9acd7b551d331037447b48d023b060cf4f2/3157d59a-8da3-4b89-b29a-4ca21d5d941c.png');"></div>
+                        
+                        <h3 class="relative z-10 text-4xl md:text-6xl font-black text-white tracking-wide drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]">La Geósfera se mueve</h3>
                     </div>
 
-                    <!-- Burbujas de Valores -->
-                    <div id="values-pool" class="flex flex-wrap justify-center gap-3 w-full max-w-2xl">
-                        <!-- Botones insertados por JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resultado: El Gran Libro -->
-            <div id="moralejas-result" class="hidden">
-                <div class="bg-white text-[#2b0f4c] p-6 md:p-8 rounded-2xl golden-border relative">
-                    <!-- Decoración de libro -->
-                    <div class="absolute top-0 left-0 w-full h-4 bg-[#ffb703] rounded-t-xl"></div>
-                    
-                    <h3 class="text-3xl title-font text-center text-[#5e17eb] mb-6 mt-2">✨ La Gran Moraleja ✨</h3>
-                    
-                    <p class="text-lg mb-6 leading-relaxed">
-                        ¡Felicidades! Has completado la receta. En esta historia, vimos cómo la <strong>gula, los caprichos exagerados, la desobediencia y la obsesión por las pantallas</strong> llevaron a los otros niños a fracasar. 
-                        En cambio, Charlie Bucket ganó el mayor de los premios (la fábrica entera) gracias a su <strong>humildad, paciencia, generosidad y buen corazón</strong>. ¡El libro nos enseña que las cosas materiales no compran la felicidad y que ser una buena persona tiene grandes recompensas!
+                    <p class="text-xl md:text-2xl text-slate-600 mb-6 font-semibold">
+                        Nuestra Tierra parece tranquila, pero ¡se mueve todo el tiempo!
                     </p>
+                    <p class="text-lg text-slate-700 max-w-3xl mx-auto">
+                        Debido a la interacción de los componentes de nuestro planeta, se producen fenómenos naturales asombrosos. En esta unidad descubriremos por qué ocurren los terremotos, cómo se forman los volcanes y qué es un tsunami.
+                    </p>
+                </div>
+                
+                <div class="p-8 grid md:grid-cols-3 gap-6">
+                    <div class="bg-indigo-50 p-6 rounded-2xl text-center border border-indigo-100 hover:shadow-md transition">
+                        <i class="fa-solid fa-puzzle-piece text-5xl text-indigo-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-indigo-800 mb-2">Un gran rompecabezas</h3>
+                        <p class="text-slate-600">La capa exterior de la Tierra está dividida en piezas gigantes llamadas placas tectónicas.</p>
+                    </div>
+                    <div class="bg-red-50 p-6 rounded-2xl text-center border border-red-100 hover:shadow-md transition">
+                        <i class="fa-solid fa-temperature-arrow-up text-5xl text-red-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-red-800 mb-2">Energía Interior</h3>
+                        <p class="text-slate-600">Las diferencias de temperatura en el interior de nuestro planeta hacen que estas piezas se muevan.</p>
+                    </div>
+                    <div class="bg-cyan-50 p-6 rounded-2xl text-center border border-cyan-100 hover:shadow-md transition">
+                        <i class="fa-solid fa-house-tsunami text-5xl text-cyan-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-cyan-800 mb-2">Fenómenos Naturales</h3>
+                        <p class="text-slate-600">El movimiento causa que el paisaje cambie creando montañas, sismos y tsunamis.</p>
+                    </div>
+                </div>
+                <div class="text-center pb-8">
+                    <button onclick="cambiarSeccion('placas')" class="bg-teal-500 hover:bg-teal-600 text-white text-xl font-black py-4 px-8 rounded-full shadow-lg transform hover:-translate-y-1 transition-all">
+                        ¡Comenzar la Aventura! <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
 
-                    <hr class="border-t-2 border-gray-200 mb-6">
+        <!-- SECCIÓN: PLACAS -->
+        <section id="placas" class="seccion-contenido">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-black text-blue-600 mb-4"><i class="fa-solid fa-map"></i> Placas Tectónicas</h2>
+                <p class="text-xl mb-4">La corteza terrestre y el manto externo no son una sola capa, ¡están fraccionadas!</p>
+            </div>
 
-                    <div class="flex flex-col md:flex-row items-center gap-6">
-                        <div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center border-4 border-[#ffb703] shrink-0 text-5xl">
-                            ✍️
-                        </div>
+            <!-- Imagen solicitada por el usuario -->
+            <div class="mb-10 text-center">
+                <div class="inline-block p-2 bg-white rounded-2xl shadow-xl border-4 border-blue-200 transform hover:scale-[1.01] transition-transform">
+                    <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/b1ae5cad-f506-4f11-83aa-90f8a0043644.png" alt="Mapa de Placas Tectónicas" class="rounded-xl w-full max-w-4xl object-cover">
+                    <p class="text-sm font-bold text-blue-500 mt-2">Mapa mundial de las interacciones de las placas</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center mb-10">
+                <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-blue-200">
+                    <h3 class="text-2xl font-bold text-blue-600 mb-3">¿Por qué se mueven?</h3>
+                    <p class="text-lg">Las placas están en constante movimiento debido a las diferencias de <strong>temperatura</strong> en el interior de la Tierra. <br><br>Chile, por ejemplo, está justo donde chocan la <strong>Placa Sudamericana</strong> y la <strong>Placa de Nazca</strong>. La Placa de Nazca subduce (se hunde) bajo el segmento más austral de la placa Sudamericana, ¡lo que forma nuestros miles de volcanes y montañas!</p>
+                </div>
+                
+                <div class="grid gap-4">
+                    <div class="bg-amber-100 p-4 rounded-xl border-l-8 border-amber-500 flex items-center gap-4">
+                        <div class="text-3xl">➡️⬅️</div>
                         <div>
-                            <h4 class="text-2xl font-bold text-[#ffb703] mb-2">Sobre el Autor: Roald Dahl</h4>
-                            <p class="text-md">
-                                El creador de esta maravillosa historia fue <strong>Roald Dahl</strong> (1916-1990). Fue un famoso escritor británico conocido por su increíble imaginación. Además de <em>Charlie y la Fábrica de Chocolate</em>, escribió clásicos como <em>Matilda</em>, <em>Las Brujas</em> y <em>El Superzorro</em>. Él creía profundamente en el poder de la lectura para los niños, ¡tal como lo cantan los Oompa-Loompas!
-                            </p>
+                            <h4 class="font-bold text-amber-900">Convergencia (Choque)</h4>
+                            <p class="text-sm">Las placas chocan. Si una es oceánica y la otra continental, la más densa se hunde (Subducción). Si son iguales, forman montañas.</p>
                         </div>
                     </div>
-                    
-                    <div class="text-center mt-8">
-                        <button onclick="initMoralejasGame()" class="bg-[#ffb703] text-[#2b0f4c] font-bold py-2 px-6 rounded-full hover:bg-yellow-400">Volver a Mezclar 🍲</button>
+                    <div class="bg-green-100 p-4 rounded-xl border-l-8 border-green-500 flex items-center gap-4">
+                        <div class="text-3xl">⬅️➡️</div>
+                        <div>
+                            <h4 class="font-bold text-green-900">Divergencia (Separación)</h4>
+                            <p class="text-sm">Las placas se separan. Esto crea nuevo suelo oceánico, mares u océanos.</p>
+                        </div>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-xl border-l-8 border-purple-500 flex items-center gap-4">
+                        <div class="text-3xl">⬆️⬇️</div>
+                        <div>
+                            <h4 class="font-bold text-purple-900">Deslizamiento</h4>
+                            <p class="text-sm">Las placas se deslizan horizontalmente, rozándose entre sí (como la Falla de San Andrés).</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- SECCIÓN: VOLCANES -->
+        <section id="volcanes" class="seccion-contenido">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-black text-red-600 mb-4"><i class="fa-solid fa-volcano"></i> Formación de Volcanes</h2>
+                <p class="text-xl mb-6">Se forman al producirse una grieta en la corteza terrestre debido al movimiento de placas o el ascenso de magma.</p>
+                
+                <!-- Banner Tipográfico -->
+                <div class="bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl shadow-lg mb-8 py-10 px-4">
+                    <h3 class="text-3xl md:text-5xl font-black text-white drop-shadow-md">Magma y Fuego en la Tierra</h3>
+                </div>
+            </div>
+
+            <!-- Esquema interactivo CSS -->
+            <div class="bg-slate-800 text-white rounded-3xl p-6 shadow-xl border-4 border-slate-600 mb-10">
+                <h3 class="text-center text-2xl font-bold text-yellow-400 mb-6">Toca los números para descubrir las partes del volcán</h3>
+                
+                <div class="relative w-full max-w-md mx-auto h-[400px] bg-sky-200 rounded-2xl overflow-hidden shadow-inner border border-sky-300">
+                    <!-- Dibujo del volcán con CSS -->
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[250px] bg-[#8B4513] rounded-t-[50%]"></div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-[250px] bg-[#A0522D] rounded-t-[50%] clip-path-volcan"></div>
+                    <div class="absolute bottom-[200px] left-1/2 -translate-x-1/2 w-[60px] h-[50px] bg-red-500 rounded-t-full opacity-80 blur-sm"></div>
+                    
+                    <!-- Magma y Chimenea -->
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40px] h-[220px] bg-gradient-to-t from-yellow-400 to-red-500"></div>
+                    <div class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-[120px] h-[80px] bg-orange-500 rounded-full blur-md"></div>
+
+                    <!-- Nubes de ceniza -->
+                    <div class="absolute top-[50px] left-1/2 -translate-x-1/2 w-[150px] h-[80px] bg-gray-500 rounded-full opacity-60 blur-md"></div>
+
+                    <!-- Botones interactivos -->
+                    <div class="punto-volcan" style="top: 80px; left: 50%; transform: translateX(-50%);" onclick="mostrarInfoVolcan('crater')">1</div>
+                    <div class="punto-volcan" style="top: 170px; left: 65%;" onclick="mostrarInfoVolcan('cono')">2</div>
+                    <div class="punto-volcan" style="top: 230px; left: 50%; transform: translateX(-50%);" onclick="mostrarInfoVolcan('chimenea')">3</div>
+                    <div class="punto-volcan" style="bottom: 30px; left: 50%; transform: translateX(-50%);" onclick="mostrarInfoVolcan('camara')">4</div>
+                </div>
+
+                <!-- Panel de información -->
+                <div id="info-volcan" class="mt-6 bg-slate-700 p-4 rounded-xl text-center min-h-[100px] flex items-center justify-center border-2 border-slate-500">
+                    <p class="text-lg font-semibold text-slate-300">Toca un número en el volcán para ver su descripción aquí.</p>
+                </div>
+            </div>
+
+            <!-- CONTENIDO EXTRA PDF: Gases y Radiación -->
+            <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-red-200">
+                    <h3 class="text-xl font-bold text-red-700 mb-3"><i class="fa-solid fa-cloud"></i> Emisión de Gases ($CO_2$)</h3>
+                    <p class="text-slate-700 mb-3">Los volcanes emiten Dióxido de Carbono ($CO_2$). Si comparamos las fuentes en la atmósfera:</p>
+                    <ul class="space-y-2 text-sm font-bold">
+                        <li class="flex justify-between items-center bg-red-50 p-2 rounded-lg border border-red-100"><span>🌋 Volcanes</span> <span class="text-red-600 text-lg">&lt; 1%</span></li>
+                        <li class="flex justify-between items-center bg-orange-50 p-2 rounded-lg border border-orange-100"><span>🏭 Ser Humano</span> <span class="text-orange-600 text-lg">20%</span></li>
+                        <li class="flex justify-between items-center bg-green-50 p-2 rounded-lg border border-green-100"><span>🌿 Plantas/Microbios</span> <span class="text-green-600 text-lg">80%</span></li>
+                    </ul>
+                    <p class="text-sm text-slate-500 mt-3 font-semibold text-center">Conclusión: El efecto volcánico en el $CO_2$ es muy leve.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-orange-200">
+                    <h3 class="text-xl font-bold text-orange-700 mb-3"><i class="fa-solid fa-sun-plant-wilt"></i> Bloqueo de Radiación Solar</h3>
+                    <p class="text-slate-700 mb-4">Una erupción violenta expulsa cenizas que <strong>bloquean la luz del sol</strong>.</p>
+                    <div class="bg-slate-800 text-yellow-300 p-4 rounded-xl text-center shadow-inner">
+                        <p class="text-sm font-semibold text-slate-300">Según los gráficos históricos (1980-1990):</p>
+                        <p class="text-lg mt-2">La radiación solar que llegó a la superficie cayó bruscamente hasta un <span class="text-3xl font-black text-white ml-1">78%</span> por culpa de las cenizas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: TERREMOTOS -->
+        <section id="terremotos" class="seccion-contenido">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-black text-amber-600 mb-4"><i class="fa-solid fa-house-crack"></i> Terremotos o Sismos</h2>
+                <p class="text-xl mb-6">Cuando la energía acumulada en las rocas se libera repentinamente, la tierra vibra.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-10">
+                <!-- Conceptos clave -->
+                <div class="bg-white p-6 rounded-3xl shadow-xl border-4 border-amber-200">
+                    <h3 class="text-2xl font-bold text-amber-700 mb-4">¿Dónde Ocurre?</h3>
+                    <div class="space-y-4">
+                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                            <strong class="text-amber-800 text-lg flex items-center gap-2"><i class="fa-solid fa-bullseye"></i> Hipocentro</strong>
+                            <p>Es el punto de origen del movimiento al interior de la tierra.</p>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-xl border border-red-200">
+                            <strong class="text-red-800 text-lg flex items-center gap-2"><i class="fa-solid fa-location-dot"></i> Epicentro</strong>
+                            <p>Es el punto en la superficie ubicado <strong>justo sobre</strong> el hipocentro. Aquí se siente con mayor intensidad.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Escalas -->
+                <div class="bg-white p-6 rounded-3xl shadow-xl border-4 border-orange-200">
+                    <h3 class="text-2xl font-bold text-orange-700 mb-4">¿Cómo se miden? (Sismógrafo)</h3>
+                    <div class="space-y-4">
+                        <div class="bg-orange-50 p-4 rounded-xl border border-orange-200">
+                            <strong class="text-orange-800 text-lg flex items-center gap-2"><i class="fa-solid fa-ruler"></i> Escala de Richter</strong>
+                            <p>Mide la <strong>magnitud</strong>, es decir, la energía total liberada. (Solo hay un valor por sismo).</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                            <strong class="text-yellow-800 text-lg flex items-center gap-2"><i class="fa-solid fa-house-chimney-crack"></i> Escala de Mercalli</strong>
+                            <p>Mide la <strong>intensidad</strong> y los daños. Varía dependiendo de dónde te encuentres.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORIA SÍSMICA DE CHILE (Agregado del PDF) -->
+            <div class="bg-white p-6 rounded-3xl shadow-lg border-4 border-slate-300 mb-10">
+                <h3 class="text-2xl font-black text-slate-700 mb-4 text-center"><i class="fa-solid fa-clock-rotate-left"></i> Grandes Terremotos en Chile</h3>
+                <p class="text-center text-slate-600 mb-6">Chile es muy sísmico por la subducción. Registros importantes:</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="bg-slate-100 p-4 rounded-xl">
+                        <strong class="block text-slate-800">Chillán</strong>
+                        <span class="block text-sm text-slate-500">1939</span>
+                        <span class="text-2xl font-black text-slate-700">8.3</span>
+                    </div>
+                    <div class="bg-red-100 p-4 rounded-xl border-2 border-red-400 transform scale-105 shadow-md">
+                        <strong class="block text-red-900">Valdivia</strong>
+                        <span class="block text-sm text-red-700">1960</span>
+                        <span class="text-3xl font-black text-red-600">9.5</span>
+                        <p class="text-[10px] uppercase font-bold text-red-500">Mayor de la historia</p>
+                    </div>
+                    <div class="bg-slate-100 p-4 rounded-xl">
+                        <strong class="block text-slate-800">Valparaíso</strong>
+                        <span class="block text-sm text-slate-500">1985</span>
+                        <span class="text-2xl font-black text-slate-700">7.8</span>
+                    </div>
+                    <div class="bg-slate-100 p-4 rounded-xl">
+                        <strong class="block text-slate-800">Cobquecura</strong>
+                        <span class="block text-sm text-slate-500">2010</span>
+                        <span class="text-2xl font-black text-slate-700">8.8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULADOR INTERACTIVO CON SONIDO -->
+            <div class="bg-slate-800 text-white p-8 rounded-3xl text-center shadow-2xl relative overflow-hidden">
+                <i class="fa-solid fa-tower-broadcast absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
+                <h3 class="text-3xl font-black mb-4">Simulador de Sismo</h3>
+                <p class="mb-6 text-lg text-slate-300">Sube el volumen. Presiona el botón para sentir cómo viajan las ondas sísmicas a través del suelo.</p>
+                <button onclick="simularTerremoto()" id="btn-terremoto" class="bg-red-600 hover:bg-red-500 text-white text-2xl font-black py-4 px-10 rounded-full shadow-[0_10px_0_0_#991b1b] active:shadow-[0_0px_0_0_#991b1b] active:translate-y-[10px] transition-all">
+                    ¡PROVOCAR SISMO! 💥
+                </button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: TSUNAMIS -->
+        <section id="tsunamis" class="seccion-contenido">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-black text-cyan-600 mb-4"><i class="fa-solid fa-water"></i> Tsunamis</h2>
+                <p class="text-xl mb-6">Olas gigantes provocadas cuando el epicentro de un terremoto está en el fondo del mar.</p>
+                
+                <!-- Banner Tipográfico -->
+                <div class="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl shadow-lg mb-8 py-10 px-4">
+                    <h3 class="text-3xl md:text-5xl font-black text-white drop-shadow-md">Crecimiento de la Ola en la Costa</h3>
+                </div>
+            </div>
+
+            <div class="bg-cyan-50 p-8 rounded-3xl shadow-xl border-4 border-cyan-200">
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div class="bg-white p-4 rounded-xl shadow">
+                        <div class="text-4xl mb-2">🌊</div>
+                        <h4 class="font-bold text-xl text-slate-800 mb-2">1. Cerca del Epicentro</h4>
+                        <p class="text-sm">En alta mar, las olas son rápidas pero bajitas (unos 50 cm). ¡Los barcos casi ni las sienten!</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow transform scale-105 border border-cyan-300">
+                        <div class="text-5xl mb-2 text-cyan-500">🌊</div>
+                        <h4 class="font-bold text-xl text-slate-800 mb-2">2. Acercándose</h4>
+                        <p class="text-sm">Al haber menos profundidad, el agua se "frena" y la ola comienza a crecer hacia arriba.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow">
+                        <div class="text-6xl mb-2 text-blue-600">🌊</div>
+                        <h4 class="font-bold text-xl text-slate-800 mb-2">3. En la playa</h4>
+                        <p class="text-sm">¡Al llegar a la costa, pueden medir hasta <strong>40 metros</strong>! Causando cambios en la geografía.</p>
+                    </div>
+                </div>
+
+                <!-- Taller Científico del PDF -->
+                <div class="mt-8 bg-blue-800 text-white p-6 rounded-2xl shadow-md">
+                    <h4 class="text-2xl font-bold mb-3 text-yellow-300"><i class="fa-solid fa-flask"></i> Taller Científico: Modelo de Tsunami</h4>
+                    <p class="text-blue-100 mb-4">¿Quieres probarlo en casa? Sigue estos pasos:</p>
+                    <ol class="list-decimal list-inside space-y-2 text-sm">
+                        <li>En una caja plástica, pon pasta para modelar en un costado simulando la costa.</li>
+                        <li>Moldea plasticina para agregar casas o árboles.</li>
+                        <li>Añade agua a la caja sin tapar la zona terrestre.</li>
+                        <li>Pon un trozo de madera en el agua y agítalo. <strong>¡Observa cómo la ola viaja y crece al llegar a la costa!</strong></li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: JUEGOS -->
+        <section id="juegos" class="seccion-contenido">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-black text-yellow-500 mb-4"><i class="fa-solid fa-gamepad"></i> Zona de Desafíos</h2>
+                <p class="text-xl">¡Aplica lo que aprendiste! Con sonido interactivo activado 🔊</p>
+            </div>
+
+            <!-- Quiz: Verdadero o Falso -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-indigo-200 mb-10">
+                <h3 class="text-2xl font-bold text-indigo-700 mb-6 text-center">✅ Verdadero o Falso ❌</h3>
+                <div id="quiz-container" class="max-w-2xl mx-auto">
+                    <div id="quiz-pregunta" class="text-xl text-center font-semibold mb-8 p-4 bg-slate-50 rounded-xl border">
+                        Presiona "Comenzar Quiz" para iniciar.
+                    </div>
+                    <div class="flex justify-center gap-4">
+                        <button id="btn-v" onclick="responderQuiz(true)" class="hidden bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-xl shadow text-xl">VERDADERO</button>
+                        <button id="btn-f" onclick="responderQuiz(false)" class="hidden bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-xl shadow text-xl">FALSO</button>
+                        <button id="btn-comenzar-quiz" onclick="iniciarQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow text-xl">Comenzar Quiz</button>
+                    </div>
+                    <div id="quiz-feedback" class="mt-6 text-center font-bold text-lg hidden p-4 rounded-xl"></div>
+                </div>
+            </div>
+
+            <!-- Memorice -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-pink-200">
+                <h3 class="text-2xl font-bold text-pink-700 mb-2 text-center">🧠 Memorice Geológico</h3>
+                <p class="text-center text-slate-500 mb-6">Encuentra los pares (Concepto = Definición). Toca las cartas para voltearlas.</p>
+                
+                <div id="tablero-memorice" class="grid grid-cols-3 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                    <!-- Las cartas se inyectan por JS -->
+                </div>
+                <div class="text-center mt-6">
+                    <button onclick="iniciarMemorice()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-full shadow">Reiniciar Memorice</button>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer class="text-center mt-8 text-pink-300 text-sm">
-        Desarrollado con magia para el 4º Básico A - Escuela Carlos Mann ✨
-    </footer>
-
-    <!-- AUDIO SINTÉTICO -->
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // --- INICIALIZACIÓN DE SONIDOS (Tone.js) ---
+        let sfxClick, sfxSuccess, sfxError, noiseSynth;
+        let audioInitialized = false;
+
+        async function initAudio() {
+            if (audioInitialized) return;
+            await Tone.start();
+            
+            // Sonido de Click (Menú)
+            sfxClick = new Tone.Synth({
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+            }).toDestination();
+            sfxClick.volume.value = -10;
+
+            // Sonido Correcto (Juegos)
+            sfxSuccess = new Tone.PolySynth(Tone.Synth, {
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 1 }
+            }).toDestination();
+            sfxSuccess.volume.value = -12;
+
+            // Sonido Incorrecto (Juegos)
+            sfxError = new Tone.Synth({
+                oscillator: { type: "sawtooth" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.2, release: 0.5 }
+            }).toDestination();
+            sfxError.volume.value = -15;
+
+            // Sonido Terremoto (Ruido Marrón filtrado)
+            const lowpass = new Tone.Filter(200, "lowpass").toDestination();
+            noiseSynth = new Tone.NoiseSynth({
+                noise: { type: "brown" },
+                envelope: { attack: 0.1, decay: 2, sustain: 1, release: 3 }
+            }).connect(lowpass);
+            noiseSynth.volume.value = -5;
+
+            audioInitialized = true;
+        }
+
+        // Navegación interactiva
+        function cambiarSeccion(id) {
+            initAudio(); // Inicializar audio si el usuario hizo clic
+            if(audioInitialized) sfxClick.triggerAttackRelease("C5", "32n");
+
+            document.querySelectorAll('.seccion-contenido').forEach(sec => sec.classList.remove('activa'));
+            document.getElementById(id).classList.add('activa');
+            
+            // Actualizar select en móvil
+            document.getElementById('mobile-menu').value = id;
+            window.scrollTo(0, 0);
+        }
+
+        // --- VOLCÁN INTERACTIVO ---
+        const datosVolcan = {
+            'crater': { titulo: "🌋 Cráter", texto: "Orificio por el que los materiales del volcán (lava, gases, ceniza) salen al exterior." },
+            'cono': { titulo: "⛰️ Cono Volcánico", texto: "Se forma por la acumulación de los materiales que el volcán ha ido expulsando a lo largo del tiempo." },
+            'chimenea': { titulo: "🔥 Chimenea", texto: "Conducto por el que asciende el magma desde el interior de la Tierra hasta el cráter." },
+            'camara': { titulo: "🔴 Cámara Magmática", texto: "Lugar profundo en la corteza donde se acumula el magma antes de salir al exterior." }
+        };
+
+        function mostrarInfoVolcan(parte) {
+            initAudio();
+            if(audioInitialized) sfxClick.triggerAttackRelease("E5", "32n");
+            
+            const infoDiv = document.getElementById('info-volcan');
+            const data = datosVolcan[parte];
+            infoDiv.innerHTML = `<div class="text-left"><h4 class="text-xl font-bold text-yellow-400 mb-2">${data.titulo}</h4><p class="text-white">${data.texto}</p></div>`;
+            infoDiv.classList.add('bg-slate-800');
+        }
+
+        // --- SIMULADOR DE TERREMOTO ---
+        function simularTerremoto() {
+            initAudio();
+            const btn = document.getElementById('btn-terremoto');
+            btn.disabled = true;
+            btn.innerHTML = "¡TEMBLANDO! 😱";
+            
+            // Activar vibración visual
+            document.body.classList.add('shake-hard');
+            
+            // Reproducir sonido grave
+            if(audioInitialized) noiseSynth.triggerAttackRelease("4n");
+            
+            setTimeout(() => {
+                document.body.classList.remove('shake-hard');
+                btn.disabled = false;
+                btn.innerHTML = "¡PROVOCAR SISMO! 💥";
+            }, 2500); // Tiembla por 2.5 segundos
+        }
+
+        // --- JUEGO: VERDADERO O FALSO ---
+        const quizData = [
+            { text: "La Placa de Nazca se hunde bajo la Placa Sudamericana (Subducción).", correct: true, reason: "¡Verdadero! Este choque es la causa de que Chile tenga tantos volcanes y sismos." },
+            { text: "El terremoto de Valdivia (1960) midió 9.5 y es el mayor registrado.", correct: true, reason: "¡Verdadero! Fue el terremoto más fuerte registrado por instrumentos en la historia mundial." },
+            { text: "Los volcanes emiten el 80% del CO2 de la Tierra.", correct: false, reason: "¡Falso! Emiten menos del 1%. Las plantas y microorganismos emiten el 80%." },
+            { text: "El epicentro está al interior de la Tierra.", correct: false, reason: "¡Falso! El epicentro está en la *superficie*. El origen interior se llama Hipocentro." },
+            { text: "La escala de Mercalli mide los daños (intensidad).", correct: true, reason: "¡Verdadero! Richter mide la magnitud de energía, Mercalli evalúa los destrozos en la ciudad." }
+        ];
+
+        let quizIndex = 0;
         
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            const now = audioCtx.currentTime;
-            
-            if (type === 'click') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, now);
-                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                osc.start(now);
-                osc.stop(now + 0.1);
-            } else if (type === 'correct') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(440, now);
-                osc.frequency.setValueAtTime(554.37, now + 0.1);
-                osc.frequency.setValueAtTime(659.25, now + 0.2);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
-            } else if (type === 'wrong') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(300, now);
-                osc.frequency.exponentialRampToValueAtTime(150, now + 0.3);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            } else if (type === 'win') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.15); // E5
-                osc.frequency.setValueAtTime(783.99, now + 0.3); // G5
-                osc.frequency.setValueAtTime(1046.50, now + 0.45); // C6
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0, now + 1);
-                osc.start(now);
-                osc.stop(now + 1);
-            }
-        }
-    </script>
-
-    <!-- LÓGICA DE LA APP -->
-    <script>
-        // === NAVEGACIÓN ===
-        function showTab(tabId) {
-            playSound('click');
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('block'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById(tabId).classList.add('block');
-            document.getElementById('btn-' + tabId).classList.add('active');
-
-            // Iniciar juegos si corresponde
-            if(tabId === 'trivia' && currentQuestionIndex === 0 && score === 0) {
-                loadQuestion();
-            } else if (tabId === 'orden' && kidsPool.length === 0 && placedKids.every(k => k === null)) {
-                initOrderGame();
-            } else if (tabId === 'memorice' && memoryCards.length === 0) {
-                initMemoryGame();
-            } else if (tabId === 'moralejas') {
-                // Siempre reiniciar moralejas al entrar para que se vea el efecto del juego
-                initMoralejasGame();
-            }
+        function iniciarQuiz() {
+            initAudio();
+            quizIndex = 0;
+            document.getElementById('btn-comenzar-quiz').classList.add('hidden');
+            document.getElementById('btn-v').classList.remove('hidden');
+            document.getElementById('btn-f').classList.remove('hidden');
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            mostrarPregunta();
         }
 
-        // === DATOS DE LA TRIVIA ===
-        const triviaQuestions = [
-            { q: "¿Qué trabajaba el papá de Charlie antes de perder su empleo?", options: ["Panadero", "Taponador de tubos de pasta dental", "Vendedor de zapatos", "Barrer nieve"], ans: 1 },
-            { q: "¿Cuántos abuelos tiene Charlie viviendo en la misma cama?", options: ["Dos", "Tres", "Cuatro", "Seis"], ans: 2 },
-            { q: "¿Qué comía la familia Bucket casi todos los días por ser muy pobres?", options: ["Sopa de repollo", "Fideos con salsa", "Papas fritas", "Pan con queso"], ans: 0 },
-            { q: "¿Cuántas chocolatinas al año recibía Charlie antes del concurso?", options: ["Una, para Navidad", "Una, para su cumpleaños", "Cinco", "Ninguna"], ans: 1 },
-            { q: "¿Qué niño encontró el PRIMER Billete Dorado?", options: ["Veruca Salt", "Mike Tevé", "Augustus Gloop", "Charlie Bucket"], ans: 2 },
-            { q: "¿Cómo encontró Veruca Salt su Billete Dorado?", options: ["Su papá compró miles de chocolates y puso a sus obreras a pelarlos.", "Lo encontró en el suelo.", "Ahorró de su mesada.", "Se lo regaló Willy Wonka."], ans: 0 },
-            { q: "¿Qué le dio el abuelo Joe a Charlie para hacer un intento secreto de comprar un chocolate?", options: ["Su reloj antiguo", "Una moneda de plata de seis peniques", "Un botón mágico", "Cien dólares"], ans: 1 },
-            { q: "Charlie finalmente encuentra el 5º billete gracias a que encontró dinero en la nieve, ¿qué moneda era?", options: ["Un dólar", "Cincuenta peniques", "Un céntimo", "Diez libras"], ans: 1 },
-            { q: "¿Qué tribu africana diminuta trabajaba en la fábrica de Wonka?", options: ["Los Wookies", "Los Munchkins", "Los Oompa-Loompas", "Los Minions"], ans: 2 },
-            { q: "¿Qué le pasó a Augustus Gloop en el Recinto del Chocolate?", options: ["Se convirtió en caramelo", "Bebió del río y fue succionado por un gran tubo de cristal", "Explotó de tanto comer", "Lo atacaron las ardillas"], ans: 1 },
-            { q: "¿Qué le sucedió a Violet Beauregarde por comer el chicle que no estaba listo?", options: ["Se volvió diminuta", "Se quedó pegada al suelo", "Se infló y se puso azul como un arándano gigante", "Perdió los dientes"], ans: 2 },
-            { q: "¿En qué sala trabajaban cien ardillas amaestradas partiendo nueces?", options: ["En el cuarto de las nueces", "En la sala de televisión", "En el cuarto de los inventos", "En el río de chocolate"], ans: 0 },
-            { q: "¿Por qué Veruca Salt y sus padres cayeron por el tubo de basura?", options: ["Se tropezaron", "Las ardillas consideraron que Veruca era una 'nuez mala'", "Willy Wonka los empujó", "Buscaban oro en la basura"], ans: 1 },
-            { q: "¿Cómo fue el castigo de Mike Tevé?", options: ["Se teletransportó por la cámara de TV y quedó midiendo centímetros.", "Se quedó ciego.", "Se volvió un cuadrado.", "Las ardillas se lo llevaron."], ans: 0 },
-            { q: "¿Por qué el señor Willy Wonka hizo el concurso de los billetes dorados?", options: ["Para ganar más dinero", "Para burlarse de los niños malos", "Para encontrar a un niño bueno a quien heredarle su fábrica", "Para salir en la televisión"], ans: 2 }
-        ];
-
-        let currentQuestionIndex = 0, score = 0;
-
-        function loadQuestion() {
-            const q = triviaQuestions[currentQuestionIndex];
-            document.getElementById('question-count').innerText = `Pregunta ${currentQuestionIndex + 1} de ${triviaQuestions.length}`;
-            document.getElementById('question-text').innerText = q.q;
-            
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = '';
-            
-            q.options.forEach((opt, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full text-left bg-white text-[#2b0f4c] p-4 rounded-xl border-2 border-transparent hover:border-[#ffb703] transition font-semibold';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(index, btn);
-                optionsContainer.appendChild(btn);
-            });
-            document.getElementById('trivia-result').classList.add('hidden');
+        function mostrarPregunta() {
+            document.getElementById('quiz-pregunta').innerHTML = `<strong>Pregunta ${quizIndex + 1} de ${quizData.length}:</strong><br><br>${quizData[quizIndex].text}`;
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('btn-v').disabled = false;
+            document.getElementById('btn-f').disabled = false;
         }
 
-        function checkAnswer(selectedIndex, btnElement) {
-            const q = triviaQuestions[currentQuestionIndex];
-            const isCorrect = selectedIndex === q.ans;
-            const buttons = document.getElementById('options-container').querySelectorAll('button');
-            buttons.forEach(b => b.disabled = true);
+        function responderQuiz(respuestaUsuario) {
+            initAudio();
+            const preguntaActual = quizData[quizIndex];
+            const feedbackDiv = document.getElementById('quiz-feedback');
             
-            if(isCorrect) {
-                playSound('correct');
-                btnElement.classList.remove('bg-white');
-                btnElement.classList.add('bg-green-400', 'text-white');
-                document.getElementById('trivia-message').innerText = "¡Correcto! ✨";
-                document.getElementById('trivia-message').className = "text-2xl font-bold text-green-500 mb-4";
-                score++;
+            document.getElementById('btn-v').disabled = true;
+            document.getElementById('btn-f').disabled = true;
+            feedbackDiv.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+
+            if (respuestaUsuario === preguntaActual.correct) {
+                if(audioInitialized) sfxSuccess.triggerAttackRelease(["C4", "E4", "G4"], "8n");
+                feedbackDiv.classList.add('bg-green-100', 'text-green-800');
+                feedbackDiv.innerHTML = `<strong>¡CORRECTO! 🎉</strong><br>${preguntaActual.reason}`;
             } else {
-                playSound('wrong');
-                btnElement.classList.remove('bg-white');
-                btnElement.classList.add('bg-red-400', 'text-white');
-                buttons[q.ans].classList.remove('bg-white');
-                buttons[q.ans].classList.add('bg-green-400', 'text-white');
-                document.getElementById('trivia-message').innerText = "¡Ups! Incorrecto 🙊";
-                document.getElementById('trivia-message').className = "text-2xl font-bold text-red-500 mb-4";
-            }
-            document.getElementById('trivia-result').classList.remove('hidden');
-        }
-
-        function nextQuestion() {
-            playSound('click');
-            currentQuestionIndex++;
-            if(currentQuestionIndex < triviaQuestions.length) loadQuestion();
-            else showFinalScore();
-        }
-
-        function showFinalScore() {
-            document.getElementById('question-count').classList.add('hidden');
-            document.getElementById('question-text').classList.add('hidden');
-            document.getElementById('options-container').classList.add('hidden');
-            document.getElementById('trivia-result').classList.add('hidden');
-            
-            const finalDiv = document.getElementById('trivia-final');
-            finalDiv.classList.remove('hidden');
-            
-            let message = "";
-            if(score === 15) message = "¡PERFECTO! Eres el heredero de la fábrica. 🏭🏆";
-            else if(score >= 10) message = "¡Excelente! Conoces la historia casi como Charlie. 🎫";
-            else if(score >= 6) message = "¡Bien! Pero cuidado con caer en el río de chocolate. 🍫";
-            else message = "Te falta estudiar un poco... ¡Lee el libro! 📖";
-            
-            document.getElementById('final-score').innerHTML = `Lograste <strong>${score} de ${triviaQuestions.length}</strong> aciertos.<br><br>${message}`;
-            if(score >= 10) playSound('win');
-            else playSound('correct');
-        }
-
-        function restartTrivia() {
-            playSound('click');
-            currentQuestionIndex = 0; score = 0;
-            document.getElementById('question-count').classList.remove('hidden');
-            document.getElementById('question-text').classList.remove('hidden');
-            document.getElementById('options-container').classList.remove('hidden');
-            document.getElementById('trivia-final').classList.add('hidden');
-            loadQuestion();
-        }
-
-        // === JUEGO ORDEN DE SALIDA ===
-        const correctOrder = ["augustus", "violet", "veruca", "mike"];
-        const kidData = [
-            { id: "mike", name: "Mike", icon: "📺", color: "bg-blue-500" },
-            { id: "augustus", name: "Augustus", icon: "🍫", color: "bg-red-500" },
-            { id: "veruca", name: "Veruca", icon: "🐿️", color: "bg-green-500" },
-            { id: "violet", name: "Violet", icon: "🍬", color: "bg-purple-500" }
-        ];
-
-        let kidsPool = [], placedKids = [null, null, null, null];
-
-        function initOrderGame() {
-            kidsPool = [...kidData].sort(() => Math.random() - 0.5);
-            placedKids = [null, null, null, null];
-            document.getElementById('check-order-btn').classList.add('hidden');
-            document.getElementById('retry-order-btn').classList.add('hidden');
-            document.getElementById('order-message').innerText = '';
-            renderOrderGame();
-        }
-
-        function renderOrderGame() {
-            const poolContainer = document.getElementById('kids-pool');
-            poolContainer.innerHTML = '';
-            kidsPool.forEach(kid => {
-                const btn = document.createElement('button');
-                btn.className = `${kid.color} text-white w-24 h-24 rounded-xl flex flex-col items-center justify-center font-bold transform transition hover:scale-110 shadow-lg border-2 border-white`;
-                btn.innerHTML = `<span class="text-3xl mb-1">${kid.icon}</span><span>${kid.name}</span>`;
-                btn.onclick = () => placeKid(kid.id);
-                poolContainer.appendChild(btn);
-            });
-
-            if (kidsPool.length === 0) {
-                poolContainer.innerHTML = '<span class="text-white/50 text-sm">Haz clic en un niño para regresarlo aquí.</span>';
+                if(audioInitialized) sfxError.triggerAttackRelease("C2", "8n");
+                feedbackDiv.classList.add('bg-red-100', 'text-red-800');
+                feedbackDiv.innerHTML = `<strong>¡INCORRECTO! 😢</strong><br>${preguntaActual.reason}`;
             }
 
-            for(let i=0; i<4; i++) {
-                const slot = document.getElementById(`slot-${i+1}`);
-                const kid = placedKids[i];
-                if (kid) {
-                    slot.className = `w-24 h-24 ${kid.color} border-2 border-white rounded-xl flex flex-col items-center justify-center cursor-pointer transition hover:scale-105 shadow-lg`;
-                    slot.innerHTML = `<span class="text-3xl mb-1">${kid.icon}</span><span class="text-white font-bold text-sm">${kid.name}</span>`;
+            setTimeout(() => {
+                quizIndex++;
+                if (quizIndex < quizData.length) {
+                    mostrarPregunta();
                 } else {
-                    slot.className = `w-24 h-24 bg-white/20 border-dashed border-2 border-white rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-white/30 text-white/50`;
-                    slot.innerHTML = '?';
+                    if(audioInitialized) sfxSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
+                    document.getElementById('quiz-pregunta').innerHTML = "<strong>¡Completaste todas las preguntas! 🏆</strong><br>¡Eres un experto en la Geósfera!";
+                    document.getElementById('btn-v').classList.add('hidden');
+                    document.getElementById('btn-f').classList.add('hidden');
+                    document.getElementById('btn-comenzar-quiz').classList.remove('hidden');
+                    document.getElementById('btn-comenzar-quiz').innerText = "Volver a jugar";
+                    feedbackDiv.classList.add('hidden');
                 }
-            }
-
-            if(placedKids.every(k => k !== null)) document.getElementById('check-order-btn').classList.remove('hidden');
-            else document.getElementById('check-order-btn').classList.add('hidden');
+            }, 3500); // 3.5 segundos para leer el porqué
         }
 
-        function placeKid(id) {
-            playSound('click');
-            const kidIndex = kidsPool.findIndex(k => k.id === id);
-            if(kidIndex === -1) return;
-            const emptySlotIndex = placedKids.findIndex(k => k === null);
-            if(emptySlotIndex !== -1) {
-                placedKids[emptySlotIndex] = kidsPool[kidIndex];
-                kidsPool.splice(kidIndex, 1);
-                renderOrderGame();
-            }
-        }
-
-        function returnKidToPool(slotNum) {
-            const idx = slotNum - 1;
-            if(placedKids[idx]) {
-                playSound('click');
-                kidsPool.push(placedKids[idx]);
-                placedKids[idx] = null;
-                document.getElementById('check-order-btn').classList.add('hidden');
-                document.getElementById('retry-order-btn').classList.add('hidden');
-                document.getElementById('order-message').innerText = '';
-                renderOrderGame();
-            }
-        }
-
-        function checkOrder() {
-            let isCorrect = true;
-            for(let i=0; i<4; i++) {
-                if(placedKids[i].id !== correctOrder[i]) { isCorrect = false; break; }
-            }
-            const msgEl = document.getElementById('order-message');
-            const retryBtn = document.getElementById('retry-order-btn');
-            
-            if(isCorrect) {
-                playSound('win');
-                msgEl.innerText = "¡Correcto! Primero Augustus, luego Violet, Veruca y Mike. 🎉";
-                msgEl.className = "text-xl font-bold mt-4 text-green-400";
-                retryBtn.classList.add('hidden');
-            } else {
-                playSound('wrong');
-                msgEl.innerText = "¡Casi! Revisa el orden. Piensa quién fue al río primero y quién a la tele al final. 🧐";
-                msgEl.className = "text-xl font-bold mt-4 text-red-400";
-                retryBtn.classList.remove('hidden');
-            }
-            document.getElementById('check-order-btn').classList.add('hidden');
-        }
-
-        // === JUEGO MEMORICE ===
-        const memoryPairs = [
-            { id: 1, text: "Augustus Gloop", icon: "👦🏼" }, { id: 1, text: "Río de Chocolate", icon: "🌊🍫" },
-            { id: 2, text: "Violet Beauregarde", icon: "👧🏼" }, { id: 2, text: "Arándano Gigante", icon: "🫐" },
-            { id: 3, text: "Veruca Salt", icon: "👧🏻" }, { id: 3, text: "Pozo de Basura", icon: "🗑️🐿️" },
-            { id: 4, text: "Mike Tevé", icon: "👦🏻" }, { id: 4, text: "Se Encogió en la TV", icon: "📺📡" },
-            { id: 5, text: "Charlie Bucket", icon: "👦🏽" }, { id: 5, text: "El Gran Ganador", icon: "🏭🎫" },
-            { id: 6, text: "Willy Wonka", icon: "🎩" }, { id: 6, text: "Oompa-Loompa", icon: "🧑🏽‍🦱" }
+        // --- JUEGO: MEMORICE GEOLÓGICO ---
+        const conceptosMemorice = [
+            { id: 1, front: '🧩', text: 'Placas Tectónicas' },
+            { id: 2, front: '💥', text: 'Subducción' },
+            { id: 3, front: '📉', text: 'Sismógrafo' },
+            { id: 4, front: '🎯', text: 'Epicentro' },
+            { id: 5, front: '1960', text: 'Terremoto de Valdivia' },
+            { id: 6, front: '🌊', text: 'Tsunami' }
         ];
 
-        let memoryCards = [], flippedIndices = [], matchedIds = [], isLocked = false;
+        let cartasVolteadas = [];
+        let parejasEncontradas = 0;
+        let tableroEnJuego = false;
 
-        function shuffle(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex != 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        function barajar(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
         }
 
-        function initMemoryGame() {
-            memoryCards = shuffle([...memoryPairs]);
-            flippedIndices = []; matchedIds = []; isLocked = false;
-            document.getElementById('memory-win').classList.add('hidden');
-            renderMemoryBoard();
-        }
+        function iniciarMemorice() {
+            const tablero = document.getElementById('tablero-memorice');
+            tablero.innerHTML = '';
+            cartasVolteadas = [];
+            parejasEncontradas = 0;
+            tableroEnJuego = true;
 
-        function renderMemoryBoard() {
-            const board = document.getElementById('memory-board');
-            board.innerHTML = '';
-            
-            memoryCards.forEach((card, index) => {
-                const isFlipped = flippedIndices.includes(index) || matchedIds.includes(card.id);
-                const cardEl = document.createElement('div');
-                cardEl.className = 'flip-card cursor-pointer h-24 md:h-32';
-                cardEl.innerHTML = `
-                    <div class="relative w-full h-full text-center transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}" style="transform-style: preserve-3d; transition: transform 0.5s;">
-                        <div class="absolute w-full h-full bg-[#5e17eb] border-4 border-[#ffb703] rounded-xl flex items-center justify-center backface-hidden ${isFlipped ? 'hidden' : ''}">
-                            <span class="text-4xl">🎫</span>
-                        </div>
-                        <div class="absolute w-full h-full bg-white border-4 border-[#ffb703] rounded-xl flex flex-col items-center justify-center p-1 backface-hidden ${!isFlipped ? 'hidden' : ''}">
-                            <span class="text-3xl md:text-4xl mb-1">${card.icon}</span>
-                            <span class="text-xs md:text-sm font-bold text-[#2b0f4c] leading-tight">${card.text}</span>
-                        </div>
+            // Duplicar y mezclar
+            let cartas = [...conceptosMemorice, ...conceptosMemorice];
+            cartas = barajar(cartas);
+
+            cartas.forEach((carta, index) => {
+                const divCarta = document.createElement('div');
+                divCarta.className = 'carta';
+                divCarta.dataset.id = carta.id;
+                divCarta.dataset.index = index;
+                
+                divCarta.innerHTML = `
+                    <div class="carta-inner">
+                        <div class="carta-front">❓</div>
+                        <div class="carta-back">${carta.front}<br><span class="text-xs mt-1 block">${carta.text}</span></div>
                     </div>
                 `;
-                if (!isFlipped) {
-                    cardEl.onclick = () => flipCard(index);
-                    cardEl.classList.add('hover:scale-105', 'transition');
-                } else if (matchedIds.includes(card.id)) {
-                    cardEl.querySelector('.bg-white').classList.replace('border-[#ffb703]', 'border-green-500');
-                    cardEl.querySelector('.bg-white').classList.add('shadow-[0_0_15px_rgba(34,197,94,0.6)]');
-                }
-                board.appendChild(cardEl);
+                
+                divCarta.addEventListener('click', () => voltearCarta(divCarta));
+                tablero.appendChild(divCarta);
             });
         }
 
-        function flipCard(index) {
-            if (isLocked || flippedIndices.includes(index) || matchedIds.includes(memoryCards[index].id)) return;
-            playSound('click');
-            flippedIndices.push(index);
-            renderMemoryBoard();
+        function voltearCarta(cartaElemento) {
+            initAudio();
+            if (!tableroEnJuego) return;
+            if (cartaElemento.classList.contains('volteada')) return;
+            if (cartasVolteadas.length >= 2) return;
 
-            if (flippedIndices.length === 2) checkMemoryMatch();
-        }
+            if(audioInitialized) sfxClick.triggerAttackRelease("C5", "32n");
+            cartaElemento.classList.add('volteada');
+            cartasVolteadas.push(cartaElemento);
 
-        function checkMemoryMatch() {
-            isLocked = true;
-            const idx1 = flippedIndices[0], idx2 = flippedIndices[1];
-            
-            if (memoryCards[idx1].id === memoryCards[idx2].id) {
-                playSound('correct');
-                matchedIds.push(memoryCards[idx1].id);
-                flippedIndices = []; isLocked = false;
-                renderMemoryBoard();
-                
-                if (matchedIds.length === 6) {
-                    setTimeout(() => { playSound('win'); document.getElementById('memory-win').classList.remove('hidden'); }, 500);
-                }
-            } else {
-                playSound('wrong');
-                setTimeout(() => {
-                    flippedIndices = []; isLocked = false; renderMemoryBoard();
-                }, 1200);
+            if (cartasVolteadas.length === 2) {
+                tableroEnJuego = false;
+                verificarPareja();
             }
         }
 
-        // === JUEGO MORALEJAS Y VALORES ===
-        const allValues = [
-            { word: "Humildad", good: true },
-            { word: "Gula", good: false },
-            { word: "Generosidad", good: true },
-            { word: "Caprichos", good: false },
-            { word: "Obediencia", good: true },
-            { word: "Envidia", good: false },
-            { word: "Paciencia", good: true },
-            { word: "Egoísmo", good: false },
-            { word: "Bondad", good: true },
-            { word: "Soberbia", good: false }
-        ];
+        function verificarPareja() {
+            const [carta1, carta2] = cartasVolteadas;
+            const sonIguales = carta1.dataset.id === carta2.dataset.id;
 
-        let currentValues = [];
-        let goodValuesFound = 0;
-
-        function initMoralejasGame() {
-            document.getElementById('moralejas-game').classList.remove('hidden');
-            document.getElementById('moralejas-result').classList.add('hidden');
-            
-            goodValuesFound = 0;
-            updateCauldron();
-            
-            // Mezclar valores
-            currentValues = shuffle([...allValues]);
-            
-            const pool = document.getElementById('values-pool');
-            pool.innerHTML = '';
-            
-            currentValues.forEach((val, i) => {
-                const btn = document.createElement('button');
-                btn.className = 'bg-white text-[#2b0f4c] px-4 py-2 rounded-full font-bold border-2 border-transparent hover:border-[#ffb703] transition transform hover:scale-105';
-                btn.innerText = val.word;
-                btn.onclick = () => selectValue(val, btn);
-                pool.appendChild(btn);
-            });
-        }
-
-        function selectValue(valObj, btnEl) {
-            if(btnEl.disabled) return;
-
-            if(valObj.good) {
-                playSound('correct');
-                btnEl.disabled = true;
-                btnEl.classList.remove('bg-white', 'text-[#2b0f4c]', 'hover:border-[#ffb703]', 'hover:scale-105');
-                btnEl.classList.add('bg-green-500', 'text-white', 'pop-out');
-                
-                goodValuesFound++;
-                updateCauldron();
-
-                if(goodValuesFound === 5) {
-                    setTimeout(() => {
-                        showGranMoraleja();
-                    }, 500);
+            setTimeout(() => {
+                if (sonIguales) {
+                    if(audioInitialized) sfxSuccess.triggerAttackRelease(["C5", "E5"], "8n");
+                    carta1.classList.add('emparejada');
+                    carta2.classList.add('emparejada');
+                    parejasEncontradas++;
+                    if (parejasEncontradas === conceptosMemorice.length) {
+                        if(audioInitialized) sfxSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
+                        setTimeout(() => alert("¡FELICIDADES! Encontraste todas las parejas geológicas. 🏆"), 500);
+                    }
+                } else {
+                    if(audioInitialized) sfxError.triggerAttackRelease("G2", "16n");
+                    carta1.classList.remove('volteada');
+                    carta2.classList.remove('volteada');
                 }
-            } else {
-                playSound('wrong');
-                btnEl.classList.remove('hover:scale-105');
-                btnEl.classList.add('bg-red-500', 'text-white', 'shake-animation');
-                setTimeout(() => {
-                    btnEl.classList.remove('bg-red-500', 'text-white', 'shake-animation');
-                    btnEl.classList.add('hover:scale-105');
-                }, 400);
-            }
+                cartasVolteadas = [];
+                tableroEnJuego = true;
+            }, 1000);
         }
 
-        function updateCauldron() {
-            document.getElementById('cauldron-counter').innerText = `${goodValuesFound}/5`;
-        }
-
-        function showGranMoraleja() {
-            playSound('win');
-            document.getElementById('moralejas-game').classList.add('hidden');
-            document.getElementById('moralejas-result').classList.remove('hidden');
-        }
-
-        // INIT GENERAL
-        function initApp() {
-            showTab('personajes');
-        }
+        // Iniciar el juego al cargar la página
+        window.onload = () => {
+            iniciarMemorice();
+            
+            // Si el usuario hace scroll hacia abajo en pantallas muy pequeñas, intentar activar el audio
+            document.body.addEventListener('click', initAudio, { once: true });
+            document.body.addEventListener('touchstart', initAudio, { once: true });
+        };
     </script>
 </body>
 </html>
