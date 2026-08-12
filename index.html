@@ -471,6 +471,65 @@
                 </div>
             </div>
 
+            <!-- Arma tu Volcán -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-orange-200 mb-10">
+                <h3 class="text-2xl font-bold text-orange-700 mb-2 text-center">🌋 Arma tu Volcán</h3>
+                <p class="text-center text-slate-500 mb-6">Selecciona una palabra tocándola y luego toca el recuadro vacío (❓) en el volcán para ubicarla.</p>
+
+                <!-- Botones de palabras -->
+                <div class="flex flex-wrap justify-center gap-3 mb-6" id="palabras-volcan">
+                    <button class="btn-palabra bg-orange-50 border-2 border-orange-300 text-orange-800 font-bold py-2 px-4 rounded-xl shadow-sm transition hover:bg-orange-100" onclick="seleccionarPalabra('Cráter')">Cráter</button>
+                    <button class="btn-palabra bg-orange-50 border-2 border-orange-300 text-orange-800 font-bold py-2 px-4 rounded-xl shadow-sm transition hover:bg-orange-100" onclick="seleccionarPalabra('Cono volcánico')">Cono volcánico</button>
+                    <button class="btn-palabra bg-orange-50 border-2 border-orange-300 text-orange-800 font-bold py-2 px-4 rounded-xl shadow-sm transition hover:bg-orange-100" onclick="seleccionarPalabra('Chimenea')">Chimenea</button>
+                    <button class="btn-palabra bg-orange-50 border-2 border-orange-300 text-orange-800 font-bold py-2 px-4 rounded-xl shadow-sm transition hover:bg-orange-100" onclick="seleccionarPalabra('Cámara magmática')">Cámara magmática</button>
+                </div>
+
+                <!-- Contenedor del volcán interactivo del juego -->
+                <div class="relative w-full max-w-md mx-auto h-[400px] bg-sky-200 rounded-2xl overflow-hidden shadow-inner border border-sky-300 mb-6">
+                    <!-- Dibujo del volcán con CSS (reciclado para el juego) -->
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[250px] bg-[#8B4513] rounded-t-[50%]"></div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-[250px] bg-[#A0522D] rounded-t-[50%]" style="clip-path: polygon(20% 100%, 40% 0, 60% 0, 80% 100%);"></div>
+                    <div class="absolute bottom-[200px] left-1/2 -translate-x-1/2 w-[60px] h-[50px] bg-red-500 rounded-t-full opacity-80 blur-sm"></div>
+                    
+                    <!-- Magma y Chimenea -->
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40px] h-[220px] bg-gradient-to-t from-yellow-400 to-red-500"></div>
+                    <div class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-[120px] h-[80px] bg-orange-500 rounded-full blur-md"></div>
+
+                    <!-- Nubes de ceniza -->
+                    <div class="absolute top-[50px] left-1/2 -translate-x-1/2 w-[150px] h-[80px] bg-gray-500 rounded-full opacity-60 blur-md"></div>
+
+                    <!-- Zonas para soltar las palabras (Slots) -->
+                    <!-- Cráter -->
+                    <div class="absolute top-[30px] left-[5%] flex items-center gap-2">
+                        <div class="slot-volcan bg-white/90 border-2 border-dashed border-slate-400 p-2 rounded-lg text-sm font-bold cursor-pointer min-w-[120px] text-center shadow-sm transition hover:bg-white" onclick="colocarPalabra('crater', this)">❓</div>
+                        <div class="w-8 h-1 bg-slate-700"></div>
+                    </div>
+                    <!-- Cono -->
+                    <div class="absolute top-[150px] right-[5%] flex items-center gap-2">
+                        <div class="w-8 h-1 bg-slate-700"></div>
+                        <div class="slot-volcan bg-white/90 border-2 border-dashed border-slate-400 p-2 rounded-lg text-sm font-bold cursor-pointer min-w-[120px] text-center shadow-sm transition hover:bg-white" onclick="colocarPalabra('cono', this)">❓</div>
+                    </div>
+                    <!-- Chimenea -->
+                    <div class="absolute top-[220px] left-[5%] flex items-center gap-2">
+                        <div class="slot-volcan bg-white/90 border-2 border-dashed border-slate-400 p-2 rounded-lg text-sm font-bold cursor-pointer min-w-[120px] text-center shadow-sm transition hover:bg-white" onclick="colocarPalabra('chimenea', this)">❓</div>
+                        <div class="w-12 h-1 bg-slate-700"></div>
+                    </div>
+                    <!-- Cámara magmática -->
+                    <div class="absolute bottom-[20px] right-[5%] flex items-center gap-2">
+                        <div class="w-8 h-1 bg-slate-700"></div>
+                        <div class="slot-volcan bg-white/90 border-2 border-dashed border-slate-400 p-2 rounded-lg text-sm font-bold cursor-pointer min-w-[120px] text-center shadow-sm transition hover:bg-white" onclick="colocarPalabra('camara', this)">❓</div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="comprobarVolcan()" class="bg-orange-500 hover:bg-orange-600 text-white font-black py-3 px-10 rounded-full shadow-lg transform hover:-translate-y-1 transition-all text-xl">
+                        Comprobar Volcán <i class="fa-solid fa-check ml-2"></i>
+                    </button>
+                    <button onclick="reiniciarVolcan()" class="ml-4 text-orange-600 font-bold underline hover:text-orange-800">Reiniciar</button>
+                </div>
+                <div id="resultado-volcan" class="mt-6 text-center font-bold text-lg hidden p-4 rounded-xl border-2"></div>
+            </div>
+
             <!-- Memorice -->
             <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-pink-200">
                 <h3 class="text-2xl font-bold text-pink-700 mb-2 text-center">🧠 Memorice Geológico</h3>
@@ -637,7 +696,119 @@
                     document.getElementById('btn-comenzar-quiz').innerText = "Volver a jugar";
                     feedbackDiv.classList.add('hidden');
                 }
-            }, 3500); // 3.5 segundos para leer el porqué
+            }, 4500); // 4.5 segundos para leer el porqué
+        }
+
+        // --- JUEGO: ARMA TU VOLCÁN ---
+        let palabraSeleccionadaVolcan = null;
+        let respuestasVolcan = { crater: null, cono: null, chimenea: null, camara: null };
+        const correctasVolcan = { crater: 'Cráter', cono: 'Cono volcánico', chimenea: 'Chimenea', camara: 'Cámara magmática' };
+
+        function seleccionarPalabra(palabra) {
+            initAudio();
+            if(audioInitialized) sfxClick.triggerAttackRelease("C5", "32n");
+            palabraSeleccionadaVolcan = palabra;
+            
+            // Resaltar botón seleccionado
+            document.querySelectorAll('.btn-palabra').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white', 'border-orange-600');
+                btn.classList.add('bg-orange-50', 'text-orange-800', 'border-orange-300');
+                if (btn.innerText === palabra) {
+                    btn.classList.add('bg-orange-500', 'text-white', 'border-orange-600');
+                    btn.classList.remove('bg-orange-50', 'text-orange-800', 'border-orange-300');
+                }
+            });
+        }
+
+        function colocarPalabra(id, elemento) {
+            initAudio();
+            if (palabraSeleccionadaVolcan) {
+                if(audioInitialized) sfxClick.triggerAttackRelease("E5", "32n");
+                
+                respuestasVolcan[id] = palabraSeleccionadaVolcan;
+                elemento.innerText = palabraSeleccionadaVolcan;
+                
+                // Cambiar estilo del recuadro al recibir una palabra
+                elemento.classList.remove('border-dashed', 'border-slate-400', 'bg-white/90', 'text-red-800', 'text-green-800', 'bg-red-100', 'bg-green-100', 'border-red-500', 'border-green-500');
+                elemento.classList.add('border-solid', 'border-orange-500', 'text-orange-700', 'bg-orange-100');
+                
+                // Limpiar selección de palabra
+                palabraSeleccionadaVolcan = null;
+                document.querySelectorAll('.btn-palabra').forEach(btn => {
+                    btn.classList.remove('bg-orange-500', 'text-white', 'border-orange-600');
+                    btn.classList.add('bg-orange-50', 'text-orange-800', 'border-orange-300');
+                });
+            } else if (elemento.innerText !== '❓') {
+                // Permitir quitar la palabra si se toca de nuevo sin haber seleccionado una
+                if(audioInitialized) sfxClick.triggerAttackRelease("G4", "32n");
+                respuestasVolcan[id] = null;
+                elemento.innerText = '❓';
+                elemento.classList.remove('border-solid', 'border-orange-500', 'text-orange-700', 'bg-orange-100', 'text-red-800', 'text-green-800', 'bg-red-100', 'bg-green-100', 'border-red-500', 'border-green-500');
+                elemento.classList.add('border-dashed', 'border-slate-400', 'bg-white/90');
+            }
+        }
+
+        function comprobarVolcan() {
+            initAudio();
+            let correctas = 0;
+            let completadas = 0;
+            
+            // Contar cuantas se han llenado
+            for(let key in respuestasVolcan) {
+                if(respuestasVolcan[key] !== null) completadas++;
+            }
+
+            const resultadoDiv = document.getElementById('resultado-volcan');
+            resultadoDiv.classList.remove('hidden');
+
+            if (completadas < 4) {
+                if(audioInitialized) sfxError.triggerAttackRelease("C2", "8n");
+                resultadoDiv.className = 'mt-6 text-center font-bold text-lg p-4 rounded-xl border-2 bg-yellow-100 border-yellow-400 text-yellow-800';
+                resultadoDiv.innerHTML = "¡Faltan partes por ubicar! Selecciona una palabra y toca un recuadro ❓.";
+                return;
+            }
+            
+            // Evaluar respuestas
+            for (const key in correctasVolcan) {
+                const elemento = document.querySelector(`.slot-volcan[onclick*="${key}"]`);
+                if (respuestasVolcan[key] === correctasVolcan[key]) {
+                    elemento.classList.remove('border-orange-500', 'bg-orange-100', 'text-orange-700', 'bg-red-100', 'border-red-500', 'text-red-800');
+                    elemento.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                    correctas++;
+                } else {
+                    elemento.classList.remove('border-orange-500', 'bg-orange-100', 'text-orange-700', 'bg-green-100', 'border-green-500', 'text-green-800');
+                    elemento.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                }
+            }
+
+            if (correctas === 4) {
+                if(audioInitialized) sfxSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
+                resultadoDiv.className = 'mt-6 text-center font-bold text-lg p-4 rounded-xl border-2 bg-green-100 border-green-500 text-green-800';
+                resultadoDiv.innerHTML = "¡Excelente! 🌋 Identificaste correctamente todas las partes del volcán. ¡Eres un geólogo experto! 👏";
+            } else {
+                if(audioInitialized) sfxError.triggerAttackRelease("C2", "8n");
+                resultadoDiv.className = 'mt-6 text-center font-bold text-lg p-4 rounded-xl border-2 bg-red-100 border-red-500 text-red-800';
+                resultadoDiv.innerHTML = `Tienes ${correctas} de 4 partes correctas. Las marcadas en rojo están equivocadas. ¡Corrígelas y vuelve a intentar!`;
+            }
+        }
+
+        function reiniciarVolcan() {
+            initAudio();
+            if(audioInitialized) sfxClick.triggerAttackRelease("C4", "16n");
+            
+            respuestasVolcan = { crater: null, cono: null, chimenea: null, camara: null };
+            palabraSeleccionadaVolcan = null;
+            
+            document.querySelectorAll('.slot-volcan').forEach(el => {
+                el.innerText = '❓';
+                el.className = 'slot-volcan bg-white/90 border-2 border-dashed border-slate-400 p-2 rounded-lg text-sm font-bold cursor-pointer min-w-[120px] text-center shadow-sm transition hover:bg-white';
+            });
+            
+            document.querySelectorAll('.btn-palabra').forEach(btn => {
+                btn.className = 'btn-palabra bg-orange-50 border-2 border-orange-300 text-orange-800 font-bold py-2 px-4 rounded-xl shadow-sm transition hover:bg-orange-100';
+            });
+            
+            document.getElementById('resultado-volcan').classList.add('hidden');
         }
 
         // --- JUEGO: MEMORICE GEOLÓGICO ---
