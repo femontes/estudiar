@@ -577,7 +577,7 @@
                 } else if(shapeDef.type === 'rectangulo') {
                     svgStr = svgStr.replace('{x}', x).replace('{y}', y).replace('{size2}', size*1.5).replace('{size}', size*0.8);
                 } else if(shapeDef.type === 'triangulo') {
-                    svgStr = svgStr.replace('{x}', x+(size/2)).replace('{y_top}', y).replace('{x_right}', x+size).replace('{y_bottom}', y+size).replace('{x_left}', x);
+                    svgStr = svgStr.replace('{x}', x+(size/2)).replace('{y_top}', y).replace('{x_right}', x+size).replace(/\{y_bottom\}/g, y+size).replace('{x_left}', x);
                 }
                 
                 svgContent += svgStr;
