@@ -1,1525 +1,888 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Imperio Azteca - Historia 4° Básico</title>
-  <!-- Google Fonts & FontAwesome -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aventura Geométrica - 1º Básico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff;
+            touch-action: manipulation; /* Previene zoom al hacer doble tap rápido */
+            overflow-x: hidden;
+        }
+        
+        /* Animaciones personalizadas */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop:active { animation: pop 0.2s ease-out; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
 
-  <style>
-    :root {
-      --primary: #d97706;
-      --primary-dark: #b45309;
-      --secondary: #0d9488;
-      --secondary-dark: #0f766e;
-      --accent: #e11d48;
-      --yellow: #facc15;
-      --bg-cream: #fffbeb;
-      --card-bg: #ffffff;
-      --text-dark: #1e293b;
-      --text-muted: #475569;
-      --radius: 22px;
-      --shadow: 0 12px 28px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    }
+        /* Estilos para figuras SVG interactivas */
+        .shape-interactive {
+            transition: all 0.3s;
+            cursor: pointer;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+        .shape-interactive:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2));
+        }
+        .vertex-dot {
+            fill: #ef4444; /* red-500 */
+            transition: r 0.2s;
+        }
+        .vertex-dot.active {
+            r: 8;
+            fill: #fcd34d; /* yellow-300 */
+            stroke: #ef4444;
+            stroke-width: 3;
+        }
+        .side-line {
+            transition: stroke-width 0.2s, stroke 0.2s;
+        }
+        .side-line.active {
+            stroke-width: 12;
+            stroke: #10b981; /* green-500 */
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* Utilidad para ocultar pantallas */
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; }
 
-    body {
-      font-family: 'Nunito', sans-serif;
-      background-color: var(--bg-cream);
-      color: var(--text-dark);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    h1, h2, h3, h4 { font-family: 'Fredoka', cursive; letter-spacing: 0.5px; }
-
-    /* ANIMACIONES GLOBALES */
-    @keyframes floatIcon {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-8px) rotate(4deg); }
-    }
-
-    @keyframes pulseBtn {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.5); }
-      70% { transform: scale(1.04); box-shadow: 0 0 0 14px rgba(217, 119, 6, 0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
-    }
-
-    @keyframes shakeError {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-8px); }
-      40%, 80% { transform: translateX(8px); }
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0.85); opacity: 0; }
-      70% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-
-    /* HEADER Y BARRA */
-    header {
-      background: linear-gradient(135deg, #78350f, #d97706);
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.4rem;
-      font-weight: 700;
-    }
-
-    .logo i {
-      color: var(--yellow);
-      font-size: 1.8rem;
-      animation: floatIcon 3s ease-in-out infinite;
-    }
-
-    .header-btns {
-      display: flex;
-      gap: 10px;
-    }
-
-    .audio-toggle-btn {
-      background: #f59e0b;
-      color: #451a03;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 50px;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: transform 0.2s, background 0.2s;
-    }
-    .audio-toggle-btn:hover { transform: scale(1.05); background: #fbbf24; }
-
-    nav {
-      background: #92400e;
-      overflow-x: auto;
-      white-space: nowrap;
-      padding: 8px 12px;
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    nav a {
-      color: #fef3c7;
-      text-decoration: none;
-      padding: 8px 16px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      border-radius: 30px;
-      transition: all 0.25s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    nav a:hover, nav a.active {
-      background: var(--yellow);
-      color: #78350f;
-      transform: translateY(-2px);
-    }
-
-    /* CONTENEDOR */
-    .container { max-width: 1150px; margin: 30px auto; padding: 0 20px; }
-
-    /* HERO BANNER */
-    .hero {
-      background: linear-gradient(135deg, #0d9488 0%, #115e59 100%);
-      color: white;
-      border-radius: var(--radius);
-      padding: 40px 30px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      margin-bottom: 40px;
-      border: 3px solid #2dd4bf;
-    }
-
-    .hero h1 { font-size: 2.8rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-    .hero p { font-size: 1.25rem; max-width: 800px; margin: 0 auto 20px; font-weight: 600; }
-
-    .hero-tags { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-    .hero-tag {
-      background: rgba(255,255,255,0.22);
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border: 1px solid rgba(255,255,255,0.4);
-      transition: transform 0.2s;
-    }
-    .hero-tag:hover { transform: scale(1.05); }
-
-    /* TARJETAS Y SECCIONES */
-    section {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 35px;
-      margin-bottom: 40px;
-      box-shadow: var(--shadow);
-      border: 3px solid #fde68a;
-      scroll-margin-top: 130px;
-      transition: transform 0.3s;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 25px;
-      border-bottom: 3px dashed #fde68a;
-      padding-bottom: 15px;
-    }
-
-    .section-icon {
-      background: var(--primary);
-      color: white;
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
-      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4);
-      animation: floatIcon 4s ease-in-out infinite;
-    }
-
-    .section-header h2 { font-size: 1.9rem; color: #78350f; }
-
-    .content-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      align-items: center;
-    }
-
-    @media (max-width: 850px) {
-      .content-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 2rem; }
-    }
-
-    .info-card {
-      background: #fffbeb;
-      border-left: 6px solid var(--primary);
-      padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 15px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.03);
-    }
-
-    .info-card h3 { color: #92400e; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-
-    .highlight-box {
-      background: #f0fdf4;
-      border: 2px solid #86efac;
-      border-radius: 15px;
-      padding: 18px;
-      margin: 15px 0;
-    }
-    .highlight-box h4 { color: #166534; margin-bottom: 6px; }
-
-    /* IMÁGENES CON ZOOM AL CLIC */
-    .img-box {
-      background: #f8fafc;
-      border: 3px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 14px;
-      text-align: center;
-      box-shadow: 0 6px 12px -2px rgba(0,0,0,0.08);
-      position: relative;
-    }
-
-    .zoomable-img-container {
-      position: relative;
-      cursor: pointer;
-      overflow: hidden;
-      border-radius: 14px;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .zoomable-img-container:hover {
-      transform: scale(1.03);
-    }
-
-    .zoomable-img-container img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-      max-height: 380px;
-      object-fit: contain;
-      border-radius: 12px;
-      transition: filter 0.2s;
-    }
-
-    .zoomable-img-container:hover img {
-      filter: brightness(1.05);
-    }
-
-    .zoom-badge {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(0, 0, 0, 0.75);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      pointer-events: none;
-      animation: pulseBtn 2.5s infinite;
-    }
-
-    .img-caption { font-size: 0.92rem; color: var(--text-muted); font-weight: 700; margin-top: 10px; }
-
-    /* MODAL LIGHTBOX PARA AGRANDAR IMÁGENES */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      padding: 20px;
-      animation: fadeIn 0.25s ease;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 24px;
-      max-width: 900px;
-      width: 95%;
-      max-height: 90vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      padding: 20px;
-      border: 4px solid var(--primary);
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .modal-content img {
-      max-width: 100%;
-      max-height: 68vh;
-      object-fit: contain;
-      border-radius: 14px;
-      border: 2px solid #e2e8f0;
-    }
-
-    .modal-caption {
-      margin-top: 14px;
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #78350f;
-      text-align: center;
-    }
-
-    .modal-close-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #ef4444;
-      color: white;
-      border: 3px solid white;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      font-size: 1.3rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s, background 0.2s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    .modal-close-btn:hover { transform: scale(1.15) rotate(90deg); background: #dc2626; }
-
-    /* BOTONES DE NARRACIÓN Y ACCIÓN */
-    .action-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1.05rem;
-      font-weight: 800;
-      border-radius: 30px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 14px rgba(217,119,6,0.35);
-      transition: all 0.2s;
-      margin-top: 12px;
-    }
-    .action-btn:hover {
-      transform: scale(1.06);
-      background: var(--primary-dark);
-      box-shadow: 0 6px 18px rgba(217,119,6,0.5);
-    }
-
-    .action-btn.reading {
-      background: var(--accent) !important;
-      animation: pulseBtn 1.5s infinite;
-    }
-
-    /* PIRÁMIDE SOCIAL INTERACTIVA */
-    .pyramid-levels { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
-    .pyramid-step {
-      padding: 14px 20px;
-      border-radius: 14px;
-      color: white;
-      cursor: pointer;
-      font-weight: 800;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.25s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .pyramid-step:hover { transform: translateX(6px) scale(1.02); filter: brightness(1.15); }
-    .lvl-1 { background: #b91c1c; width: 70%; margin: 0 auto; }
-    .lvl-2 { background: #d97706; width: 80%; margin: 0 auto; }
-    .lvl-3 { background: #059669; width: 90%; margin: 0 auto; }
-    .lvl-4 { background: #4b5563; width: 100%; margin: 0 auto; }
-
-    .details-box {
-      min-height: 80px;
-      background: #e0f2fe;
-      border: 2px solid #7dd3fc;
-      border-radius: 14px;
-      padding: 16px;
-      margin-top: 15px;
-      font-weight: 700;
-      color: #0369a1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      animation: popIn 0.3s ease;
-    }
-
-    /* CENTRO CEREMONIAL BOTONES */
-    .interactive-legend {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .legend-btn {
-      background: white;
-      border: 2px solid var(--secondary);
-      color: var(--secondary-dark);
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
-    }
-    .legend-btn:hover, .legend-btn.active {
-      background: var(--secondary);
-      color: white;
-      transform: scale(1.04);
-      box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3);
-    }
-
-    .badge-num {
-      background: var(--accent);
-      color: white;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 0.85rem;
-    }
-
-    /* CONSTRUCTOR DE CHINAMPA */
-    .chinampa-builder {
-      background: #ecfdf5;
-      border: 2px dashed #059669;
-      border-radius: 18px;
-      padding: 20px;
-      margin-top: 20px;
-    }
-
-    .step-list { display: flex; flex-direction: column; gap: 12px; }
-    .step-item {
-      background: white;
-      padding: 14px 18px;
-      border-radius: 12px;
-      border: 2px solid #a7f3d0;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.25s;
-    }
-    .step-item:hover { transform: translateX(5px); background: #f0fdf4; }
-
-    .step-item.completed {
-      background: #d1fae5;
-      border-color: #10b981;
-      color: #065f46;
-      animation: popIn 0.3s ease;
-    }
-    .step-item i { font-size: 1.4rem; color: #059669; }
-
-    /* ZONA DE JUEGOS */
-    .games-container {
-      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-      border: 4px solid #ca8a04;
-    }
-
-    .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .tab-btn {
-      background: white;
-      border: 2px solid #854d0e;
-      color: #854d0e;
-      padding: 10px 20px;
-      border-radius: 30px;
-      font-weight: 800;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab-btn.active, .tab-btn:hover {
-      background: #854d0e;
-      color: white;
-      transform: translateY(-2px);
-    }
-
-    .game-panel {
-      display: none;
-      background: white;
-      padding: 25px;
-      border-radius: 18px;
-      border: 2px solid #ca8a04;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
-    .game-panel.active { display: block; animation: popIn 0.3s ease; }
-
-    .quiz-question { font-size: 1.25rem; font-weight: 800; color: #78350f; margin-bottom: 18px; }
-    .quiz-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-    .quiz-btn {
-      background: #f8fafc;
-      border: 2px solid #cbd5e1;
-      padding: 14px 20px;
-      border-radius: 14px;
-      font-weight: 700;
-      font-size: 1rem;
-      text-align: left;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .quiz-btn:hover:not([disabled]) {
-      background: #fef3c7;
-      border-color: #d97706;
-      transform: translateX(6px);
-    }
-    .quiz-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d; }
-    .quiz-btn.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c; animation: shakeError 0.4s ease; }
-
-    .vf-card {
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      transition: all 0.2s;
-    }
-    .vf-statement { font-weight: 700; font-size: 1.05rem; color: #334155; }
-    .vf-actions { display: flex; gap: 8px; min-width: 150px; }
-    .btn-v, .btn-f {
-      border: none;
-      padding: 10px 18px;
-      border-radius: 10px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.15s;
-    }
-    .btn-v { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
-    .btn-f { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
-    .btn-v:hover, .btn-f:hover { transform: scale(1.08); }
-
-    .classify-item {
-      background: #fef08a;
-      border: 2px dashed #b45309;
-      padding: 18px;
-      border-radius: 14px;
-      font-weight: 800;
-      text-align: center;
-      font-size: 1.25rem;
-      margin-bottom: 15px;
-      animation: popIn 0.3s ease;
-    }
-    .classify-bins { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-    .bin-btn {
-      background: #f1f5f9;
-      border: 2px solid #94a3b8;
-      padding: 12px 8px;
-      border-radius: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .bin-btn:hover { transform: scale(1.05); background: #dbeafe; border-color: #3b82f6; }
-
-    /* DIPLOMA Y CANVAS DE CONFETI */
-    .diploma-card {
-      text-align: center;
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-      border: 6px double #d97706;
-      border-radius: 24px;
-      padding: 35px;
-      display: none;
-      margin-top: 25px;
-      box-shadow: var(--shadow);
-      position: relative;
-      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .diploma-card h2 { font-size: 2.3rem; color: #92400e; }
-
-    #confettiCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 10000;
-    }
-
-    footer { background: #451a03; color: #fde68a; text-align: center; padding: 25px 15px; margin-top: 50px; font-weight: 700; }
-  </style>
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
 </head>
-<body>
+<body class="w-screen h-screen flex justify-center items-center bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CiAgPHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0iI2YwZjlmZiIvPgogIDxwYXRoIGQ9Ik0wIDEwaDQwTTEwIDB2NDBNMCAzMGg0ME0zMCAwdjQwIiBzdHJva2U9IiNlMGYyZmUiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4=')]">
 
-  <!-- CANVAS CONFETI -->
-  <canvas id="confettiCanvas"></canvas>
+    <canvas id="confetti-canvas"></canvas>
 
-  <!-- MODAL / LIGHTBOX PARA AGRANDAR IMÁGENES -->
-  <div class="modal-overlay" id="imgModal" onclick="closeImageModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <button class="modal-close-btn" onclick="closeImageModal()"><i class="fa-solid fa-xmark"></i></button>
-      <img id="modalImg" src="" alt="Imagen ampliada" />
-      <div class="modal-caption" id="modalCaption"></div>
+    <!-- Contenedor Principal (Simula una tablet) -->
+    <div class="w-full max-w-4xl h-full max-h-[900px] bg-white sm:rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col border-8 border-blue-400">
+        
+        <!-- Header Global -->
+        <header class="bg-blue-500 text-white p-4 flex justify-between items-center z-10 shadow-md">
+            <button id="btn-home" class="hidden bg-yellow-400 text-blue-900 font-bold py-2 px-4 rounded-full hover:bg-yellow-300 animate-pop">
+                🏠 Volver
+            </button>
+            <h1 id="main-title" class="text-2xl sm:text-3xl font-black text-center flex-1 drop-shadow-md">Aventura Geométrica</h1>
+            <button onclick="toggleAudio()" class="bg-blue-400 p-2 rounded-full hover:bg-blue-300 text-2xl" aria-label="Activar/Desactivar Sonido">
+                <span id="audio-icon">🔊</span>
+            </button>
+        </header>
+
+        <!-- Área de Contenido Dinámico -->
+        <main class="flex-1 relative overflow-y-auto overflow-x-hidden p-4 sm:p-8 bg-blue-50">
+            
+            <div id="screen-home" class="screen active h-full justify-center items-center text-center space-y-8">
+                <div class="animate-float">
+                    <svg width="200" height="200" viewBox="0 0 200 200" class="mx-auto mb-4">
+                        <circle cx="100" cy="100" r="90" fill="#fef08a"/>
+                        <path d="M50 100 L150 100 L100 30 Z" fill="#60a5fa"/>
+                        <rect x="70" y="100" width="60" height="60" fill="#f472b6"/>
+                        <circle cx="85" cy="120" r="8" fill="#3b82f6"/>
+                        <circle cx="115" cy="120" r="8" fill="#3b82f6"/>
+                        <path d="M 85 140 Q 100 155 115 140" stroke="#3b82f6" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h2 class="text-4xl sm:text-5xl font-black text-blue-600 drop-shadow-sm">¡Hola!</h2>
+                <p class="text-xl sm:text-2xl text-gray-700 font-bold max-w-lg">Vamos a jugar y aprender sobre Figuras y Cuerpos Geométricos.</p>
+                <button onclick="nav('menu')" class="mt-8 bg-green-500 hover:bg-green-400 text-white text-3xl font-black py-4 px-12 rounded-full shadow-[0_8px_0_#166534] hover:shadow-[0_4px_0_#166534] hover:translate-y-1 transition-all animate-pop">
+                    ¡EMPEZAR! ▶
+                </button>
+            </div>
+
+            <div id="screen-menu" class="screen h-full justify-center">
+                <h2 class="text-3xl font-black text-center mb-8 text-indigo-700">Elige tu aventura</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto w-full">
+                    
+                    <button onclick="nav('lesson-2d')" class="bg-yellow-300 hover:bg-yellow-200 border-4 border-yellow-500 p-6 rounded-3xl flex flex-col items-center animate-pop group">
+                        <svg width="80" height="80" viewBox="0 0 100 100" class="mb-4 group-hover:animate-float">
+                            <polygon points="50,10 90,90 10,90" fill="#ef4444"/>
+                            <circle cx="50" cy="50" r="20" fill="#3b82f6" class="opacity-80"/>
+                        </svg>
+                        <span class="text-2xl font-black text-yellow-900">Figuras Planas<br>(2D)</span>
+                    </button>
+
+                    <button onclick="nav('lesson-3d')" class="bg-pink-300 hover:bg-pink-200 border-4 border-pink-500 p-6 rounded-3xl flex flex-col items-center animate-pop group">
+                        <div class="text-7xl mb-4 group-hover:animate-float">🧊⚽</div>
+                        <span class="text-2xl font-black text-pink-900">Cuerpos con Volumen<br>(3D)</span>
+                    </button>
+
+                    <button onclick="nav('game-hunt')" class="bg-green-300 hover:bg-green-200 border-4 border-green-500 p-6 rounded-3xl flex flex-col items-center animate-pop group sm:col-span-2">
+                        <div class="text-6xl mb-4 group-hover:animate-float">🎮 🕵️‍♂️</div>
+                        <span class="text-2xl font-black text-green-900">¡Zona de Juegos!</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="screen-lesson-2d" class="screen h-full">
+                <div class="bg-blue-100 p-4 rounded-2xl mb-6 flex items-center gap-4 cursor-pointer" onclick="playAudio('Las figuras 2D son planas. ¡Tócalas para aprender sus nombres, lados y vértices!')">
+                    <div class="text-4xl">🦉</div>
+                    <p class="text-lg font-bold text-blue-800">Toca las figuras para escuchar su nombre y descubrir sus partes (Lados y Vértices).</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6 flex-1">
+                    <!-- Triángulo -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
+                        <svg class="shape-interactive" width="120" height="120" viewBox="-10 -10 120 120" onclick="exploreShape('triangulo')">
+                            <polygon id="poly-tri" points="50,10 100,90 0,90" fill="#3b82f6" stroke="#2563eb" stroke-width="4"/>
+                            <!-- Vértices interactivos (se muestran por JS) -->
+                            <circle class="v-tri" cx="50" cy="10" r="0" fill="red"/>
+                            <circle class="v-tri" cx="100" cy="90" r="0" fill="red"/>
+                            <circle class="v-tri" cx="0" cy="90" r="0" fill="red"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold mt-4 text-blue-600">Triángulo</h3>
+                    </div>
+
+                    <!-- Cuadrado -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
+                        <svg class="shape-interactive" width="120" height="120" viewBox="-10 -10 120 120" onclick="exploreShape('cuadrado')">
+                            <rect id="poly-cua" x="10" y="10" width="80" height="80" fill="#ef4444" stroke="#dc2626" stroke-width="4"/>
+                            <circle class="v-cua" cx="10" cy="10" r="0" fill="red"/>
+                            <circle class="v-cua" cx="90" cy="10" r="0" fill="red"/>
+                            <circle class="v-cua" cx="90" cy="90" r="0" fill="red"/>
+                            <circle class="v-cua" cx="10" cy="90" r="0" fill="red"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold mt-4 text-red-600">Cuadrado</h3>
+                    </div>
+
+                    <!-- Rectángulo -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
+                        <svg class="shape-interactive" width="140" height="100" viewBox="-10 -10 140 100" onclick="exploreShape('rectangulo')">
+                            <rect id="poly-rec" x="10" y="20" width="100" height="50" fill="#10b981" stroke="#059669" stroke-width="4"/>
+                            <circle class="v-rec" cx="10" cy="20" r="0" fill="red"/>
+                            <circle class="v-rec" cx="110" cy="20" r="0" fill="red"/>
+                            <circle class="v-rec" cx="110" cy="70" r="0" fill="red"/>
+                            <circle class="v-rec" cx="10" cy="70" r="0" fill="red"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold mt-2 text-green-600">Rectángulo</h3>
+                    </div>
+
+                    <!-- Círculo -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
+                        <svg class="shape-interactive" width="120" height="120" viewBox="-10 -10 120 120" onclick="exploreShape('circulo')">
+                            <circle id="poly-cir" cx="50" cy="50" r="45" fill="#f59e0b" stroke="#d97706" stroke-width="4"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold mt-4 text-orange-500">Círculo</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-lesson-3d" class="screen h-full">
+                <div class="bg-pink-100 p-4 rounded-2xl mb-4 flex items-center gap-4 cursor-pointer" onclick="playAudio('Los cuerpos geométricos ocupan un lugar en el espacio. Tienen volumen. ¡Tócalos!')">
+                    <div class="text-4xl">🤖</div>
+                    <p class="text-lg font-bold text-pink-800">Estos son los cuerpos 3D. Tienen Caras. ¡Tócalos para conocerlos!</p>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1 overflow-y-auto pb-4">
+                    <!-- Cubo -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Cubo', '¡Soy un cubo! Todas mis caras son cuadrados. Como un dado.')">
+                        <!-- SVG Isométrico simple -->
+                        <svg width="80" height="90" viewBox="0 0 100 110">
+                            <polygon points="50,10 90,30 50,50 10,30" fill="#60a5fa" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
+                            <polygon points="10,30 50,50 50,90 10,70" fill="#3b82f6" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
+                            <polygon points="90,30 50,50 50,90 90,70" fill="#2563eb" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                        <h3 class="text-xl font-bold mt-2">Cubo</h3>
+                    </div>
+
+                    <!-- Esfera -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Esfera', '¡Soy una esfera! Soy redondita por todas partes. Como una pelota.')">
+                        <svg width="80" height="90" viewBox="0 0 100 110">
+                            <defs>
+                                <radialGradient id="gradSphere" cx="30%" cy="30%" r="70%">
+                                    <stop offset="0%" stop-color="#f87171" />
+                                    <stop offset="100%" stop-color="#b91c1c" />
+                                </radialGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="40" fill="url(#gradSphere)"/>
+                        </svg>
+                        <h3 class="text-xl font-bold mt-2">Esfera</h3>
+                    </div>
+
+                    <!-- Cono -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Cono', '¡Soy un cono! Tengo una base circular y termino en punta. Como un gorro de fiesta.')">
+                        <svg width="80" height="90" viewBox="0 0 100 110">
+                            <path d="M50 10 L10 80 Q50 100 90 80 Z" fill="#34d399" stroke="#059669" stroke-width="2"/>
+                            <ellipse cx="50" cy="80" rx="40" ry="10" fill="#10b981" stroke="#059669" stroke-width="2" stroke-dasharray="4,4"/> <!-- Back edge hint -->
+                        </svg>
+                        <h3 class="text-xl font-bold mt-2">Cono</h3>
+                    </div>
+
+                    <!-- Cilindro -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Cilindro', '¡Soy un cilindro! Tengo dos caras circulares planas. Como una lata o un vaso.')">
+                        <svg width="80" height="90" viewBox="0 0 100 110">
+                            <ellipse cx="50" cy="20" rx="30" ry="10" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+                            <path d="M20 20 L20 80 A30 10 0 0 0 80 80 L80 20 Z" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+                        </svg>
+                        <h3 class="text-xl font-bold mt-2">Cilindro</h3>
+                    </div>
+
+                    <!-- Paralelepípedo -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Paralelepípedo', '¡Nombre largo! Pa-ra-le-le-pí-pe-do. Mis caras son rectángulos. Como una caja de leche.')">
+                        <svg width="80" height="90" viewBox="0 0 100 110">
+                            <polygon points="40,20 80,10 80,70 40,80" fill="#a78bfa" stroke="#7c3aed" stroke-width="2"/>
+                            <polygon points="10,30 40,20 40,80 10,90" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2"/>
+                            <polygon points="10,30 50,40 80,10 40,20" fill="#c4b5fd" stroke="#7c3aed" stroke-width="2"/>
+                        </svg>
+                        <h3 class="text-xl font-bold mt-2 text-center text-sm sm:text-base leading-tight">Paralelepípedo</h3>
+                    </div>
+
+                    <!-- Pirámide -->
+                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Pirámide', '¡Soy una pirámide! Mis caras laterales son triángulos. Como las de Egipto.')">
+                        <svg width="80" height="90" viewBox="0 0 100 110">
+                            <polygon points="50,10 20,80 80,80" fill="#f472b6" stroke="#db2777" stroke-width="2" stroke-linejoin="round"/>
+                            <polygon points="50,10 80,80 90,60" fill="#ec4899" stroke="#be185d" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                        <h3 class="text-xl font-bold mt-2">Pirámide</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-game-menu" class="screen h-full justify-center">
+                <h2 class="text-3xl font-black text-center mb-6 text-green-700">¡Hora de Jugar!</h2>
+                <div class="space-y-4 max-w-md mx-auto w-full">
+                    <button onclick="nav('game-hunt-play')" class="w-full bg-white border-4 border-blue-400 p-4 rounded-2xl flex items-center gap-4 hover:bg-blue-50 animate-pop text-left">
+                        <span class="text-4xl">🎨</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-blue-900">1. Caza de Figuras</h3>
+                            <p class="text-gray-600 text-sm">Busca y cuenta (pág 130)</p>
+                        </div>
+                    </button>
+                    <button onclick="startSorterGame()" class="w-full bg-white border-4 border-pink-400 p-4 rounded-2xl flex items-center gap-4 hover:bg-pink-50 animate-pop text-left">
+                        <span class="text-4xl">🥫</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-pink-900">2. ¿A qué se parece?</h3>
+                            <p class="text-gray-600 text-sm">Une objetos con cuerpos 3D (pág 134)</p>
+                        </div>
+                    </button>
+                    <button onclick="startStampGame()" class="w-full bg-white border-4 border-orange-400 p-4 rounded-2xl flex items-center gap-4 hover:bg-orange-50 animate-pop text-left">
+                        <span class="text-4xl">👣</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-orange-900">3. Fábrica de Huellas</h3>
+                            <p class="text-gray-600 text-sm">Relación 3D y 2D (pág 136)</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="screen-game-hunt-play" class="screen h-full">
+                <div class="bg-blue-100 p-3 rounded-xl mb-4 flex items-center justify-between">
+                    <h2 id="hunt-instruction" class="text-xl sm:text-2xl font-bold text-blue-900 cursor-pointer" onclick="playAudio(document.getElementById('hunt-instruction').innerText)">
+                        Toca todos los CÍRCULOS
+                    </h2>
+                    <span id="hunt-counter" class="text-2xl font-black bg-white px-4 py-1 rounded-full text-blue-600 shadow-inner border-2 border-blue-200">0/0</span>
+                </div>
+                
+                <div class="flex-1 bg-white rounded-3xl border-4 border-dashed border-gray-300 relative flex justify-center items-center overflow-hidden">
+                    <!-- Dibujo compuesto interactivo -->
+                    <svg id="hunt-canvas" width="100%" height="100%" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
+                        <!-- El contenido se inyecta por JS -->
+                    </svg>
+                </div>
+            </div>
+
+            <div id="screen-game-sorter" class="screen h-full">
+                <div class="bg-pink-100 p-3 rounded-xl mb-4 text-center cursor-pointer" onclick="playAudio('¿A qué cuerpo geométrico se parece este objeto? Toca la respuesta correcta.')">
+                    <h2 class="text-xl font-bold text-pink-900">¿A qué se parece?</h2>
+                </div>
+                
+                <div class="flex-1 flex flex-col items-center justify-center space-y-8">
+                    <!-- Objeto a clasificar -->
+                    <div id="sorter-object" class="text-[100px] animate-float drop-shadow-xl bg-white w-48 h-48 rounded-full flex items-center justify-center border-8 border-yellow-300">
+                        🥫
+                    </div>
+                    
+                    <!-- Opciones de Cuerpos 3D -->
+                    <div class="grid grid-cols-2 gap-4 w-full max-w-md" id="sorter-options">
+                        <!-- Botones inyectados por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-game-stamp" class="screen h-full">
+                 <div class="bg-orange-100 p-3 rounded-xl mb-4 text-center cursor-pointer" onclick="playAudio('Imagina que pintas la base de este cuerpo. ¿Qué figura 2D estampará en el papel?')">
+                    <h2 id="stamp-question" class="text-lg sm:text-xl font-bold text-orange-900">¿Qué huella deja su cara basal?</h2>
+                </div>
+                
+                <div class="flex-1 flex flex-col items-center justify-center space-y-8">
+                    <!-- Cuerpo 3D (Stamp) -->
+                    <div id="stamp-3d-container" class="bg-white p-6 rounded-3xl shadow-md border-4 border-gray-100 animate-float">
+                        <!-- SVG inyectado -->
+                    </div>
+                    
+                    <!-- Opciones 2D -->
+                    <div class="w-full bg-gray-100 p-4 rounded-t-3xl border-t-4 border-gray-300 flex justify-center gap-6 mt-auto">
+                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="cuadrado">
+                            <svg width="50" height="50" viewBox="0 0 60 60"><rect x="10" y="10" width="40" height="40" fill="#ef4444"/></svg>
+                        </button>
+                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="circulo">
+                            <svg width="50" height="50" viewBox="0 0 60 60"><circle cx="30" cy="30" r="20" fill="#f59e0b"/></svg>
+                        </button>
+                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="triangulo">
+                            <svg width="50" height="50" viewBox="0 0 60 60"><polygon points="30,10 50,50 10,50" fill="#3b82f6"/></svg>
+                        </button>
+                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="rectangulo">
+                            <svg width="60" height="50" viewBox="0 0 70 60"><rect x="5" y="15" width="60" height="30" fill="#10b981"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overlay de Éxito Genérico -->
+            <div id="success-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-sm hidden flex-col items-center justify-center z-50">
+                <div class="text-8xl animate-bounce mb-4">🌟</div>
+                <h2 class="text-4xl font-black text-yellow-500 mb-8 drop-shadow-sm text-center px-4">¡Excelente!</h2>
+                <button id="btn-next" class="bg-blue-500 text-white font-bold text-2xl py-3 px-8 rounded-full shadow-lg hover:bg-blue-400 active:scale-95">
+                    Siguiente ▶
+                </button>
+            </div>
+
+        </main>
     </div>
-  </div>
 
-  <!-- HEADER -->
-  <header>
-    <div class="top-bar">
-      <div class="logo">
-        <i class="fa-solid fa-sun"></i>
-        <span>Los Aztecas - 4° Básico</span>
-      </div>
-      <div class="header-btns">
-        <button class="audio-toggle-btn" onclick="playAztecDrum()"><i class="fa-solid fa-drum"></i> Tambor</button>
-        <button class="audio-toggle-btn" id="audioToggleBtn" onclick="toggleSound()">
-          <i class="fa-solid fa-volume-high" id="audioIcon"></i>
-          <span id="audioText">Efectos: ACTIVOS</span>
-        </button>
-      </div>
-    </div>
-    <nav>
-      <a href="#origen" onclick="playNavClick()"><i class="fa-solid fa-feather"></i> Mito</a>
-      <a href="#geografia" onclick="playNavClick()"><i class="fa-solid fa-map-location-dot"></i> Ubicación</a>
-      <a href="#politica" onclick="playNavClick()"><i class="fa-solid fa-crown"></i> Política</a>
-      <a href="#sociedad" onclick="playNavClick()"><i class="fa-solid fa-users"></i> Sociedad</a>
-      <a href="#economia" onclick="playNavClick()"><i class="fa-solid fa-seedling"></i> Chinampas</a>
-      <a href="#religion" onclick="playNavClick()"><i class="fa-solid fa-om"></i> Religión</a>
-      <a href="#ciencia" onclick="playNavClick()"><i class="fa-solid fa-calendar-days"></i> Ciencia y Arte</a>
-      <a href="#juegos" onclick="playNavClick()" style="background:#f59e0b; color:#451a03;"><i class="fa-solid fa-gamepad"></i> ¡Juegos!</a>
-    </nav>
-  </header>
+    <script>
+        // --- SISTEMA DE AUDIO Y VOZ ---
+        let audioEnabled = true;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audio-icon').innerText = audioEnabled ? '🔊' : '🔇';
+            if (audioEnabled) {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                playTone(400, 'sine', 0.1); // Feedback visual
+            } else {
+                window.speechSynthesis.cancel();
+            }
+        }
 
-  <div class="container">
+        // Sintetizador de voz básico para leer instrucciones
+        function playAudio(text) {
+            if (!audioEnabled) return;
+            window.speechSynthesis.cancel(); // Stop current speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-ES'; // Intentar español
+            utterance.rate = 0.9; // Un poco más lento para niños
+            utterance.pitch = 1.2; // Tono ligeramente más agudo
+            window.speechSynthesis.speak(utterance);
+        }
 
-    <!-- HERO -->
-    <div class="hero">
-      <h1>¡Bienvenidos al Imperio Azteca! 🦅🌵</h1>
-      <p>Unidad 2 • Tema 2: Descubre los misterios, las pirámides, las chinampas sobre el agua y los guerreros mexicas.</p>
-      <div class="hero-tags">
-        <span class="hero-tag"><i class="fa-solid fa-calendar"></i> Año 1325 - 1521 d.C.</span>
-        <span class="hero-tag"><i class="fa-solid fa-location-dot"></i> Valle de México (Mesoamérica)</span>
-        <span class="hero-tag"><i class="fa-solid fa-city"></i> Gran Tenochtitlán</span>
-      </div>
-    </div>
-
-    <!-- 1. MITO Y ORIGEN -->
-    <section id="origen">
-      <div class="section-header">
-        <div class="section-icon"><i class="fa-solid fa-feather-pointed"></i></div>
-        <div>
-          <h2>1. Origen y Mito de Fundación de Tenochtitlán</h2>
-          <p style="color:var(--text-muted); font-weight:700;">¿Cómo nació la gran capital en 1325 d.C.?</p>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div>
-          <div class="info-card">
-            <h3><i class="fa-solid fa-book-open"></i> La Gran Profecía</h3>
-            <p>Los aztecas (o <strong>mexicas</strong>) caminaron durante años buscando una señal sagrada enviada por su dios <em>Huitzilopochtli</em>:</p>
-            <p style="margin-top:8px; font-style:italic; color:#b45309; font-weight:700;">
-              "Debían fundar su ciudad en el lugar exacto donde vieran a un <strong>águila posada sobre un nopal devorando una serpiente</strong>".
-            </p>
-          </div>
-          <div class="highlight-box">
-            <h4><i class="fa-solid fa-landmark"></i> La Fundación (1325 d.C.)</h4>
-            <p>Encontraron esta señal en un islote del <strong>Lago Texcoco</strong>. Allí levantaron <strong>Tenochtitlán</strong> con más de 140.000 habitantes.</p>
-          </div>
-        </div>
-
-        <div class="img-box">
-          <div style="background:#fed7aa; padding:25px; border-radius:14px; font-size:4.5rem; animation:floatIcon 3s infinite;">
-            🦅🌵🐍
-          </div>
-          <p class="img-caption">El mito fundacional: el águila, la serpiente y el nopal.</p>
-          
-          <button class="action-btn" id="btnNarrarMito" onclick="narrarMito()">
-            <i class="fa-solid fa-volume-high"></i> Escuchar mito con voz
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. UBICACIÓN GEOGRÁFICA -->
-    <section id="geografia">
-      <div class="section-header">
-        <div class="section-icon"><i class="fa-solid fa-mountain-sun"></i></div>
-        <div>
-          <h2>2. El Entorno Geográfico Azteca</h2>
-          <p style="color:var(--text-muted); font-weight:700;">Mesoamérica: desde el Atlántico hasta el Pacífico</p>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div>
-          <div class="info-card">
-            <h3><i class="fa-solid fa-earth-americas"></i> El Valle de México</h3>
-            <p>Ocuparon el área geográfica del <strong>valle de México</strong> y dominaron desde la costa del océano Atlántico hasta la costa del océano Pacífico. Era una zona <strong>montañosa</strong> con distintos <strong>lagos</strong>.</p>
-          </div>
-
-          <div class="info-card">
-            <h3><i class="fa-solid fa-cloud-sun"></i> Diversos Climas</h3>
-            <ul style="padding-left:20px; font-weight:700;">
-              <li><strong>Zona Costera:</strong> Clima ecuatorial (cálido y húmedo), hacia las costas del golfo y pacífico.</li>
-              <li><strong>Zona Interior y Meseta:</strong> Clima templado y seco entre las montañas.</li>
-            </ul>
-          </div>
-
-          <div class="info-card" style="background:#eff6ff; border-left-color:#3b82f6;">
-            <h3 style="color:#1d4ed8;"><i class="fa-solid fa-compass"></i> El Desafío del Agua</h3>
-            <p>Ingeniería urbana en el lago:</p>
-            <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-              <div style="background:white; padding:8px 12px; border-radius:8px; border:1px solid #bfdbfe;">
-                🛣️ <strong>Calzadas de piedra:</strong> Caminos sobre el lago que conectaban con tierra firme.
-              </div>
-              <div style="background:white; padding:8px 12px; border-radius:8px; border:1px solid #bfdbfe;">
-                🚰 <strong>Acueductos:</strong> Canales para transportar agua dulce potable.
-              </div>
-              <div style="background:white; padding:8px 12px; border-radius:8px; border:1px solid #bfdbfe;">
-                🛶 <strong>Canoas:</strong> Transporte rápido a través de canales acuáticos.
-              </div>
-            </div>
-          </div>
-
-          <button class="action-btn" id="btnNarrarGeo" onclick="narrarGeo()">
-            <i class="fa-solid fa-volume-high"></i> Escuchar sobre la ubicación
-          </button>
-        </div>
-
-        <!-- IMAGEN AGRANDABLE UBICACIÓN GEOGRÁFICA -->
-        <div class="img-box">
-          <div class="zoomable-img-container" onclick="openImageModal('https://raw.githubusercontent.com/femontes/estudiar/9a6e7b35c8daefb5ec93a6dbaacd748727affa28/f7ca3d93-b97a-4dd8-b1e4-19247b93a8f8.png', 'Mapa de la Extensión del Imperio Azteca y sus zonas climáticas en Mesoamérica')">
-            <img src="https://raw.githubusercontent.com/femontes/estudiar/9a6e7b35c8daefb5ec93a6dbaacd748727affa28/f7ca3d93-b97a-4dd8-b1e4-19247b93a8f8.png" alt="Mapa de Ubicación y Extensión del Imperio Azteca" />
-            <div class="zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Clic para agrandar</div>
-          </div>
-          <p class="img-caption">Extensión del Imperio Azteca, zonas climáticas (costera cálida y templada) y pueblos independientes.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. ORGANIZACIÓN POLÍTICA -->
-    <section id="politica">
-      <div class="section-header">
-        <div class="section-icon"><i class="fa-solid fa-shield-halved"></i></div>
-        <div>
-          <h2>3. Organización Política y el Poder del Tlatoani</h2>
-          <p style="color:var(--text-muted); font-weight:700;">La Triple Alianza, los tributos y el poderoso ejército</p>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div>
-          <div class="info-card">
-            <h3><i class="fa-solid fa-crown"></i> El Tlatoani (Emperador)</h3>
-            <p>Era la máxima autoridad. Dictaba leyes, lideraba el ejército, guiaba las ceremonias y decidía la guerra.</p>
-          </div>
-
-          <div class="info-card">
-            <h3><i class="fa-solid fa-handshake"></i> La Triple Alianza</h3>
-            <p>Tenochtitlán se alió con <strong>Texcoco</strong> y <strong>Tlacopan</strong> para cobrar <strong>tributos</strong> (maíz, ropa, plumas y trabajo).</p>
-          </div>
-
-          <button class="action-btn" id="btnNarrarTlatoani" onclick="narrarTlatoani()">
-            <i class="fa-solid fa-volume-high"></i> Escuchar sobre el Tlatoani
-          </button>
-        </div>
-
-        <!-- IMAGEN AGRANDABLE 1: MOCTEZUMA -->
-        <div class="img-box">
-          <div class="zoomable-img-container" onclick="openImageModal('https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-08-19%20203212.png', 'El emperador Moctezuma II (1466-1520), líder supremo del Imperio Azteca')">
-            <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-08-19%20203212.png" alt="El emperador Moctezuma II" />
-            <div class="zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Clic para agrandar</div>
-          </div>
-          <p class="img-caption">El emperador Moctezuma II (1466-1520), líder supremo azteca.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. SOCIEDAD AZTECA -->
-    <section id="sociedad">
-      <div class="section-header">
-        <div class="section-icon"><i class="fa-solid fa-people-roof"></i></div>
-        <div>
-          <h2>4. Sociedad Azteca: Jerarquizada y Ordenada</h2>
-          <p style="color:var(--text-muted); font-weight:700;">¡Haz clic en cada nivel para conocer sus funciones!</p>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div>
-          <div class="pyramid-levels">
-            <div class="pyramid-step lvl-1" onclick="showSocialInfo('pipiltin')">
-              <span>1. Tlatoani y Pipiltin (Nobleza)</span> <i class="fa-solid fa-chevron-right"></i>
-            </div>
-            <div class="pyramid-step lvl-2" onclick="showSocialInfo('pochtecas')">
-              <span>2. Pochtecas (Mercaderes)</span> <i class="fa-solid fa-chevron-right"></i>
-            </div>
-            <div class="pyramid-step lvl-3" onclick="showSocialInfo('macehualli')">
-              <span>3. Macehualli (Pueblo libre)</span> <i class="fa-solid fa-chevron-right"></i>
-            </div>
-            <div class="pyramid-step lvl-4" onclick="showSocialInfo('esclavos')">
-              <span>4. Siervos y Esclavos</span> <i class="fa-solid fa-chevron-right"></i>
-            </div>
-          </div>
-
-          <div class="details-box" id="socialBox">
-            <i class="fa-solid fa-hand-pointer fa-2x"></i>
-            <span id="socialText">Haz clic en un escalón de la pirámide para descubrir sus privilegios.</span>
-          </div>
-        </div>
-
-        <!-- IMAGEN AGRANDABLE 2: PIRÁMIDE SOCIAL -->
-        <div class="img-box">
-          <div class="zoomable-img-container" onclick="openImageModal('https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-08-19%20203134.png', 'Pirámide Social Azteca y las vestimentas de cada grupo')">
-            <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-08-19%20203134.png" alt="Pirámide Social Azteca" />
-            <div class="zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Clic para agrandar</div>
-          </div>
-          <p class="img-caption">Estructura social y vestimentas de cada clase.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. ECONOMÍA Y CHINAMPAS -->
-    <section id="economia">
-      <div class="section-header">
-        <div class="section-icon"><i class="fa-solid fa-wheat-awn"></i></div>
-        <div>
-          <h2>5. Economía: Las Chinampas y el Comercio</h2>
-          <p style="color:var(--text-muted); font-weight:700;">¡Cultivar sobre el agua! Una gran obra de ingeniería</p>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div>
-          <div class="info-card">
-            <h3><i class="fa-solid fa-seedling"></i> ¿Qué eran las Chinampas?</h3>
-            <p>Eran <strong>islas flotantes artificiales</strong> sobre el lago Texcoco para cosechar maíz, porotos, zapallos y ajíes con fertilidad y humedad constantes.</p>
-          </div>
-
-          <div class="info-card">
-            <h3><i class="fa-solid fa-shop"></i> Mercado de Tlatelolco</h3>
-            <p>Utilizaban el <strong>trueque</strong> y las <strong>semillas de cacao</strong> como moneda de cambio.</p>
-          </div>
-
-          <button class="action-btn" id="btnNarrarChinampas" onclick="narrarChinampas()">
-            <i class="fa-solid fa-volume-high"></i> Escuchar sobre Chinampas
-          </button>
-        </div>
-
-        <div class="chinampa-builder">
-          <h3 style="color:#065f46; margin-bottom:10px;"><i class="fa-solid fa-hammer"></i> ¡Construye una Chinampa Azteca!</h3>
-          <p style="font-size:0.9rem; font-weight:700; margin-bottom:12px; color:#047857;">Haz clic en orden para completar la construcción:</p>
-          <div class="step-list">
-            <div class="step-item" id="step1" onclick="buildChinampaStep(1)">
-              <i class="fa-solid fa-square"></i> 1. Clavar estacas de sauce en el fondo del lago.
-            </div>
-            <div class="step-item" id="step2" onclick="buildChinampaStep(2)">
-              <i class="fa-solid fa-square"></i> 2. Tejer ramas y cañas formando un armazón rectangular.
-            </div>
-            <div class="step-item" id="step3" onclick="buildChinampaStep(3)">
-              <i class="fa-solid fa-square"></i> 3. Rellenar con lodo fértil del fondo del lago.
-            </div>
-            <div class="step-item" id="step4" onclick="buildChinampaStep(4)">
-              <i class="fa-solid fa-square"></i> 4. ¡Sembrar maíz, zapallo y ajíes!
-            </div>
-          </div>
-          <div id="chinampaFeedback" style="margin-top:12px; font-weight:800; color:#047857; text-align:center;"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. RELIGIÓN Y CENTRO CEREMONIAL -->
-    <section id="religion">
-      <div class="section-header">
-        <div class="section-icon"><i class="fa-solid fa-sun"></i></div>
-        <div>
-          <h2>6. Religión Azteca y el Centro Ceremonial</h2>
-          <p style="color:var(--text-muted); font-weight:700;">Eran politeístas y rendían culto a las fuerzas de la naturaleza</p>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div>
-          <div class="info-card">
-            <h3><i class="fa-solid fa-hands-praying"></i> Dioses Principales</h3>
-            <p>• <strong>Huitzilopochtli:</strong> Dios del Sol y de la Guerra.<br>
-            • <strong>Quetzalcóatl:</strong> La Serpiente Emplumada, sabiduría y vida.<br>
-            • <strong>Tláloc:</strong> Dios de la lluvia y las cosechas.</p>
-          </div>
-
-          <!-- IMAGEN AGRANDABLE 3: DIOSES AZTECAS -->
-          <div class="img-box">
-            <div class="zoomable-img-container" onclick="openImageModal('https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-08-19%20203028.png', 'Dioses Aztecas: Huitzilopochtli (Sol y Guerra), Quetzalcóatl (Sabiduría) y Tláloc (Lluvia)')">
-              <img src="https://raw.githubusercontent.com/femontes/estudiar/refs/heads/main/Captura%20de%20pantalla%202026-08-19%20203028.png" alt="Dioses Aztecas" />
-              <div class="zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Clic para agrandar</div>
-            </div>
-            <p class="img-caption">Huitzilopochtli, Quetzalcóatl y Tláloc.</p>
-          </div>
-        </div>
-
-        <div>
-          <!-- IMAGEN AGRANDABLE 4: CENTRO CEREMONIAL -->
-          <div class="img-box">
-            <div class="zoomable-img-container" onclick="openImageModal('https://raw.githubusercontent.com/femontes/estudiar/bb4a0fbe9566e2b38dfbd9b2e883e6c66972350c/Captura%20de%20pantalla%202026-08-19%20203048.png', 'Centro Ceremonial de Tenochtitlán y sus templos principales')">
-              <img src="https://raw.githubusercontent.com/femontes/estudiar/bb4a0fbe9566e2b38dfbd9b2e883e6c66972350c/Captura%20de%20pantalla%202026-08-19%20203048.png" alt="Centro Ceremonial Tenochtitlán" />
-              <div class="zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Clic para agrandar</div>
-            </div>
-            <p class="img-caption">Centro Ceremonial de Tenochtitlán.</p>
-
-            <div class="interactive-legend">
-              <button class="legend-btn" onclick="showTemple(1)"><span class="badge-num">1</span> Templo Águilas</button>
-              <button class="legend-btn" onclick="showTemple(2)"><span class="badge-num">2</span> Quetzalcóatl</button>
-              <button class="legend-btn" onclick="showTemple(3)"><span class="badge-num">3</span> Templo Mayor</button>
-              <button class="legend-btn" onclick="showTemple(4)"><span class="badge-num">4</span> Sacerdotes</button>
-              <button class="legend-btn" onclick="showTemple(5)"><span class="badge-num">5</span> Juego de Pelota</button>
-            </div>
-
-            <div class="details-box" id="templeBox">
-              <i class="fa-solid fa-synagogue fa-2x"></i>
-              <span id="templeText">¡Presiona un número para explorar el templo ceremonial!</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7. CIENCIA, ESCRITURA Y ARTE -->
-    <section id="ciencia">
-      <div class="section-header">
-        <div class="section-icon"><i class="fa-solid fa-flask"></i></div>
-        <div>
-          <h2>7. Ciencia, Escritura y Arte Azteca</h2>
-          <p style="color:var(--text-muted); font-weight:700;">Calendarios, códices y obras maestras en obsidiana y oro</p>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div class="info-card">
-          <h3><i class="fa-solid fa-calendar-star"></i> Calendarios</h3>
-          <p><strong>• Calendario Solar (Xíhuitl):</strong> 365 días para ciclos agrícolas.<br>
-          <strong>• Calendario Sagrado (Tonalpohualli):</strong> 260 días para ritos sagrados.</p>
-        </div>
-
-        <div class="info-card">
-          <h3><i class="fa-solid fa-scroll"></i> Códices y Escultura</h3>
-          <p>Escribían códices con <strong>pictogramas y glifos</strong>, y esculpían obras maestras en piedra <strong>obsidiana</strong> y oro.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 8. ZONA DE JUEGOS -->
-    <section id="juegos" class="games-container">
-      <div class="section-header" style="border-bottom-color:#b45309;">
-        <div class="section-icon" style="background:#b45309;"><i class="fa-solid fa-trophy"></i></div>
-        <div>
-          <h2 style="color:#78350f;">¡Zona de Juegos y Desafío del Tlatoani!</h2>
-          <p style="color:#854d0e; font-weight:700;">¡Demuestra lo aprendido para ganar tu diploma!</p>
-        </div>
-      </div>
-
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchGameTab('tab-quiz')"><i class="fa-solid fa-circle-question"></i> Quiz de Selección</button>
-        <button class="tab-btn" onclick="switchGameTab('tab-vf')"><i class="fa-solid fa-check-double"></i> Verdadero o Falso</button>
-        <button class="tab-btn" onclick="switchGameTab('tab-clasif')"><i class="fa-solid fa-boxes-stacked"></i> Clasificador Veloz</button>
-      </div>
-
-      <!-- QUIZ -->
-      <div id="tab-quiz" class="game-panel active">
-        <div id="quiz-container">
-          <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:800; color:#92400e;">
-            <span id="quiz-progress">Pregunta 1 de 5</span>
-            <span>Puntos: <span id="quiz-score">0</span> 🌟</span>
-          </div>
-          <div class="quiz-question" id="quiz-q-text">Cargando pregunta...</div>
-          <div class="quiz-options" id="quiz-options"></div>
-        </div>
-      </div>
-
-      <!-- VERDADERO O FALSO -->
-      <div id="tab-vf" class="game-panel">
-        <h3 style="color:#78350f; margin-bottom:15px;">Responde si es Verdadero (V) o Falso (F):</h3>
-        <div id="vf-container"></div>
-      </div>
-
-      <!-- CLASIFICADOR -->
-      <div id="tab-clasif" class="game-panel">
-        <h3 style="color:#78350f; margin-bottom:12px;">¿A qué ámbito pertenece este elemento?</h3>
-        <div class="classify-item" id="clasif-word">Cargando...</div>
-        <div class="classify-bins">
-          <button class="bin-btn" onclick="checkClassify('Política')">👑 Política</button>
-          <button class="bin-btn" onclick="checkClassify('Economía')">🌽 Economía</button>
-          <button class="bin-btn" onclick="checkClassify('Sociedad')">👥 Sociedad</button>
-          <button class="bin-btn" onclick="checkClassify('Religión')">☀️ Religión</button>
-        </div>
-        <div id="clasif-msg" style="text-align:center; font-weight:800; margin-top:15px;"></div>
-      </div>
-
-      <!-- DIPLOMA -->
-      <div class="diploma-card" id="diploma">
-        <h2>🎉 ¡FELICITACIONES GRAN TLATOANI! 🎉</h2>
-        <p style="font-size:1.3rem; margin:10px 0; font-weight:800; color:#78350f;">Has completado con éxito la unidad de la Civilización Azteca</p>
-        <div style="font-size:3.5rem; margin:15px 0;">👑 📜 🦅 🌽</div>
-        <p style="font-weight:700; color:#451a03; max-width:600px; margin:0 auto;">¡Dominaste el mito de Tenochtitlán, las chinampas, la pirámide social y los grandes dioses mesoamericanos!</p>
-        <button class="action-btn" onclick="window.print()" style="margin-top:20px;"><i class="fa-solid fa-print"></i> Guardar o Imprimir Diploma</button>
-      </div>
-
-    </section>
-
-  </div>
-
-  <footer>
-    <p>Guía Interactiva de Historia, Geografía y Ciencias Sociales • 4° Básico</p>
-  </footer>
-
-  <script>
-    /* ==========================================================
-       1. MODAL / LIGHTBOX PARA AGRANDAR IMÁGENES
-       ========================================================== */
-    function openImageModal(src, caption) {
-      playZoomSound();
-      const modal = document.getElementById('imgModal');
-      const modalImg = document.getElementById('modalImg');
-      const modalCaption = document.getElementById('modalCaption');
-      modalImg.src = src;
-      modalCaption.textContent = caption;
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeImageModal() {
-      playPopSound();
-      const modal = document.getElementById('imgModal');
-      modal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-
-    // Cerrar con tecla Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeImageModal();
-    });
-
-    /* ==========================================================
-       2. EFECTOS SONOROS RICOS (Web Audio API)
-       ========================================================== */
-    let soundEnabled = true;
-    let audioCtx = null;
-
-    function getAudioContext() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
-
-    function toggleSound() {
-      soundEnabled = !soundEnabled;
-      document.getElementById('audioText').textContent = soundEnabled ? 'Efectos: ACTIVOS' : 'Efectos: APAGADOS';
-      document.getElementById('audioIcon').className = soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
-      if(soundEnabled) playPopSound();
-    }
-
-    function playTone(freq, type, duration, gainLevel = 0.15) {
-      if (!soundEnabled) return;
-      try {
-        const ctx = getAudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        gain.gain.setValueAtTime(gainLevel, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + duration);
-      } catch (e) {}
-    }
-
-    function playPopSound() { playTone(580, 'sine', 0.08, 0.12); }
-    function playNavClick() { playTone(420, 'triangle', 0.06, 0.1); }
-
-    function playZoomSound() {
-      if (!soundEnabled) return;
-      try {
-        const ctx = getAudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(250, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(750, ctx.currentTime + 0.18);
-        gain.gain.setValueAtTime(0.18, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.18);
-      } catch(e){}
-    }
-
-    function playAztecDrum() {
-      if (!soundEnabled) return;
-      try {
-        const ctx = getAudioContext();
-        [0, 0.18, 0.36].forEach((time, idx) => {
-          setTimeout(() => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(110 - (idx * 15), ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.25);
-            gain.gain.setValueAtTime(0.35, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+        // Generador de tonos sintéticos (Beeps, aciertos, errores) sin archivos externos
+        function playTone(freq, type, duration, vol=0.1) {
+            if (!audioEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(audioCtx.destination);
+            
             osc.start();
-            osc.stop(ctx.currentTime + 0.25);
-          }, time * 1000);
-        });
-      } catch(e){}
-    }
-
-    function playSuccessSound() {
-      if (!soundEnabled) return;
-      playTone(440, 'triangle', 0.1);
-      setTimeout(() => playTone(554, 'triangle', 0.1), 100);
-      setTimeout(() => playTone(659, 'triangle', 0.25), 200);
-    }
-
-    function playErrorSound() {
-      if (!soundEnabled) return;
-      playTone(200, 'sawtooth', 0.25, 0.2);
-    }
-
-    function playFanfare() {
-      if (!soundEnabled) return;
-      [392, 523, 659, 784, 1046].forEach((freq, idx) => {
-        setTimeout(() => playTone(freq, 'square', 0.22, 0.2), idx * 140);
-      });
-    }
-
-    /* ==========================================================
-       3. NARRADOR DE VOZ HABLADA (SpeechSynthesis)
-       ========================================================== */
-    function narrarTexto(texto, botonId = null) {
-      if (!('speechSynthesis' in window)) {
-        alert('Tu navegador no soporta lectura con voz.');
-        return;
-      }
-
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        restaurarBotonesNarracion();
-        return;
-      }
-
-      const locucion = new SpeechSynthesisUtterance(texto);
-      locucion.lang = 'es-CL';
-      locucion.rate = 0.93;
-      locucion.pitch = 1.05;
-
-      const voces = window.speechSynthesis.getVoices();
-      const vozEspanol = voces.find(v => v.lang.startsWith('es'));
-      if (vozEspanol) locucion.voice = vozEspanol;
-
-      const btn = botonId ? document.getElementById(botonId) : null;
-
-      locucion.onstart = () => {
-        if (btn) {
-          btn.innerHTML = '<i class="fa-solid fa-circle-stop"></i> Detener narración';
-          btn.classList.add('reading');
+            osc.stop(audioCtx.currentTime + duration);
         }
-      };
 
-      locucion.onend = restaurarBotonesNarracion;
-      locucion.onerror = restaurarBotonesNarracion;
-
-      window.speechSynthesis.speak(locucion);
-    }
-
-    function restaurarBotonesNarracion() {
-      const bMito = document.getElementById('btnNarrarMito');
-      const bGeo = document.getElementById('btnNarrarGeo');
-      const bTlatoani = document.getElementById('btnNarrarTlatoani');
-      const bChinampas = document.getElementById('btnNarrarChinampas');
-
-      if (bMito) { bMito.innerHTML = '<i class="fa-solid fa-volume-high"></i> Escuchar mito con voz'; bMito.classList.remove('reading'); }
-      if (bGeo) { bGeo.innerHTML = '<i class="fa-solid fa-volume-high"></i> Escuchar sobre la ubicación'; bGeo.classList.remove('reading'); }
-      if (bTlatoani) { bTlatoani.innerHTML = '<i class="fa-solid fa-volume-high"></i> Escuchar sobre el Tlatoani'; bTlatoani.classList.remove('reading'); }
-      if (bChinampas) { bChinampas.innerHTML = '<i class="fa-solid fa-volume-high"></i> Escuchar sobre Chinampas'; bChinampas.classList.remove('reading'); }
-    }
-
-    function narrarMito() {
-      const mito = "Cuenta la leyenda que el dios Huitzilopochtli ordenó al pueblo mexica viajar hasta encontrar una señal sagrada: un águila devorando a una serpiente parada sobre un nopal en un islote. En el año 1325 d. C., encontraron la señal en el lago Texcoco y fundaron su gran capital: ¡Tenochtitlán!";
-      narrarTexto(mito, 'btnNarrarMito');
-    }
-
-    function narrarGeo() {
-      const geo = "Los aztecas ocuparon el valle de México en Mesoamérica, rodeados de altas montañas y lagos. Dominaron desde el océano Atlántico hasta el Pacífico, con climas cálidos y húmedos en la costa, y templados en el interior montañoso.";
-      narrarTexto(geo, 'btnNarrarGeo');
-    }
-
-    function narrarTlatoani() {
-      const t = "El Tlatoani era el gran emperador y máxima autoridad azteca. Dictaba las leyes, comandaba el ejército, organizaba las ceremonias religiosas y lideraba la Triple Alianza junto a Texcoco y Tlacopan.";
-      narrarTexto(t, 'btnNarrarTlatoani');
-    }
-
-    function narrarChinampas() {
-      const c = "Las chinampas eran ingeniosas islas flotantes artificiales que los aztecas construían sobre el lago. Gracias a su fertilidad y riego constante, cosechaban maíz, calabazas, porotos y ajíes varias veces al año.";
-      narrarTexto(c, 'btnNarrarChinampas');
-    }
-
-    // Pre-cargar voces
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
-
-    /* ==========================================================
-       4. PIRÁMIDE SOCIAL Y CENTRO CEREMONIAL
-       ========================================================== */
-    const socialData = {
-      pipiltin: "<strong>1. Tlatoani y Pipiltin (Nobleza):</strong> Familia del gobernante, sacerdotes y jefes militares. No pagaban tributos y gobernaban el imperio.",
-      pochtecas: "<strong>2. Pochtecas (Mercaderes):</strong> Comerciaban productos exóticos por todo Mesoamérica y servían como espías del emperador.",
-      macehualli: "<strong>3. Macehualli (Gente común):</strong> Campesinos y artesanos. Trabajaban en las chinampas, construían la ciudad y servían como soldados.",
-      esclavos: "<strong>4. Siervos y Esclavos (Tlacotin):</strong> Personas capturadas en combate o endeudadas. Realizaban los trabajos más pesados y ofrendas religiosas."
-    };
-
-    function showSocialInfo(key) {
-      playTone(520, 'sine', 0.1);
-      document.getElementById('socialBox').innerHTML = `<i class="fa-solid fa-users-viewfinder fa-2x"></i> <span>${socialData[key]}</span>`;
-    }
-
-    const templeData = {
-      1: "<strong>1. Templo Águilas:</strong> Centro militar y espiritual de los valientes guerreros águila.",
-      2: "<strong>2. Templo de Quetzalcóatl:</strong> Edificio circular dedicado a la Serpiente Emplumada, dios de la sabiduría.",
-      3: "<strong>3. Templo Mayor:</strong> Majestuosa pirámide con dos altares en la cima: uno para Tláloc (lluvia) y otro para Huitzilopochtli (guerra/sol).",
-      4: "<strong>4. Residencia Sacerdotes:</strong> Hogar de los líderes religiosos guardianes de los templos.",
-      5: "<strong>5. Cancha de Juego de Pelota (Tlachtli):</strong> Deporte sagrado donde la pelota de caucho no podía tocar el suelo."
-    };
-
-    function showTemple(num) {
-      playTone(580, 'triangle', 0.12);
-      document.querySelectorAll('.legend-btn').forEach((btn, idx) => btn.classList.toggle('active', idx + 1 === num));
-      document.getElementById('templeBox').innerHTML = `<i class="fa-solid fa-monument fa-2x"></i> <span>${templeData[num]}</span>`;
-    }
-
-    /* ==========================================================
-       5. CONSTRUCTOR DE CHINAMPA
-       ========================================================== */
-    let currentChinampaStep = 1;
-    function buildChinampaStep(step) {
-      if (step === currentChinampaStep) {
-        playSuccessSound();
-        const el = document.getElementById('step' + step);
-        el.classList.add('completed');
-        el.querySelector('i').className = 'fa-solid fa-square-check';
-        currentChinampaStep++;
-
-        if (currentChinampaStep > 4) {
-          playFanfare();
-          lanzarConfeti();
-          document.getElementById('chinampaFeedback').innerHTML = "🌟 ¡Excelente! Has construido una chinampa muy fértil sobre el lago.";
-        } else {
-          document.getElementById('chinampaFeedback').innerHTML = `¡Bien hecho! Siguiente paso: ${currentChinampaStep}.`;
+        function playSuccessSound() {
+            if (!audioEnabled) return;
+            playTone(440, 'sine', 0.1);
+            setTimeout(() => playTone(554, 'sine', 0.1), 100);
+            setTimeout(() => playTone(659, 'sine', 0.3), 200);
         }
-      } else if (step > currentChinampaStep) {
-        playErrorSound();
-        document.getElementById('chinampaFeedback').innerHTML = `⚠️ Primero completa el paso ${currentChinampaStep}.`;
-      }
-    }
 
-    /* ==========================================================
-       6. JUEGOS
-       ========================================================== */
-    function switchGameTab(tabId) {
-      playPopSound();
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
-    }
-
-    const quizQuestions = [
-      { q: "¿Dónde fundaron los aztecas su gran Tenochtitlán en 1325?", opts: ["En una montaña nevada", "En un islote sobre el lago Texcoco", "En la costa del Pacífico", "En una selva profunda"], ans: 1 },
-      { q: "¿Quién era la máxima autoridad militar y política azteca?", opts: ["El Tlatoani", "El Macehualli", "El Pochteca", "El Calpullec"], ans: 0 },
-      { q: "¿Cómo se llamaban las islas flotantes artificiales para el cultivo?", opts: ["Terrazas", "Chinampas", "Códices", "Calzadas"], ans: 1 },
-      { q: "¿Qué dios representaba la lluvia, el agua y las cosechas?", opts: ["Huitzilopochtli", "Tláloc", "Quetzalcóatl", "Moctezuma"], ans: 1 },
-      { q: "¿Qué grano sagrado se usaba habitualmente como moneda de trueque?", opts: ["Trigo", "Arroz", "Cacao", "Porotos"], ans: 2 }
-    ];
-
-    let currentQ = 0;
-    let quizScore = 0;
-
-    function loadQuizQ() {
-      const q = quizQuestions[currentQ];
-      document.getElementById('quiz-progress').textContent = `Pregunta ${currentQ + 1} de ${quizQuestions.length}`;
-      document.getElementById('quiz-q-text').textContent = q.q;
-      const optsCont = document.getElementById('quiz-options');
-      optsCont.innerHTML = '';
-
-      q.opts.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-btn';
-        btn.innerHTML = `<strong>${String.fromCharCode(65 + idx)}.</strong> ${opt}`;
-        btn.onclick = () => checkQuizAns(idx, btn);
-        optsCont.appendChild(btn);
-      });
-    }
-
-    function checkQuizAns(selected, btn) {
-      const q = quizQuestions[currentQ];
-      const allBtns = document.querySelectorAll('.quiz-btn');
-      allBtns.forEach(b => b.disabled = true);
-
-      if (selected === q.ans) {
-        btn.classList.add('correct');
-        playSuccessSound();
-        quizScore += 20;
-        document.getElementById('quiz-score').textContent = quizScore;
-      } else {
-        btn.classList.add('wrong');
-        allBtns[q.ans].classList.add('correct');
-        playErrorSound();
-      }
-
-      setTimeout(() => {
-        currentQ++;
-        if (currentQ < quizQuestions.length) loadQuizQ();
-        else showQuizEnd();
-      }, 1400);
-    }
-
-    function showQuizEnd() {
-      playFanfare();
-      lanzarConfeti();
-      document.getElementById('quiz-container').innerHTML = `
-        <div style="text-align:center; padding:20px;">
-          <h2 style="color:#059669; font-size:2rem;">🎉 ¡Quiz Completado!</h2>
-          <p style="font-size:1.3rem; font-weight:800; margin:10px 0;">Tu puntaje: ${quizScore} / 100 puntos</p>
-        </div>
-      `;
-      document.getElementById('diploma').style.display = 'block';
-    }
-
-    const vfData = [
-      { text: "Los aztecas creían en muchos dioses (eran politeístas).", ans: true },
-      { text: "Las chinampas flotaban en el aire sobre las montañas.", ans: false },
-      { text: "El Día de Muertos actual en México conserva raíces aztecas.", ans: true }
-    ];
-
-    function loadVF() {
-      const cont = document.getElementById('vf-container');
-      cont.innerHTML = '';
-      vfData.forEach((item, idx) => {
-        const card = document.createElement('div');
-        card.className = 'vf-card';
-        card.id = 'vf-card-' + idx;
-        card.innerHTML = `
-          <div class="vf-statement">${idx + 1}. ${item.text}</div>
-          <div class="vf-actions">
-            <button class="btn-v" onclick="answerVF(${idx}, true)">V</button>
-            <button class="btn-f" onclick="answerVF(${idx}, false)">F</button>
-          </div>
-        `;
-        cont.appendChild(card);
-      });
-    }
-
-    function answerVF(idx, userChoice) {
-      const item = vfData[idx];
-      const card = document.getElementById('vf-card-' + idx);
-      card.querySelectorAll('button').forEach(b => b.disabled = true);
-
-      if (userChoice === item.ans) {
-        playSuccessSound();
-        card.style.background = '#dcfce7';
-        card.style.borderColor = '#22c55e';
-      } else {
-        playErrorSound();
-        card.style.background = '#fee2e2';
-        card.style.borderColor = '#ef4444';
-      }
-    }
-
-    const clasifData = [
-      { name: "👑 Tlatoani y Nobleza", cat: "Política" },
-      { name: "🌽 Chinampas y Cultivo de Maíz", cat: "Economía" },
-      { name: "🐍 Templo de la Serpiente Emplumada", cat: "Religión" },
-      { name: "👥 Macehualli (Pueblo trabajador)", cat: "Sociedad" },
-      { name: "💰 Granos de Cacao en Tlatelolco", cat: "Economía" }
-    ];
-
-    let clasifIdx = 0;
-    function loadClassify() {
-      if (clasifIdx >= clasifData.length) {
-        document.getElementById('clasif-word').textContent = "🌟 ¡Completaste todos los elementos!";
-        lanzarConfeti();
-        return;
-      }
-      document.getElementById('clasif-word').textContent = clasifData[clasifIdx].name;
-    }
-
-    function checkClassify(cat) {
-      if (cat === clasifData[clasifIdx].cat) {
-        playSuccessSound();
-        clasifIdx++;
-        loadClassify();
-      } else {
-        playErrorSound();
-      }
-    }
-
-    /* ==========================================================
-       7. ANIMACIÓN DE CONFETI (CANVAS)
-       ========================================================== */
-    function lanzarConfeti() {
-      const canvas = document.getElementById('confettiCanvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      const particles = [];
-      const colors = ['#f59e0b', '#0d9488', '#e11d48', '#facc15', '#3b82f6', '#10b981'];
-
-      for (let i = 0; i < 90; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height - canvas.height,
-          size: Math.random() * 9 + 5,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          speedY: Math.random() * 5 + 3,
-          speedX: Math.random() * 4 - 2,
-          rotation: Math.random() * 360,
-          rotSpeed: Math.random() * 8 - 4
-        });
-      }
-
-      let animationFrame;
-      let start = Date.now();
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-          p.y += p.speedY;
-          p.x += p.speedX;
-          p.rotation += p.rotSpeed;
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rotation * Math.PI) / 180);
-          ctx.fillStyle = p.color;
-          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-          ctx.restore();
-        });
-
-        if (Date.now() - start < 3500) {
-          animationFrame = requestAnimationFrame(draw);
-        } else {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          cancelAnimationFrame(animationFrame);
+        function playErrorSound() {
+            playTone(200, 'sawtooth', 0.3, 0.05);
         }
-      }
-      draw();
-    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadQuizQ();
-      loadVF();
-      loadClassify();
-    });
-  </script>
+        function playPopSound() {
+            playTone(600, 'sine', 0.05, 0.05);
+        }
+
+        // --- SISTEMA DE NAVEGACIÓN ---
+        const screens = ['home', 'menu', 'lesson-2d', 'lesson-3d', 'game-menu', 'game-hunt-play', 'game-sorter', 'game-stamp'];
+        const btnHome = document.getElementById('btn-home');
+        const mainTitle = document.getElementById('main-title');
+
+        function nav(screenId) {
+            playPopSound();
+            window.speechSynthesis.cancel(); // Parar voz al cambiar pantalla
+            
+            screens.forEach(s => {
+                const el = document.getElementById(`screen-${s}`);
+                if(el) {
+                    el.classList.remove('active');
+                    // Reset animations if needed
+                }
+            });
+            
+            const target = document.getElementById(`screen-${screenId}`);
+            if(target) {
+                target.classList.add('active');
+            }
+
+            // Lógica de Header (Botón Volver y Título)
+            if (screenId === 'home') {
+                btnHome.classList.add('hidden');
+                mainTitle.innerText = 'Aventura Geométrica';
+            } else if (screenId === 'menu') {
+                btnHome.classList.remove('hidden');
+                btnHome.setAttribute('onclick', "nav('home')");
+                mainTitle.innerText = 'Menú Principal';
+                playAudio("Elige qué quieres aprender o jugar hoy.");
+            } else if (screenId.startsWith('game')) {
+                btnHome.classList.remove('hidden');
+                btnHome.setAttribute('onclick', "nav('game-menu')");
+                if(screenId === 'game-menu') {
+                    btnHome.setAttribute('onclick', "nav('menu')");
+                    mainTitle.innerText = 'Juegos';
+                    playAudio("Selecciona un juego.");
+                }
+            } else {
+                btnHome.classList.remove('hidden');
+                btnHome.setAttribute('onclick', "nav('menu')");
+                mainTitle.innerText = screenId === 'lesson-2d' ? 'Figuras Planas' : 'Cuerpos 3D';
+            }
+
+            // Iniciar juegos si es necesario
+            if(screenId === 'game-hunt-play') initHuntGame();
+            if(screenId === 'game-sorter') startSorterGame();
+            if(screenId === 'game-stamp') startStampGame();
+        }
+
+        // Permitir que el primer click habilite el AudioContext (política de navegadores)
+        document.body.addEventListener('click', () => {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }, {once:true});
+
+
+        // --- STREAMING_CHUNK:Lógica Lección 2D ---
+        const shapeData2D = {
+            'triangulo': { name: 'Triángulo', lados: 3, vertices: 3, msg: "Tengo 3 lados y 3 vértices. ¡Cuéntalos!" },
+            'cuadrado': { name: 'Cuadrado', lados: 4, vertices: 4, msg: "Tengo 4 lados iguales y 4 vértices." },
+            'rectangulo': { name: 'Rectángulo', lados: 4, vertices: 4, msg: "Tengo 4 lados, dos largos y dos cortos. Y 4 vértices." },
+            'circulo': { name: 'Círculo', lados: 0, vertices: 0, msg: "Soy redondito, no tengo lados rectos ni vértices." }
+        };
+
+        function exploreShape(shapeId) {
+            playPopSound();
+            const data = shapeData2D[shapeId];
+            playAudio(data.name + ". " + data.msg);
+            
+            // Animación visual de la figura
+            const poly = document.getElementById(`poly-${shapeId.substring(0,3)}`);
+            if(poly) {
+                poly.classList.add('active'); // resalta borde
+                setTimeout(() => poly.classList.remove('active'), 2000);
+            }
+
+            // Mostrar vértices
+            const vertices = document.querySelectorAll(`.v-${shapeId.substring(0,3)}`);
+            vertices.forEach((v, index) => {
+                setTimeout(() => {
+                    v.classList.add('active');
+                    playTone(800 + (index*100), 'sine', 0.1, 0.05); // Sonidito por vértice
+                    setTimeout(() => v.classList.remove('active'), 1500);
+                }, index * 300); // Aparecen en secuencia
+            });
+        }
+
+        // --- STREAMING_CHUNK:Lógica Lección 3D ---
+        function explore3D(name, description) {
+            playPopSound();
+            playAudio(description);
+            // La animación ya se maneja por CSS active/hover, pero podríamos añadir partículas o rotación en el futuro.
+        }
+
+
+        // --- STREAMING_CHUNK:Lógica Minijuego 1: Caza de Figuras ---
+        // Genera un escenario SVG aleatorio
+        let huntTargetShape = '';
+        let huntTotalFound = 0;
+        let huntTotalTarget = 0;
+
+        const huntShapes = [
+            { type: 'circulo', color: '#f59e0b', tag: '<circle cx="{x}" cy="{y}" r="{size}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="circulo" />', w:1, h:1 },
+            { type: 'cuadrado', color: '#ef4444', tag: '<rect x="{x}" y="{y}" width="{size}" height="{size}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="cuadrado" />', w:1, h:1 },
+            { type: 'triangulo', color: '#3b82f6', tag: '<polygon points="{x},{y_top} {x_right},{y_bottom} {x_left},{y_bottom}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="triangulo" />', w:1, h:1 },
+            { type: 'rectangulo', color: '#10b981', tag: '<rect x="{x}" y="{y}" width="{size2}" height="{size}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="rectangulo" />', w:2, h:1 }
+        ];
+
+        function initHuntGame() {
+            mainTitle.innerText = "Caza de Figuras";
+            const canvas = document.getElementById('hunt-canvas');
+            canvas.innerHTML = '';
+            huntTotalFound = 0;
+            
+            // Elegir objetivo al azar
+            const targetDef = huntShapes[Math.floor(Math.random() * huntShapes.length)];
+            huntTargetShape = targetDef.type;
+            
+            // Tipos para el prompt
+            const pluralNames = { 'circulo': 'CÍRCULOS', 'cuadrado': 'CUADRADOS', 'triangulo': 'TRIÁNGULOS', 'rectangulo': 'RECTÁNGULOS' };
+            const instText = `Toca todos los ${pluralNames[huntTargetShape]}`;
+            document.getElementById('hunt-instruction').innerText = instText;
+            playAudio(instText);
+
+            huntTotalTarget = 0;
+            let svgContent = '';
+
+            // Generar figuras aleatorias asegurando que haya del tipo objetivo
+            for(let i=0; i<15; i++) {
+                let shapeDef = huntShapes[Math.floor(Math.random() * huntShapes.length)];
+                
+                // Forzar al menos 3-5 del objetivo
+                if(i < 4) shapeDef = targetDef;
+                
+                if(shapeDef.type === huntTargetShape) huntTotalTarget++;
+
+                const x = 20 + Math.random() * 320;
+                const y = 20 + Math.random() * 320;
+                const size = 30 + Math.random() * 30; // Radio o lado base
+                
+                let svgStr = shapeDef.tag.replace('{color}', shapeDef.color);
+                
+                if(shapeDef.type === 'circulo') {
+                    svgStr = svgStr.replace('{x}', x+size).replace('{y}', y+size).replace('{size}', size/1.5);
+                } else if(shapeDef.type === 'cuadrado') {
+                    svgStr = svgStr.replace('{x}', x).replace('{y}', y).replace(/\{size\}/g, size);
+                } else if(shapeDef.type === 'rectangulo') {
+                    svgStr = svgStr.replace('{x}', x).replace('{y}', y).replace('{size2}', size*1.5).replace('{size}', size*0.8);
+                } else if(shapeDef.type === 'triangulo') {
+                    svgStr = svgStr.replace('{x}', x+(size/2)).replace('{y_top}', y).replace('{x_right}', x+size).replace('{y_bottom}', y+size).replace('{x_left}', x);
+                }
+                
+                svgContent += svgStr;
+            }
+            
+            canvas.innerHTML = svgContent;
+            updateHuntCounter();
+
+            // Agregar Listeners
+            const items = document.querySelectorAll('.hunt-item');
+            items.forEach(item => {
+                // Rotación aleatoria inicial para variedad
+                const rot = Math.random() * 360;
+                // Necesitamos envolver o aplicar transform origin, simplifiquemos dejándolas derechas para 1ro básico.
+                
+                item.addEventListener('click', function() {
+                    const type = this.getAttribute('data-type');
+                    if(this.classList.contains('found')) return;
+
+                    if(type === huntTargetShape) {
+                        playPopSound();
+                        this.classList.add('found');
+                        this.setAttribute('opacity', '0.3');
+                        this.setAttribute('stroke', 'black');
+                        this.setAttribute('stroke-width', '4');
+                        this.setAttribute('stroke-dasharray', '5,5');
+                        
+                        // Estrella animada sobre la figura
+                        const bbox = this.getBBox();
+                        const cx = bbox.x + bbox.width/2;
+                        const cy = bbox.y + bbox.height/2;
+                        const star = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        star.setAttribute('x', cx - 15);
+                        star.setAttribute('y', cy + 10);
+                        star.setAttribute('font-size', '30');
+                        star.textContent = '⭐';
+                        star.style.animation = "float 1s ease-out";
+                        canvas.appendChild(star);
+
+                        huntTotalFound++;
+                        updateHuntCounter();
+                        
+                        if(huntTotalFound === huntTotalTarget) {
+                            setTimeout(() => showSuccess(() => initHuntGame()), 500);
+                        }
+                    } else {
+                        playErrorSound();
+                        this.classList.add('animate-shake');
+                        setTimeout(() => this.classList.remove('animate-shake'), 400);
+                    }
+                });
+            });
+        }
+
+        function updateHuntCounter() {
+            document.getElementById('hunt-counter').innerText = `${huntTotalFound}/${huntTotalTarget}`;
+        }
+
+
+        // --- STREAMING_CHUNK:Lógica Minijuego 2: Sorter ---
+        const sorterLevels = [
+            { emoji: '🧊', answer: 'Cubo', audio: 'Un cubo de hielo. ¿A qué cuerpo se parece?' },
+            { emoji: '🥫', answer: 'Cilindro', audio: 'Una lata de sopa. ¿A qué cuerpo se parece?' },
+            { emoji: '⛺', answer: 'Prisma/Pirámide', displayObj: 'Carpa', answer: 'Pirámide', audio: 'Una carpa de campamento. ¿A qué cuerpo se parece?' }, // Simplificado
+            { emoji: '⚽', answer: 'Esfera', audio: 'Una pelota. ¿A qué cuerpo se parece?' },
+            { emoji: '🎲', answer: 'Cubo', audio: 'Un dado. ¿A qué cuerpo se parece?' },
+            { emoji: '🎉', answer: 'Cono', audio: 'Un gorro de fiesta. ¿A qué cuerpo se parece?' },
+            { emoji: '📦', answer: 'Paralelepípedo', audio: 'Una caja de cartón larga. ¿A qué cuerpo se parece?' }
+        ];
+        const all3DShapes = ['Cubo', 'Cilindro', 'Esfera', 'Cono', 'Paralelepípedo', 'Pirámide'];
+        let currentSorterLevel = 0;
+
+        function startSorterGame() {
+            mainTitle.innerText = "Clasificador";
+            // Shuffle levels
+            sorterLevels.sort(() => Math.random() - 0.5);
+            currentSorterLevel = 0;
+            loadSorterLevel();
+        }
+
+        function loadSorterLevel() {
+            if(currentSorterLevel >= sorterLevels.length) {
+                // Fin del juego
+                showSuccess(() => nav('game-menu'));
+                playAudio("¡Terminaste todas las clasificaciones! Eres un genio.");
+                return;
+            }
+
+            const levelData = sorterLevels[currentSorterLevel];
+            
+            // Animar entrada del objeto
+            const objContainer = document.getElementById('sorter-object');
+            objContainer.innerText = levelData.emoji;
+            objContainer.classList.remove('animate-float');
+            void objContainer.offsetWidth; // trigger reflow
+            objContainer.style.transform = "scale(0)";
+            setTimeout(() => objContainer.style.transform = "scale(1)", 50);
+            objContainer.classList.add('transition-transform', 'duration-500', 'ease-out');
+            setTimeout(() => objContainer.classList.add('animate-float'), 500);
+
+            playAudio(levelData.audio);
+
+            // Generar opciones (Respuesta correcta + 3 aleatorias)
+            let options = [levelData.answer];
+            while(options.length < 4) {
+                const randomShape = all3DShapes[Math.floor(Math.random() * all3DShapes.length)];
+                if(!options.includes(randomShape)) options.push(randomShape);
+            }
+            options.sort(() => Math.random() - 0.5); // Mezclar
+
+            const optionsContainer = document.getElementById('sorter-options');
+            optionsContainer.innerHTML = '';
+            
+            // Mapeo simple de nombres a pequeños SVGs/emojis decorativos para los botones
+            const shapeIcons = { 'Cubo': '🧊', 'Cilindro': '🛢️', 'Esfera': '🔴', 'Cono': '🔺', 'Paralelepípedo': '🧱', 'Pirámide': '⛺' };
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white border-b-4 border-gray-300 p-4 rounded-2xl shadow-sm text-lg sm:text-xl font-bold text-gray-700 hover:bg-pink-50 hover:border-pink-300 active:scale-95 transition-all flex flex-col items-center justify-center gap-2";
+                btn.innerHTML = `<span class="text-3xl">${shapeIcons[opt] || '🟦'}</span> <span>${opt}</span>`;
+                
+                btn.onclick = () => {
+                    if(opt === levelData.answer) {
+                        playSuccessSound();
+                        btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                        btn.innerHTML += '<span class="absolute top-2 right-2 text-2xl animate-bounce">✅</span>';
+                        setTimeout(() => {
+                            currentSorterLevel++;
+                            loadSorterLevel();
+                        }, 1000);
+                    } else {
+                        playErrorSound();
+                        btn.classList.add('bg-red-50', 'border-red-300', 'animate-shake');
+                        setTimeout(() => btn.classList.remove('bg-red-50', 'border-red-300', 'animate-shake'), 400);
+                    }
+                };
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+
+        // --- STREAMING_CHUNK:Lógica Minijuego 3: Fábrica de Huellas ---
+        const stampLevels = [
+            { 
+                shape3D: 'Cilindro', 
+                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><ellipse cx="50" cy="20" rx="40" ry="15" fill="#93c5fd"/><path d="M10 20 L10 90 A40 15 0 0 0 90 90 L90 20 Z" fill="#3b82f6"/><ellipse cx="50" cy="90" rx="40" ry="15" fill="#1d4ed8"/></svg>', 
+                answer2D: 'circulo' 
+            },
+            { 
+                shape3D: 'Cubo', 
+                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><polygon points="50,10 90,30 50,50 10,30" fill="#fca5a5"/><polygon points="10,30 50,50 50,90 10,70" fill="#ef4444"/><polygon points="90,30 50,50 50,90 90,70" fill="#b91c1c"/></svg>', 
+                answer2D: 'cuadrado' 
+            },
+            { 
+                shape3D: 'Cono', 
+                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><path d="M50 10 L10 90 Q50 110 90 90 Z" fill="#10b981"/><ellipse cx="50" cy="90" rx="40" ry="10" fill="#047857"/></svg>', 
+                answer2D: 'circulo' 
+            },
+            { 
+                shape3D: 'Pirámide de base cuadrada', 
+                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><polygon points="50,10 20,90 80,90" fill="#fbbf24"/><polygon points="50,10 80,90 95,70" fill="#d97706"/></svg>', 
+                answer2D: 'cuadrado' 
+            },
+            { 
+                shape3D: 'Paralelepípedo', 
+                svg: '<svg width="120" height="100" viewBox="0 0 120 100"><polygon points="40,10 110,10 90,30 20,30" fill="#c4b5fd"/><polygon points="20,30 90,30 90,80 20,80" fill="#8b5cf6"/><polygon points="90,30 110,10 110,60 90,80" fill="#7c3aed"/></svg>', 
+                answer2D: 'rectangulo' 
+            }
+        ];
+        let currentStampLevel = 0;
+
+        function startStampGame() {
+            mainTitle.innerText = "Huellas";
+            stampLevels.sort(() => Math.random() - 0.5);
+            currentStampLevel = 0;
+            loadStampLevel();
+        }
+
+        function loadStampLevel() {
+            if(currentStampLevel >= stampLevels.length) {
+                showSuccess(() => nav('game-menu'));
+                playAudio("¡Pintaste todas las huellas! Eres un artista de las matemáticas.");
+                return;
+            }
+
+            const levelData = stampLevels[currentStampLevel];
+            
+            const container = document.getElementById('stamp-3d-container');
+            container.innerHTML = levelData.svg;
+            
+            const q = `Si apoyas este ${levelData.shape3D} en pintura y lo pones en el papel... ¿Qué figura dejará marcada?`;
+            // Reducir texto visual, mantener audio completo
+            document.getElementById('stamp-question').innerText = `¿Qué huella deja el ${levelData.shape3D}?`;
+            playAudio(q);
+
+            // Resetea botones
+            document.querySelectorAll('.stamp-option').forEach(btn => {
+                btn.className = "stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95 transition-all cursor-pointer";
+                
+                // Limpiar eventos anteriores (clonando el nodo es la forma más limpia)
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', function() {
+                    const selected = this.getAttribute('data-shape');
+                    if(selected === levelData.answer2D) {
+                        playSuccessSound();
+                        this.classList.add('bg-green-100', 'border-green-500', 'scale-110');
+                        
+                        // Pequeña animación: Mostrar la huella debajo del 3D
+                        const stampVisual = document.createElement('div');
+                        stampVisual.innerHTML = this.innerHTML; // Copia el SVG del botón
+                        stampVisual.className = "absolute bottom-[-20px] left-1/2 transform -translate-x-1/2 opacity-0 -z-10";
+                        stampVisual.style.filter = "grayscale(1) brightness(0.5)"; // Color de "sombra"
+                        container.style.position = "relative";
+                        container.appendChild(stampVisual);
+                        
+                        // Animar estampa
+                        container.style.transform = "translateY(20px)";
+                        setTimeout(() => {
+                            container.style.transform = "translateY(0)";
+                            stampVisual.style.opacity = "1";
+                            stampVisual.style.bottom = "-40px";
+                        }, 200);
+
+                        setTimeout(() => {
+                            currentStampLevel++;
+                            loadStampLevel();
+                        }, 1500);
+                    } else {
+                        playErrorSound();
+                        this.classList.add('bg-red-50', 'border-red-300', 'animate-shake');
+                        setTimeout(() => this.classList.remove('bg-red-50', 'border-red-300', 'animate-shake'), 400);
+                    }
+                });
+            });
+        }
+
+
+        // --- STREAMING_CHUNK:Utilidades Globales (Confetti y Overlay) ---
+        function showSuccess(nextCallback) {
+            playSuccessSound();
+            fireConfetti();
+            const overlay = document.getElementById('success-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            const btnNext = document.getElementById('btn-next');
+            btnNext.onclick = () => {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                if(nextCallback) nextCallback();
+            };
+        }
+
+        // Sistema de Confetti Simple en Canvas 2D
+        function fireConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const pieces = [];
+            const colors = ['#fde047', '#3b82f6', '#ef4444', '#10b981', '#a855f7', '#f97316'];
+            
+            for(let i=0; i<100; i++) {
+                pieces.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2 + (Math.random() * 100),
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 1) * 20 - 5,
+                    size: Math.random() * 10 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360,
+                    rotSpeed: (Math.random() - 0.5) * 10
+                });
+            }
+
+            let animationId;
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let active = false;
+                
+                pieces.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.5; // Gravedad
+                    p.rot += p.rotSpeed;
+                    
+                    if(p.y < canvas.height) active = true;
+                    
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                    ctx.restore();
+                });
+                
+                if(active) animationId = requestAnimationFrame(render);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            render();
+        }
+
+    </script>
 </body>
 </html>
