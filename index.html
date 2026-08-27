@@ -1,888 +1,471 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aventura Geométrica - 1º Básico</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: #f0f9ff;
-            touch-action: manipulation; /* Previene zoom al hacer doble tap rápido */
-            overflow-x: hidden;
-        }
-        
-        /* Animaciones personalizadas */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        .animate-pop:active { animation: pop 0.2s ease-out; }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .animate-shake { animation: shake 0.4s ease-in-out; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Misión Lenguaje · 4° Básico</title>
+  <style>
+    :root{
+      --bg:#f6fbff;--ink:#17324d;--muted:#5c7085;--card:#ffffff;--line:#dbe8f4;
+      --blue:#2d7ff9;--cyan:#28b8d8;--yellow:#ffd45b;--orange:#ff9b54;--pink:#ff76a6;
+      --green:#39b980;--purple:#7d67e8;--red:#e95363;--shadow:0 14px 36px rgba(44,78,110,.12)
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-rounded,"Segoe UI",Arial,sans-serif;background:
+      radial-gradient(circle at 10% 0%,#e2f8ff 0,transparent 30%),
+      radial-gradient(circle at 100% 20%,#fff1d5 0,transparent 28%),var(--bg);color:var(--ink)}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    .shell{max-width:1180px;margin:auto;padding:20px}
+    .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#2379ef,#6557dc);color:white;border-radius:28px;padding:28px;box-shadow:var(--shadow)}
+    .hero:after{content:"";position:absolute;right:-55px;top:-65px;width:240px;height:240px;border:34px solid rgba(255,255,255,.12);border-radius:50%}
+    .hero-grid{display:grid;grid-template-columns:1.6fr .7fr;gap:20px;align-items:center}
+    .eyebrow{font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.78rem;opacity:.86}
+    h1{font-size:clamp(2rem,5vw,4rem);line-height:.98;margin:.35rem 0 .75rem;max-width:750px}
+    .hero p{font-size:1.08rem;line-height:1.6;max-width:760px;margin:0}
+    .mascot{font-size:7rem;text-align:center;filter:drop-shadow(0 12px 8px rgba(0,0,0,.16));animation:float 3.5s ease-in-out infinite}
+    @keyframes float{50%{transform:translateY(-10px) rotate(2deg)}}
+    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+    .pill{border:0;border-radius:999px;padding:10px 14px;background:rgba(255,255,255,.14);color:white;font-weight:800;backdrop-filter:blur(6px)}
+    .pill.active,.pill:hover{background:white;color:#3352b7}
+    .progress-wrap{margin-top:16px;background:rgba(255,255,255,.22);height:12px;border-radius:999px;overflow:hidden}
+    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--yellow),#fff);transition:.35s width}
+    .scoreline{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-weight:800;font-size:.92rem}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:18px}
+    .panel{grid-column:span 12;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:var(--shadow)}
+    .panel h2{margin:0 0 8px;font-size:1.65rem}.panel h3{margin-top:0}
+    .lead{color:var(--muted);line-height:1.6;margin-top:0}
+    .section{display:none}.section.active{display:block;animation:fade .25s ease}.section.parrotized{position:relative;overflow:hidden;padding-top:92px}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .mini{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fbfdff}
+    .mini .icon{font-size:2rem}.mini strong{display:block;margin:8px 0 4px}.mini p{margin:0;color:var(--muted);line-height:1.45}
+    .callout{border-left:6px solid var(--blue);background:#edf6ff;border-radius:16px;padding:16px 18px;line-height:1.6;margin:16px 0}
+    .callout.yellow{border-color:#f1b900;background:#fff8df}.callout.green{border-color:var(--green);background:#ebfbf4}.callout.pink{border-color:var(--pink);background:#fff0f6}
+    .example-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:10px 0}
+    .word{padding:14px 16px;border-radius:16px;text-align:center;font-weight:900;background:#eef5ff;border:2px solid #d8e8ff}
+    .arrow{font-weight:900;color:var(--muted)}
+    .exercise{border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:16px;background:#fff}
+    .question{font-weight:850;margin-bottom:12px;line-height:1.45}
+    .options{display:grid;gap:10px}.option{border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;text-align:left;color:var(--ink);font-weight:750;transition:.18s}
+    .option:hover{border-color:#afcdec;transform:translateY(-1px)}.option.correct{border-color:var(--green);background:#e9fbf3}.option.wrong{border-color:var(--red);background:#fff0f2}
+    .feedback{min-height:24px;margin-top:10px;font-weight:800}
+    .btn{border:0;border-radius:14px;padding:12px 16px;font-weight:850;background:var(--blue);color:white;box-shadow:0 8px 18px rgba(45,127,249,.2)}
+    .btn.secondary{background:#eef4fb;color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+    .btn.green{background:var(--green)}.btn.orange{background:var(--orange)}.btn.purple{background:var(--purple)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .reader-layout{display:grid;grid-template-columns:300px 1fr;gap:18px}
+    .reader-menu{display:grid;gap:10px;align-content:start}.reader-choice{padding:12px;border-radius:14px;border:1px solid var(--line);background:#fff;text-align:left;font-weight:800;color:var(--ink)}
+    .reader-choice.active{border-color:var(--purple);background:#f2efff;color:#4d3db3}
+    .reading{background:#fffdf7;border:1px solid #f1e6c9;border-radius:20px;padding:22px;line-height:1.72;max-height:670px;overflow:auto}
+    .reading h3{font-size:1.5rem;margin-bottom:4px}.reading .meta{color:#8b7855;font-weight:750;margin-bottom:16px}.reading p{margin:.7em 0}.reading .speaker{font-weight:900;color:#5a3e82}
+    .comic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.panel-comic{border:3px solid #17283c;border-radius:12px;padding:14px;background:#fff;min-height:150px;position:relative;overflow:hidden}
+    .panel-comic .scene{font-size:3.2rem;text-align:center;margin-top:22px}.bubble{display:inline-block;background:white;border:2px solid #17283c;border-radius:24px;padding:8px 12px;position:relative;font-weight:800;max-width:80%}.narrator-box{background:#fff0a8;border:2px solid #6e5f1d;padding:7px 10px;font-weight:800;margin-bottom:8px}
+    .order-list{display:grid;gap:10px}.order-card{border:2px solid var(--line);border-radius:14px;padding:12px;background:#fff;text-align:left;font-weight:750}.order-card.selected{border-color:var(--orange);background:#fff5ec}.order-card.done{border-color:var(--green);background:#eefcf6}
+    .memory{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.memory-card{min-height:74px;border:0;border-radius:14px;background:#273c5a;color:white;font-weight:900;padding:10px;transition:.2s;box-shadow:0 6px 12px rgba(0,0,0,.08)}.memory-card.open,.memory-card.matched{background:#fff;color:var(--ink);border:2px solid var(--line)}.memory-card.matched{border-color:var(--green);background:#edfbf5}
+    .builder{display:grid;grid-template-columns:1fr 1fr;gap:18px}.field{display:grid;gap:6px;margin-bottom:12px}.field label{font-weight:850}.field input,.field textarea,.field select{width:100%;border:2px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;color:var(--ink)}.field textarea{min-height:88px;resize:vertical}
+    .builder-output{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.builder-output .panel-comic{min-height:190px}
+    .final-box{background:linear-gradient(135deg,#fff9d6,#eaf8ff);border:2px dashed #9fc1db;border-radius:22px;padding:20px;text-align:center}
+    .stars{font-size:2rem;letter-spacing:4px}.badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:900}
+    .hidden{display:none!important}.small{font-size:.9rem;color:var(--muted)}
+    .topic-map{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}.topic{padding:18px 82px 18px 18px;border-radius:18px;color:white;font-weight:900;min-height:108px;display:flex;align-items:flex-end;position:relative;overflow:hidden;isolation:isolate}.topic:before{position:absolute;right:14px;top:12px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:2.1rem;line-height:1;opacity:.22;pointer-events:none;z-index:0}.topic>*{position:relative;z-index:1}.topic:nth-child(1){background:linear-gradient(135deg,#2d7ff9,#23b5d3)}.topic:nth-child(1):before{content:"🔁"}.topic:nth-child(2){background:linear-gradient(135deg,#ff8a54,#ffb14e)}.topic:nth-child(2):before{content:"↔️"}.topic:nth-child(3){background:linear-gradient(135deg,#7d67e8,#ad69d8)}.topic:nth-child(3):before{content:"💬"}.topic:nth-child(4){background:linear-gradient(135deg,#39b980,#64c97a)}.topic:nth-child(4):before{content:"📚"}
+    .parrot-buddy{position:absolute;top:16px;right:18px;display:flex;align-items:flex-start;justify-content:flex-end;min-width:145px;min-height:84px;pointer-events:none;z-index:3}.parrot-float{position:absolute;right:0;top:0;width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,247,255,.8));border:1px solid rgba(215,231,247,.95);box-shadow:0 12px 24px rgba(29,63,93,.14);animation:parrotDrift 4.2s ease-in-out infinite}.parrot-emoji{font-size:2.55rem;line-height:1;filter:drop-shadow(0 5px 4px rgba(0,0,0,.12));transform-origin:50% 72%;animation:parrotBob 1.8s ease-in-out infinite}.parrot-spark{position:absolute;right:-2px;top:-6px;font-size:1rem;animation:twinkle 1.7s ease-in-out infinite}.feather-cluster{position:absolute;inset:0}.feather{position:absolute;width:15px;height:31px;border-radius:75% 0 75% 75%;transform-origin:center bottom;opacity:.82;box-shadow:0 4px 10px rgba(24,54,84,.12);animation:featherFloat 4.6s ease-in-out infinite}.feather:after{content:"";position:absolute;left:6px;top:3px;bottom:4px;width:2px;background:rgba(255,255,255,.72);border-radius:999px}.feather.f1{right:90px;top:50px;transform:rotate(-28deg);background:linear-gradient(180deg,#4ad7e1,#2d7ff9);animation-delay:.1s}.feather.f2{right:118px;top:26px;transform:rotate(18deg);background:linear-gradient(180deg,#ffd45b,#ff9b54);animation-delay:.6s}.feather.f3{right:58px;top:66px;transform:rotate(30deg);background:linear-gradient(180deg,#7d67e8,#ad69d8);animation-delay:1.2s}.feather.f4{right:136px;top:62px;width:13px;height:27px;transform:rotate(-8deg);background:linear-gradient(180deg,#39b980,#8be0a5);animation-delay:1.6s}@keyframes parrotDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(-10px,5px)}}@keyframes parrotBob{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(6deg) translateY(-6px)}}@keyframes featherFloat{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-7px) rotate(calc(var(--r,0deg) + 4deg))}}@keyframes twinkle{0%,100%{transform:scale(.9);opacity:.65}50%{transform:scale(1.18);opacity:1}}
+    .footer-note{text-align:center;color:var(--muted);font-size:.88rem;padding:18px 0 8px}
 
-        /* Estilos para figuras SVG interactivas */
-        .shape-interactive {
-            transition: all 0.3s;
-            cursor: pointer;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-        }
-        .shape-interactive:hover {
-            transform: scale(1.05);
-            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2));
-        }
-        .vertex-dot {
-            fill: #ef4444; /* red-500 */
-            transition: r 0.2s;
-        }
-        .vertex-dot.active {
-            r: 8;
-            fill: #fcd34d; /* yellow-300 */
-            stroke: #ef4444;
-            stroke-width: 3;
-        }
-        .side-line {
-            transition: stroke-width 0.2s, stroke 0.2s;
-        }
-        .side-line.active {
-            stroke-width: 12;
-            stroke: #10b981; /* green-500 */
-        }
-
-        /* Utilidad para ocultar pantallas */
-        .screen { display: none; }
-        .screen.active { display: flex; flex-direction: column; }
-
-        /* Confetti Canvas */
-        #confetti-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-        }
-    </style>
+    .game-title{display:flex;align-items:center;gap:10px;margin:28px 0 6px}.game-title .game-icon{font-size:1.7rem}
+    .game-board{border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:12px;background:linear-gradient(180deg,#fff,#fbfdff)}
+    .round-line{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}.round-chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 11px;background:#eef5ff;color:#365578;font-size:.86rem;font-weight:900}
+    .big-word{text-align:center;font-size:clamp(1.7rem,5vw,2.7rem);font-weight:950;padding:18px;border-radius:18px;background:#f4f8fc;margin:8px 0 16px}
+    .choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choice-tile{min-height:64px;border:2px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);font-weight:900;padding:12px;transition:.18s}.choice-tile.correct{border-color:var(--green);background:#e9fbf3}.choice-tile.wrong{border-color:var(--red);background:#fff0f2}
+    .tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tf-btn{min-height:58px;border:2px solid var(--line);border-radius:16px;background:#fff;font-weight:950;color:var(--ink)}.tf-btn.correct{border-color:var(--green);background:#e9fbf3}.tf-btn.wrong{border-color:var(--red);background:#fff0f2}
+    .sequence-grid{display:grid;gap:10px}.sequence-card{border:2px solid var(--line);border-radius:15px;padding:13px;background:#fff;text-align:left;font-weight:800;color:var(--ink)}.sequence-card.done{border-color:var(--green);background:#edfbf5}.sequence-card.bad{border-color:var(--orange);background:#fff4e9}
+    .sound-note{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.14);font-size:.85rem;font-weight:800}
+    .confetti{animation:pop .35s ease}@keyframes pop{50%{transform:scale(1.045)}}
+    @media(max-width:850px){.hero-grid{grid-template-columns:1fr}.mascot{font-size:5rem}.cards,.topic-map{grid-template-columns:repeat(2,1fr)}.reader-layout,.builder{grid-template-columns:1fr}.reader-menu{grid-template-columns:1fr 1fr}.builder-output{grid-template-columns:1fr}.memory{grid-template-columns:repeat(3,1fr)}.topic{padding-right:74px}.topic:before{right:12px;top:12px;font-size:1.9rem;width:40px;height:40px}.section.parrotized{padding-top:86px}.parrot-buddy{right:14px;top:14px;min-width:128px;min-height:72px}.parrot-float{width:64px;height:64px}.parrot-emoji{font-size:2.15rem}.feather.f1{right:80px;top:44px}.feather.f2{right:102px;top:22px}.feather.f3{right:50px;top:58px}.feather.f4{right:118px;top:56px}}
+    @media(max-width:560px){.choice-grid{grid-template-columns:1fr}.tf-grid{grid-template-columns:1fr}.shell{padding:12px}.hero,.panel{padding:18px;border-radius:20px}.cards,.topic-map,.comic-grid{grid-template-columns:1fr}.reader-menu{grid-template-columns:1fr}.memory{grid-template-columns:repeat(2,1fr)}.example-row{grid-template-columns:1fr}.arrow{text-align:center}.topbar{display:grid;grid-template-columns:1fr 1fr}.pill{padding:10px}.mascot{display:none}.topic{min-height:96px;padding-right:70px}.topic:before{right:12px;top:10px;font-size:1.8rem;width:38px;height:38px}.section.parrotized{padding-top:80px}.parrot-buddy{right:12px;top:10px;min-width:112px;min-height:64px}.parrot-float{width:56px;height:56px}.parrot-emoji{font-size:1.95rem}.parrot-spark{font-size:.9rem;right:-2px;top:-4px}.feather{opacity:.72}.feather.f1{right:70px;top:38px;width:13px;height:26px}.feather.f2{right:88px;top:18px;width:12px;height:24px}.feather.f3{right:42px;top:48px;width:13px;height:26px}.feather.f4{right:102px;top:50px;width:11px;height:22px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
 </head>
-<body class="w-screen h-screen flex justify-center items-center bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CiAgPHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0iI2YwZjlmZiIvPgogIDxwYXRoIGQ9Ik0wIDEwaDQwTTEwIDB2NDBNMCAzMGg0ME0zMCAwdjQwIiBzdHJva2U9IiNlMGYyZmUiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4=')]">
-
-    <canvas id="confetti-canvas"></canvas>
-
-    <!-- Contenedor Principal (Simula una tablet) -->
-    <div class="w-full max-w-4xl h-full max-h-[900px] bg-white sm:rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col border-8 border-blue-400">
-        
-        <!-- Header Global -->
-        <header class="bg-blue-500 text-white p-4 flex justify-between items-center z-10 shadow-md">
-            <button id="btn-home" class="hidden bg-yellow-400 text-blue-900 font-bold py-2 px-4 rounded-full hover:bg-yellow-300 animate-pop">
-                🏠 Volver
-            </button>
-            <h1 id="main-title" class="text-2xl sm:text-3xl font-black text-center flex-1 drop-shadow-md">Aventura Geométrica</h1>
-            <button onclick="toggleAudio()" class="bg-blue-400 p-2 rounded-full hover:bg-blue-300 text-2xl" aria-label="Activar/Desactivar Sonido">
-                <span id="audio-icon">🔊</span>
-            </button>
-        </header>
-
-        <!-- Área de Contenido Dinámico -->
-        <main class="flex-1 relative overflow-y-auto overflow-x-hidden p-4 sm:p-8 bg-blue-50">
-            
-            <div id="screen-home" class="screen active h-full justify-center items-center text-center space-y-8">
-                <div class="animate-float">
-                    <svg width="200" height="200" viewBox="0 0 200 200" class="mx-auto mb-4">
-                        <circle cx="100" cy="100" r="90" fill="#fef08a"/>
-                        <path d="M50 100 L150 100 L100 30 Z" fill="#60a5fa"/>
-                        <rect x="70" y="100" width="60" height="60" fill="#f472b6"/>
-                        <circle cx="85" cy="120" r="8" fill="#3b82f6"/>
-                        <circle cx="115" cy="120" r="8" fill="#3b82f6"/>
-                        <path d="M 85 140 Q 100 155 115 140" stroke="#3b82f6" stroke-width="4" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <h2 class="text-4xl sm:text-5xl font-black text-blue-600 drop-shadow-sm">¡Hola!</h2>
-                <p class="text-xl sm:text-2xl text-gray-700 font-bold max-w-lg">Vamos a jugar y aprender sobre Figuras y Cuerpos Geométricos.</p>
-                <button onclick="nav('menu')" class="mt-8 bg-green-500 hover:bg-green-400 text-white text-3xl font-black py-4 px-12 rounded-full shadow-[0_8px_0_#166534] hover:shadow-[0_4px_0_#166534] hover:translate-y-1 transition-all animate-pop">
-                    ¡EMPEZAR! ▶
-                </button>
-            </div>
-
-            <div id="screen-menu" class="screen h-full justify-center">
-                <h2 class="text-3xl font-black text-center mb-8 text-indigo-700">Elige tu aventura</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto w-full">
-                    
-                    <button onclick="nav('lesson-2d')" class="bg-yellow-300 hover:bg-yellow-200 border-4 border-yellow-500 p-6 rounded-3xl flex flex-col items-center animate-pop group">
-                        <svg width="80" height="80" viewBox="0 0 100 100" class="mb-4 group-hover:animate-float">
-                            <polygon points="50,10 90,90 10,90" fill="#ef4444"/>
-                            <circle cx="50" cy="50" r="20" fill="#3b82f6" class="opacity-80"/>
-                        </svg>
-                        <span class="text-2xl font-black text-yellow-900">Figuras Planas<br>(2D)</span>
-                    </button>
-
-                    <button onclick="nav('lesson-3d')" class="bg-pink-300 hover:bg-pink-200 border-4 border-pink-500 p-6 rounded-3xl flex flex-col items-center animate-pop group">
-                        <div class="text-7xl mb-4 group-hover:animate-float">🧊⚽</div>
-                        <span class="text-2xl font-black text-pink-900">Cuerpos con Volumen<br>(3D)</span>
-                    </button>
-
-                    <button onclick="nav('game-menu')" class="bg-green-300 hover:bg-green-200 border-4 border-green-500 p-6 rounded-3xl flex flex-col items-center animate-pop group sm:col-span-2">
-                        <div class="text-6xl mb-4 group-hover:animate-float">🎮 🕵️‍♂️</div>
-                        <span class="text-2xl font-black text-green-900">¡Zona de Juegos!</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="screen-lesson-2d" class="screen h-full">
-                <div class="bg-blue-100 p-4 rounded-2xl mb-6 flex items-center gap-4 cursor-pointer" onclick="playAudio('Las figuras 2D son planas. ¡Tócalas para aprender sus nombres, lados y vértices!')">
-                    <div class="text-4xl">🦉</div>
-                    <p class="text-lg font-bold text-blue-800">Toca las figuras para escuchar su nombre y descubrir sus partes (Lados y Vértices).</p>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-6 flex-1">
-                    <!-- Triángulo -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
-                        <svg class="shape-interactive" width="120" height="120" viewBox="-10 -10 120 120" onclick="exploreShape('triangulo')">
-                            <polygon id="poly-tri" points="50,10 100,90 0,90" fill="#3b82f6" stroke="#2563eb" stroke-width="4"/>
-                            <!-- Vértices interactivos (se muestran por JS) -->
-                            <circle class="v-tri" cx="50" cy="10" r="0" fill="red"/>
-                            <circle class="v-tri" cx="100" cy="90" r="0" fill="red"/>
-                            <circle class="v-tri" cx="0" cy="90" r="0" fill="red"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mt-4 text-blue-600">Triángulo</h3>
-                    </div>
-
-                    <!-- Cuadrado -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
-                        <svg class="shape-interactive" width="120" height="120" viewBox="-10 -10 120 120" onclick="exploreShape('cuadrado')">
-                            <rect id="poly-cua" x="10" y="10" width="80" height="80" fill="#ef4444" stroke="#dc2626" stroke-width="4"/>
-                            <circle class="v-cua" cx="10" cy="10" r="0" fill="red"/>
-                            <circle class="v-cua" cx="90" cy="10" r="0" fill="red"/>
-                            <circle class="v-cua" cx="90" cy="90" r="0" fill="red"/>
-                            <circle class="v-cua" cx="10" cy="90" r="0" fill="red"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mt-4 text-red-600">Cuadrado</h3>
-                    </div>
-
-                    <!-- Rectángulo -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
-                        <svg class="shape-interactive" width="140" height="100" viewBox="-10 -10 140 100" onclick="exploreShape('rectangulo')">
-                            <rect id="poly-rec" x="10" y="20" width="100" height="50" fill="#10b981" stroke="#059669" stroke-width="4"/>
-                            <circle class="v-rec" cx="10" cy="20" r="0" fill="red"/>
-                            <circle class="v-rec" cx="110" cy="20" r="0" fill="red"/>
-                            <circle class="v-rec" cx="110" cy="70" r="0" fill="red"/>
-                            <circle class="v-rec" cx="10" cy="70" r="0" fill="red"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mt-2 text-green-600">Rectángulo</h3>
-                    </div>
-
-                    <!-- Círculo -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 border-2 border-gray-100">
-                        <svg class="shape-interactive" width="120" height="120" viewBox="-10 -10 120 120" onclick="exploreShape('circulo')">
-                            <circle id="poly-cir" cx="50" cy="50" r="45" fill="#f59e0b" stroke="#d97706" stroke-width="4"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mt-4 text-orange-500">Círculo</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div id="screen-lesson-3d" class="screen h-full">
-                <div class="bg-pink-100 p-4 rounded-2xl mb-4 flex items-center gap-4 cursor-pointer" onclick="playAudio('Los cuerpos geométricos ocupan un lugar en el espacio. Tienen volumen. ¡Tócalos!')">
-                    <div class="text-4xl">🤖</div>
-                    <p class="text-lg font-bold text-pink-800">Estos son los cuerpos 3D. Tienen Caras. ¡Tócalos para conocerlos!</p>
-                </div>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1 overflow-y-auto pb-4">
-                    <!-- Cubo -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Cubo', '¡Soy un cubo! Todas mis caras son cuadrados. Como un dado.')">
-                        <!-- SVG Isométrico simple -->
-                        <svg width="80" height="90" viewBox="0 0 100 110">
-                            <polygon points="50,10 90,30 50,50 10,30" fill="#60a5fa" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
-                            <polygon points="10,30 50,50 50,90 10,70" fill="#3b82f6" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
-                            <polygon points="90,30 50,50 50,90 90,70" fill="#2563eb" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/>
-                        </svg>
-                        <h3 class="text-xl font-bold mt-2">Cubo</h3>
-                    </div>
-
-                    <!-- Esfera -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Esfera', '¡Soy una esfera! Soy redondita por todas partes. Como una pelota.')">
-                        <svg width="80" height="90" viewBox="0 0 100 110">
-                            <defs>
-                                <radialGradient id="gradSphere" cx="30%" cy="30%" r="70%">
-                                    <stop offset="0%" stop-color="#f87171" />
-                                    <stop offset="100%" stop-color="#b91c1c" />
-                                </radialGradient>
-                            </defs>
-                            <circle cx="50" cy="50" r="40" fill="url(#gradSphere)"/>
-                        </svg>
-                        <h3 class="text-xl font-bold mt-2">Esfera</h3>
-                    </div>
-
-                    <!-- Cono -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Cono', '¡Soy un cono! Tengo una base circular y termino en punta. Como un gorro de fiesta.')">
-                        <svg width="80" height="90" viewBox="0 0 100 110">
-                            <path d="M50 10 L10 80 Q50 100 90 80 Z" fill="#34d399" stroke="#059669" stroke-width="2"/>
-                            <ellipse cx="50" cy="80" rx="40" ry="10" fill="#10b981" stroke="#059669" stroke-width="2" stroke-dasharray="4,4"/> <!-- Back edge hint -->
-                        </svg>
-                        <h3 class="text-xl font-bold mt-2">Cono</h3>
-                    </div>
-
-                    <!-- Cilindro -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Cilindro', '¡Soy un cilindro! Tengo dos caras circulares planas. Como una lata o un vaso.')">
-                        <svg width="80" height="90" viewBox="0 0 100 110">
-                            <ellipse cx="50" cy="20" rx="30" ry="10" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
-                            <path d="M20 20 L20 80 A30 10 0 0 0 80 80 L80 20 Z" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
-                        </svg>
-                        <h3 class="text-xl font-bold mt-2">Cilindro</h3>
-                    </div>
-
-                    <!-- Paralelepípedo -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Paralelepípedo', '¡Nombre largo! Pa-ra-le-le-pí-pe-do. Mis caras son rectángulos. Como una caja de leche.')">
-                        <svg width="80" height="90" viewBox="0 0 100 110">
-                            <polygon points="40,20 80,10 80,70 40,80" fill="#a78bfa" stroke="#7c3aed" stroke-width="2"/>
-                            <polygon points="10,30 40,20 40,80 10,90" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2"/>
-                            <polygon points="10,30 50,40 80,10 40,20" fill="#c4b5fd" stroke="#7c3aed" stroke-width="2"/>
-                        </svg>
-                        <h3 class="text-xl font-bold mt-2 text-center text-sm sm:text-base leading-tight">Paralelepípedo</h3>
-                    </div>
-
-                    <!-- Pirámide -->
-                    <div class="flex flex-col items-center justify-center bg-white rounded-3xl p-4 shadow-sm border-b-4 border-gray-200 cursor-pointer hover:bg-gray-50 active:scale-95 transition-transform" onclick="explore3D('Pirámide', '¡Soy una pirámide! Mis caras laterales son triángulos. Como las de Egipto.')">
-                        <svg width="80" height="90" viewBox="0 0 100 110">
-                            <polygon points="50,10 20,80 80,80" fill="#f472b6" stroke="#db2777" stroke-width="2" stroke-linejoin="round"/>
-                            <polygon points="50,10 80,80 90,60" fill="#ec4899" stroke="#be185d" stroke-width="2" stroke-linejoin="round"/>
-                        </svg>
-                        <h3 class="text-xl font-bold mt-2">Pirámide</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div id="screen-game-menu" class="screen h-full justify-center">
-                <h2 class="text-3xl font-black text-center mb-6 text-green-700">¡Hora de Jugar!</h2>
-                <div class="space-y-4 max-w-md mx-auto w-full">
-                    <button onclick="nav('game-hunt-play')" class="w-full bg-white border-4 border-blue-400 p-4 rounded-2xl flex items-center gap-4 hover:bg-blue-50 animate-pop text-left">
-                        <span class="text-4xl">🎨</span>
-                        <div>
-                            <h3 class="text-xl font-bold text-blue-900">1. Caza de Figuras</h3>
-                            <p class="text-gray-600 text-sm">Busca y cuenta (pág 130)</p>
-                        </div>
-                    </button>
-                    <button onclick="nav('game-sorter')" class="w-full bg-white border-4 border-pink-400 p-4 rounded-2xl flex items-center gap-4 hover:bg-pink-50 animate-pop text-left">
-                        <span class="text-4xl">🥫</span>
-                        <div>
-                            <h3 class="text-xl font-bold text-pink-900">2. ¿A qué se parece?</h3>
-                            <p class="text-gray-600 text-sm">Une objetos con cuerpos 3D (pág 134)</p>
-                        </div>
-                    </button>
-                    <button onclick="nav('game-stamp')" class="w-full bg-white border-4 border-orange-400 p-4 rounded-2xl flex items-center gap-4 hover:bg-orange-50 animate-pop text-left">
-                        <span class="text-4xl">👣</span>
-                        <div>
-                            <h3 class="text-xl font-bold text-orange-900">3. Fábrica de Huellas</h3>
-                            <p class="text-gray-600 text-sm">Relación 3D y 2D (pág 136)</p>
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-            <div id="screen-game-hunt-play" class="screen h-full">
-                <div class="bg-blue-100 p-3 rounded-xl mb-4 flex items-center justify-between">
-                    <h2 id="hunt-instruction" class="text-xl sm:text-2xl font-bold text-blue-900 cursor-pointer" onclick="playAudio(document.getElementById('hunt-instruction').innerText)">
-                        Toca todos los CÍRCULOS
-                    </h2>
-                    <span id="hunt-counter" class="text-2xl font-black bg-white px-4 py-1 rounded-full text-blue-600 shadow-inner border-2 border-blue-200">0/0</span>
-                </div>
-                
-                <div class="flex-1 bg-white rounded-3xl border-4 border-dashed border-gray-300 relative flex justify-center items-center overflow-hidden">
-                    <!-- Dibujo compuesto interactivo -->
-                    <svg id="hunt-canvas" width="100%" height="100%" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
-                        <!-- El contenido se inyecta por JS -->
-                    </svg>
-                </div>
-            </div>
-
-            <div id="screen-game-sorter" class="screen h-full">
-                <div class="bg-pink-100 p-3 rounded-xl mb-4 text-center cursor-pointer" onclick="playAudio('¿A qué cuerpo geométrico se parece este objeto? Toca la respuesta correcta.')">
-                    <h2 class="text-xl font-bold text-pink-900">¿A qué se parece?</h2>
-                </div>
-                
-                <div class="flex-1 flex flex-col items-center justify-center space-y-8">
-                    <!-- Objeto a clasificar -->
-                    <div id="sorter-object" class="text-[100px] animate-float drop-shadow-xl bg-white w-48 h-48 rounded-full flex items-center justify-center border-8 border-yellow-300">
-                        🥫
-                    </div>
-                    
-                    <!-- Opciones de Cuerpos 3D -->
-                    <div class="grid grid-cols-2 gap-4 w-full max-w-md" id="sorter-options">
-                        <!-- Botones inyectados por JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div id="screen-game-stamp" class="screen h-full">
-                 <div class="bg-orange-100 p-3 rounded-xl mb-4 text-center cursor-pointer" onclick="playAudio('Imagina que pintas la base de este cuerpo. ¿Qué figura 2D estampará en el papel?')">
-                    <h2 id="stamp-question" class="text-lg sm:text-xl font-bold text-orange-900">¿Qué huella deja su cara basal?</h2>
-                </div>
-                
-                <div class="flex-1 flex flex-col items-center justify-center space-y-8">
-                    <!-- Cuerpo 3D (Stamp) -->
-                    <div id="stamp-3d-container" class="bg-white p-6 rounded-3xl shadow-md border-4 border-gray-100 animate-float">
-                        <!-- SVG inyectado -->
-                    </div>
-                    
-                    <!-- Opciones 2D -->
-                    <div class="w-full bg-gray-100 p-4 rounded-t-3xl border-t-4 border-gray-300 flex justify-center gap-6 mt-auto">
-                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="cuadrado">
-                            <svg width="50" height="50" viewBox="0 0 60 60"><rect x="10" y="10" width="40" height="40" fill="#ef4444"/></svg>
-                        </button>
-                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="circulo">
-                            <svg width="50" height="50" viewBox="0 0 60 60"><circle cx="30" cy="30" r="20" fill="#f59e0b"/></svg>
-                        </button>
-                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="triangulo">
-                            <svg width="50" height="50" viewBox="0 0 60 60"><polygon points="30,10 50,50 10,50" fill="#3b82f6"/></svg>
-                        </button>
-                        <button class="stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95" data-shape="rectangulo">
-                            <svg width="60" height="50" viewBox="0 0 70 60"><rect x="5" y="15" width="60" height="30" fill="#10b981"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Overlay de Éxito Genérico -->
-            <div id="success-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-sm hidden flex-col items-center justify-center z-50">
-                <div class="text-8xl animate-bounce mb-4">🌟</div>
-                <h2 class="text-4xl font-black text-yellow-500 mb-8 drop-shadow-sm text-center px-4">¡Excelente!</h2>
-                <button id="btn-next" class="bg-blue-500 text-white font-bold text-2xl py-3 px-8 rounded-full shadow-lg hover:bg-blue-400 active:scale-95">
-                    Siguiente ▶
-                </button>
-            </div>
-
-        </main>
+<body>
+<div class="shell" id="app">
+  <header class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Lenguaje · 4° básico · Unidad 3</div>
+        <h1>Misión Lenguaje: palabras, cómics y lecturas</h1>
+        <p>Estudia <b>sinónimos y antónimos</b>, aprende cómo funciona una <b>historieta</b> y practica <b>comprensión lectora</b> con textos de la unidad. Gana puntos, estrellas y supera el desafío final.</p>
+      </div>
+      <div class="mascot" aria-hidden="true">🦜📚</div>
     </div>
+    <nav class="topbar" aria-label="Secciones">
+      <button class="pill active" data-section="inicio">🏠 Inicio</button>
+      <button class="pill" data-section="sinonimos">🔁 Sinónimos</button>
+      <button class="pill" data-section="antonimos">↔️ Antónimos</button>
+      <button class="pill" data-section="comic">💬 Cómic</button>
+      <button class="pill" data-section="lecturas">📚 Lecturas</button>
+      <button class="pill" data-section="juegos">🎮 Juegos</button>
+      <button class="pill" data-section="final">🏆 Desafío final</button>
+      <button class="pill" id="soundToggle" aria-pressed="true">🔊 Sonidos ON</button>
+    </nav>
+    <div class="progress-wrap" aria-label="Progreso"><div class="progress" id="progress"></div></div>
+    <div class="scoreline"><span>⭐ Puntos: <span id="score">0</span></span><span>✅ Actividades superadas: <span id="completed">0</span>/<span id="totalActivities">13</span></span><span>🦜 El lorito reacciona con sonidos al acertar o equivocarse</span></div>
+  </header>
 
-    <script>
-        // --- SISTEMA DE AUDIO Y VOZ ---
-        let audioEnabled = true;
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        function toggleAudio() {
-            audioEnabled = !audioEnabled;
-            document.getElementById('audio-icon').innerText = audioEnabled ? '🔊' : '🔇';
-            if (audioEnabled) {
-                if(audioCtx.state === 'suspended') audioCtx.resume();
-                playTone(400, 'sine', 0.1); // Feedback visual
-            } else {
-                window.speechSynthesis.cancel();
-            }
-        }
+  <main class="grid">
+    <section class="panel section active" id="inicio">
+      <h2>¿Qué vamos a aprender?</h2>
+      <p class="lead">La unidad trabaja la lectura de obras dramáticas, el vocabulario preciso mediante sinónimos y antónimos, la creación de historietas y la comprensión de textos narrativos y biográficos.</p>
+      <div class="topic-map">
+        <div class="topic">Sinónimos: palabras con significado parecido.</div>
+        <div class="topic">Antónimos: palabras de significado contrario.</div>
+        <div class="topic">Cómic: viñetas, globos, narrador y secuencia.</div>
+        <div class="topic">Lectura: localizar, interpretar, inferir y opinar.</div>
+      </div>
+      <div class="callout yellow"><b>Meta de estudio:</b> no se trata solo de memorizar. La idea es reconocer qué significa una palabra dentro de una oración, entender cómo avanza una historia y justificar respuestas usando información del texto.</div>
+      <div class="cards">
+        <div class="mini"><div class="icon">👀</div><strong>Localizar</strong><p>Encontrar información que aparece de manera explícita.</p></div>
+        <div class="mini"><div class="icon">🧠</div><strong>Interpretar</strong><p>Explicar ideas, motivos o consecuencias usando pistas del texto.</p></div>
+        <div class="mini"><div class="icon">🔎</div><strong>Inferir</strong><p>Concluir algo que no está dicho de forma directa.</p></div>
+      </div>
+      <div class="actions"><button class="btn" data-go="sinonimos">Comenzar por sinónimos →</button><button class="btn secondary" data-go="lecturas">Ir a las lecturas</button></div>
+    </section>
 
-        // Sintetizador de voz básico para leer instrucciones
-        function playAudio(text) {
-            if (!audioEnabled) return;
-            window.speechSynthesis.cancel(); // Stop current speech
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'es-ES'; // Intentar español
-            utterance.rate = 0.9; // Un poco más lento para niños
-            utterance.pitch = 1.2; // Tono ligeramente más agudo
-            window.speechSynthesis.speak(utterance);
-        }
+    <section class="panel section" id="sinonimos">
+      <h2>🔁 Sinónimos</h2>
+      <p class="lead">Un <b>sinónimo</b> es una palabra que tiene un significado similar o parecido a otra.</p>
+      <div class="callout"><b>Ejemplo de la unidad:</b> si describimos a un perro como <i>rápido</i>, también podríamos decir <i>veloz</i>. Ambas palabras expresan una idea parecida.</div>
+      <div class="example-row"><div class="word">rápido</div><div class="arrow">≈</div><div class="word">veloz</div></div>
+      <div class="example-row"><div class="word">deliciosa</div><div class="arrow">≈</div><div class="word">sabrosa</div></div>
+      <div class="example-row"><div class="word">mininos</div><div class="arrow">≈</div><div class="word">gatos</div></div>
+      <div class="callout green"><b>Truco:</b> un sinónimo debe mantener el sentido de la oración. No basta con que “suene parecido”.</div>
+      <div class="exercise" id="synQuiz"><div class="question" id="synQ"></div><div class="options" id="synOptions"></div><div class="feedback" id="synFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="synNext">Siguiente</button></div></div>
+      <div class="game-title"><span class="game-icon">⚡</span><div><h3 style="margin:0">Juego: Pareja relámpago</h3><div class="small">Encuentra el sinónimo antes de pasar a la siguiente ronda.</div></div></div>
+      <div class="game-board" id="synFlashBoard"><div class="round-line"><span class="round-chip" id="synFlashRound">Ronda 1</span><span class="round-chip">+4 puntos por acierto</span></div><div class="big-word" id="synFlashWord"></div><div class="choice-grid" id="synFlashChoices"></div><div class="feedback" id="synFlashFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="synFlashNext">Otra palabra</button><button class="btn secondary" id="synFlashReset">Reiniciar juego</button></div></div>
+    </section>
 
-        // Generador de tonos sintéticos (Beeps, aciertos, errores) sin archivos externos
-        function playTone(freq, type, duration, vol=0.1) {
-            if (!audioEnabled) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
-        }
+    <section class="panel section" id="antonimos">
+      <h2>↔️ Antónimos</h2>
+      <p class="lead">Un <b>antónimo</b> expresa una idea opuesta o contraria a otra palabra.</p>
+      <div class="example-row"><div class="word">rápido</div><div class="arrow">≠</div><div class="word">lento</div></div>
+      <div class="example-row"><div class="word">limpio</div><div class="arrow">≠</div><div class="word">sucio</div></div>
+      <div class="example-row"><div class="word">obediente</div><div class="arrow">≠</div><div class="word">desobediente</div></div>
+      <div class="callout pink"><b>Ojo:</b> al cambiar una palabra por su antónimo, muchas veces cambia el sentido completo de una oración. Por eso hay que leerla nuevamente y comprobar si tiene lógica.</div>
+      <div class="exercise" id="antQuiz"><div class="question" id="antQ"></div><div class="options" id="antOptions"></div><div class="feedback" id="antFeedback" aria-live="polite"></div><div class="actions"><button class="btn orange hidden" id="antNext">Siguiente</button></div></div>
+      <div class="game-title"><span class="game-icon">🕵️</span><div><h3 style="margin:0">Juego: Detective de contrarios</h3><div class="small">Decide si cada pareja realmente está formada por antónimos.</div></div></div>
+      <div class="game-board"><div class="round-line"><span class="round-chip" id="antJudgeRound">Caso 1</span><span class="round-chip">Verdadero o falso</span></div><div class="big-word" id="antJudgePair"></div><div class="tf-grid" id="antJudgeChoices"><button type="button" class="tf-btn" data-judge="true">✅ Sí, son antónimos</button><button type="button" class="tf-btn" data-judge="false">❌ No son antónimos</button></div><div class="feedback" id="antJudgeFeedback" aria-live="polite"></div><div class="actions"><button class="btn orange hidden" id="antJudgeNext">Siguiente caso</button><button class="btn secondary" id="antJudgeReset">Reiniciar juego</button></div></div>
+    </section>
 
-        function playSuccessSound() {
-            if (!audioEnabled) return;
-            playTone(440, 'sine', 0.1);
-            setTimeout(() => playTone(554, 'sine', 0.1), 100);
-            setTimeout(() => playTone(659, 'sine', 0.3), 200);
-        }
+    <section class="panel section" id="comic">
+      <h2>💬 ¿Cómo funciona una historieta?</h2>
+      <p class="lead">Las historietas o cómics son narraciones que presentan personajes, acciones y diálogos en una secuencia de cuadros ilustrados llamados <b>viñetas</b>.</p>
+      <div class="cards">
+        <div class="mini"><div class="icon">🖼️</div><strong>Viñeta</strong><p>Muestra un momento de la situación que viven los personajes.</p></div>
+        <div class="mini"><div class="icon">💬</div><strong>Globo de diálogo</strong><p>Expresa lo que dice un personaje.</p></div>
+        <div class="mini"><div class="icon">💭</div><strong>Globo de pensamiento</strong><p>Da a conocer sus ideas o pensamientos.</p></div>
+      </div>
+      <div class="callout yellow"><b>Narrador:</b> sus intervenciones suelen aparecer en una casilla rectangular, generalmente en la parte superior de la viñeta.</div>
+      <h3>Ejemplo visual</h3>
+      <div class="comic-grid">
+        <div class="panel-comic"><div class="narrator-box">Dos amigos caminaban alegremente por el bosque.</div><div class="bubble">¡Qué entretenido paseo!</div><div class="scene">🧒🌲🧒</div></div>
+        <div class="panel-comic"><div class="bubble">¡Cuidado, un oso!</div><div class="scene">🧒🐻😨</div></div>
+      </div>
+      <h3 style="margin-top:22px">Juego: ordena la secuencia</h3>
+      <p class="small">Haz clic en los acontecimientos en el orden correcto. Está basado en la historieta de <i>Los dos amigos y el oso</i>.</p>
+      <div class="order-list" id="comicOrder"></div><div class="feedback" id="comicFeedback" aria-live="polite"></div><div class="actions"><button class="btn purple" id="resetOrder">Reiniciar</button></div>
+      <div class="game-title"><span class="game-icon">🎯</span><div><h3 style="margin:0">Juego: ¿Qué elemento del cómic es?</h3><div class="small">Reconoce viñeta, diálogo, pensamiento y narrador.</div></div></div>
+      <div class="game-board"><div class="round-line"><span class="round-chip" id="comicPartRound">Ronda 1</span><span class="round-chip">Mira la pista</span></div><div class="big-word" id="comicPartPrompt"></div><div class="choice-grid" id="comicPartChoices"></div><div class="feedback" id="comicPartFeedback" aria-live="polite"></div><div class="actions"><button class="btn purple hidden" id="comicPartNext">Siguiente pista</button><button class="btn secondary" id="comicPartReset">Reiniciar juego</button></div></div>
+      <h3 style="margin-top:24px">Crea tu mini cómic</h3>
+      <div class="builder">
+        <div>
+          <div class="field"><label for="comicScene">Escenario</label><select id="comicScene"><option value="🏫👧🧒">Escuela</option><option value="🌳🧒🐻">Bosque</option><option value="🏴‍☠️🦜💰">Piratas</option><option value="🏔️💧🐢">Montaña</option></select></div>
+          <div class="field"><label for="comicNarrator">Casilla del narrador</label><input id="comicNarrator" value="Una mañana comenzó una aventura..." /></div>
+          <div class="field"><label for="comicDialog">Diálogo</label><input id="comicDialog" value="¡Tenemos que encontrar una solución!" /></div>
+          <div class="actions"><button class="btn" id="buildComic">Crear 3 viñetas</button></div>
+        </div>
+        <div class="builder-output" id="comicOutput" aria-live="polite"></div>
+      </div>
+    </section>
 
-        function playErrorSound() {
-            playTone(200, 'sawtooth', 0.3, 0.05);
-        }
+    <section class="panel section" id="lecturas">
+      <h2>📚 Biblioteca de la unidad</h2>
+      <p class="lead">Aquí puedes leer los textos centrales del PDF y luego responder preguntas de comprensión.</p>
+      <div class="reader-layout">
+        <div class="reader-menu" id="readerMenu"></div>
+        <article class="reading" id="readingArea"></article>
+      </div>
+      <div class="exercise" id="readQuiz"><div class="question" id="readQ"></div><div class="options" id="readOptions"></div><div class="feedback" id="readFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="readNext">Siguiente pregunta</button></div></div>
+      <div class="game-title"><span class="game-icon">👤</span><div><h3 style="margin:0">Juego: ¿Quién hizo qué?</h3><div class="small">Relaciona personajes y acciones de las lecturas de la unidad.</div></div></div>
+      <div class="game-board"><div class="round-line"><span class="round-chip" id="whoRound">Ronda 1</span><span class="round-chip">Comprensión rápida</span></div><div class="question" id="whoQ"></div><div class="choice-grid" id="whoChoices"></div><div class="feedback" id="whoFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="whoNext">Siguiente</button><button class="btn secondary" id="whoReset">Reiniciar</button></div></div>
+      <div class="game-title"><span class="game-icon">🧩</span><div><h3 style="margin:0">Juego: Ordena “La gota que faltaba”</h3><div class="small">Haz clic en los hechos desde el comienzo hasta el final.</div></div></div>
+      <div class="game-board"><div class="sequence-grid" id="dropSequence"></div><div class="feedback" id="dropSequenceFeedback" aria-live="polite"></div><div class="actions"><button class="btn secondary" id="dropSequenceReset">Mezclar otra vez</button></div></div>
+    </section>
 
-        function playPopSound() {
-            playTone(600, 'sine', 0.05, 0.05);
-        }
+    <section class="panel section" id="juegos">
+      <h2>🎮 Zona de juegos</h2>
+      <h3>Memorama de sinónimos</h3><p class="lead">Encuentra las parejas de palabras que tienen significado parecido.</p>
+      <div class="memory" id="memoryGrid"></div><div class="feedback" id="memoryFeedback" aria-live="polite"></div>
+      <div class="actions"><button class="btn secondary" id="resetMemory">Mezclar de nuevo</button></div>
+      <h3 style="margin-top:28px">Semáforo de comprensión</h3>
+      <p class="small">Decide qué tipo de habilidad estás usando.</p>
+      <div class="exercise"><div class="question" id="skillQ"></div><div class="options" id="skillOptions"></div><div class="feedback" id="skillFeedback"></div><div class="actions"><button class="btn hidden" id="skillNext">Siguiente</button></div></div>
+      <div class="game-title"><span class="game-icon">🎲</span><div><h3 style="margin:0">Juego: Palabra en contexto</h3><div class="small">Decide si necesitas un sinónimo o un antónimo para completar la oración.</div></div></div>
+      <div class="game-board"><div class="round-line"><span class="round-chip" id="contextRound">Ronda 1</span><span class="round-chip">Mixto</span></div><div class="question" id="contextQ"></div><div class="choice-grid" id="contextChoices"></div><div class="feedback" id="contextFeedback" aria-live="polite"></div><div class="actions"><button class="btn hidden" id="contextNext">Siguiente</button><button class="btn secondary" id="contextReset">Reiniciar</button></div></div>
+    </section>
 
-        // --- SISTEMA DE NAVEGACIÓN ---
-        const screens = ['home', 'menu', 'lesson-2d', 'lesson-3d', 'game-menu', 'game-hunt-play', 'game-sorter', 'game-stamp'];
-        const btnHome = document.getElementById('btn-home');
-        const mainTitle = document.getElementById('main-title');
+    <section class="panel section" id="final">
+      <h2>🏆 Desafío final</h2>
+      <p class="lead">Diez preguntas mezcladas. Necesitas al menos 8 correctas para obtener la medalla “Explorador/a del Lenguaje”.</p>
+      <div class="exercise"><div class="question" id="finalQ"></div><div class="options" id="finalOptions"></div><div class="feedback" id="finalFeedback"></div><div class="actions"><button class="btn hidden" id="finalNext">Siguiente</button></div></div>
+      <div class="final-box hidden" id="finalResult"><div class="stars" id="finalStars">⭐⭐⭐</div><h3 id="finalTitle"></h3><p id="finalText"></p><span class="badge" id="finalBadge">🏅</span><div class="actions" style="justify-content:center"><button class="btn" id="restartFinal">Intentar otra vez</button></div></div>
+    </section>
+  </main>
+  <div class="footer-note">Material de estudio elaborado a partir de las páginas 210–239 de la Unidad 3 del texto adjunto.</div>
+</div>
+<script>
+(() => {
+  const root=document.getElementById('app');
+  const TOTAL_ACTIVITIES=13;
+  let score=0, completed=new Set(), soundOn=true, audioCtx=null;
+  const scoreEl=document.getElementById('score'), completedEl=document.getElementById('completed'), progress=document.getElementById('progress');
+  document.getElementById('totalActivities').textContent=TOTAL_ACTIVITIES;
+  function updateProgress(){scoreEl.textContent=score;completedEl.textContent=completed.size;progress.style.width=Math.min(100,(completed.size/TOTAL_ACTIVITIES)*100)+'%'}
+  function addScore(n=10){score+=n;updateProgress()}
+  function markDone(id){if(!completed.has(id)){completed.add(id);addScore(20);sound('complete')}updateProgress()}
+  function getAudio(){if(!soundOn)return null;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;if(!audioCtx)audioCtx=new A();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(e){return null}}
+  function beep(freq=440,dur=.08,type='sine',vol=.045,delay=0){const c=getAudio();if(!c)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+delay;o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.03)}
+  function parrotCall(mood='happy'){if(mood==='happy'){beep(1180,.05,'triangle',.03,0);beep(1420,.045,'triangle',.028,.045);beep(1260,.06,'triangle',.03,.09);beep(1660,.07,'sine',.022,.16)}else if(mood==='oops'){beep(620,.08,'square',.028,0);beep(470,.1,'square',.028,.07);beep(350,.12,'sawtooth',.022,.15)}else if(mood==='celebrate'){beep(1180,.05,'triangle',.03,0);beep(1420,.045,'triangle',.03,.045);beep(1260,.05,'triangle',.03,.09);beep(1560,.05,'triangle',.03,.135);beep(1880,.12,'sine',.025,.2)}}
+  function sound(kind='click'){if(!soundOn)return;if(kind==='correct'){parrotCall('happy');beep(784,.08,'sine',.018,.2)}else if(kind==='wrong'){parrotCall('oops')}else if(kind==='complete'){parrotCall('celebrate');beep(1047,.18,'triangle',.04,.28)}else if(kind==='flip'){beep(360,.055,'sine',.028)}else if(kind==='build'){beep(440,.06,'triangle',.035);beep(554,.06,'triangle',.035,.06);beep(659,.13,'triangle',.04,.12)}else if(kind==='reset'){beep(300,.05,'sine',.025);beep(250,.08,'sine',.025,.05)}else{beep(420,.045,'sine',.022)}}
+  function tone(ok=true){sound(ok?'correct':'wrong')}
+  document.getElementById('soundToggle').addEventListener('click',e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?'🔊 Sonidos ON':'🔇 Sonidos OFF';e.currentTarget.setAttribute('aria-pressed',soundOn);if(soundOn)sound('correct')})
+  function showSection(id){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('.pill[data-section]').forEach(b=>b.classList.toggle('active',b.dataset.section===id));root.scrollIntoView({behavior:'smooth',block:'start'})}
+  function addSectionParrots(){document.querySelectorAll('.panel.section').forEach((section,i)=>{if(section.querySelector('.parrot-buddy'))return;section.classList.add('parrotized');const buddy=document.createElement('div');buddy.className='parrot-buddy';buddy.setAttribute('aria-hidden','true');buddy.innerHTML=`<div class="feather-cluster"><span class="feather f1" style="--r:-28deg"></span><span class="feather f2" style="--r:18deg"></span><span class="feather f3" style="--r:30deg"></span><span class="feather f4" style="--r:-8deg"></span></div><div class="parrot-float"><span class="parrot-emoji">🦜</span><span class="parrot-spark">✨</span></div>`;section.prepend(buddy)})}
+  addSectionParrots();
+  document.querySelectorAll('[data-section]').forEach(b=>b.addEventListener('click',()=>{sound('click');showSection(b.dataset.section)}));
+  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{sound('click');showSection(b.dataset.go)}));
 
-        function nav(screenId) {
-            playPopSound();
-            window.speechSynthesis.cancel(); // Parar voz al cambiar pantalla
-            
-            screens.forEach(s => {
-                const el = document.getElementById(`screen-${s}`);
-                if(el) {
-                    el.classList.remove('active');
-                    // Reset animations if needed
-                }
-            });
-            
-            const target = document.getElementById(`screen-${screenId}`);
-            if(target) {
-                target.classList.add('active');
-            }
+  const syn=[
+    ['¿Cuál es un sinónimo de “rápido”?',['lento','veloz','pesado'],'veloz','“Veloz” expresa una idea parecida a “rápido”.'],
+    ['En la obra “Una de piratas”, “mininos” se refiere a…',['gatos','barcos','tesoros'],'gatos','“Mininos” es otra manera de nombrar a los gatos.'],
+    ['¿Qué palabra puede reemplazar “deliciosa” sin cambiar el sentido?',['sabrosa','amarga','vacía'],'sabrosa','“Sabrosa” mantiene una idea similar.'],
+    ['¿Cuál se parece más a “afanosamente”?',['con esfuerzo y dedicación','sin hacer nada','muy lentamente'],'con esfuerzo y dedicación','En el texto, los piratas trabajaban con dedicación.'],
+    ['¿Sinónimo de “contento”?',['feliz','enojado','cansado'],'feliz','“Feliz” y “contento” pueden expresar un estado similar.'],
+    ['¿Cuál puede reemplazar “esconder” en una oración?',['ocultar','mostrar','abrir'],'ocultar','“Ocultar” conserva la idea de no dejar algo a la vista.']
+  ];
+  const ant=[
+    ['¿Cuál es el antónimo de “rápido”?',['veloz','lento','ágil'],'lento','“Lento” expresa la idea contraria a “rápido”.'],
+    ['¿Cuál es el antónimo de “limpio”?',['ordenado','sucio','claro'],'sucio','“Sucio” es el contrario de “limpio”.'],
+    ['¿Cuál es el antónimo de “obediente”?',['desobediente','amable','atento'],'desobediente','La palabra expresa la conducta opuesta.'],
+    ['¿Cuál es el antónimo de “feliz”?',['triste','contento','alegre'],'triste','“Triste” se opone a “feliz”.'],
+    ['¿Cuál es el antónimo de “cerca”?',['pronto','lejos','junto'],'lejos','“Lejos” se opone a “cerca”.'],
+    ['¿Cuál es el antónimo de “vacío”?',['lleno','hondo','grande'],'lleno','“Lleno” indica lo contrario de “vacío”.']
+  ];
+  function setupQuiz(data,prefix,doneId){let i=0,correct=0;const q=document.getElementById(prefix+'Q'),opts=document.getElementById(prefix+'Options'),fb=document.getElementById(prefix+'Feedback'),next=document.getElementById(prefix+'Next');function render(){const item=data[i];q.textContent=`Pregunta ${i+1} de ${data.length}: ${item[0]}`;opts.innerHTML='';fb.textContent='';next.classList.add('hidden');item[1].forEach(t=>{const b=document.createElement('button');b.className='option';b.type='button';b.textContent=t;b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ '+item[3];correct++;addScore(5);tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ '+item[3];tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}next.addEventListener('click',()=>{i++;if(i>=data.length){q.textContent=`¡Listo! Tuviste ${correct} de ${data.length} correctas.`;opts.innerHTML='';fb.textContent=correct>=Math.ceil(data.length*.7)?'🌟 Muy bien. Comprendiste la idea principal.':'💪 Repasa los ejemplos y vuelve a intentarlo.';next.classList.add('hidden');if(correct>=Math.ceil(data.length*.7))markDone(doneId);return}render()});render()}
+  setupQuiz(syn,'syn','syn');setupQuiz(ant,'ant','ant');
 
-            // Lógica de Header (Botón Volver y Título)
-            if (screenId === 'home') {
-                btnHome.classList.add('hidden');
-                mainTitle.innerText = 'Aventura Geométrica';
-            } else if (screenId === 'menu') {
-                btnHome.classList.remove('hidden');
-                btnHome.setAttribute('onclick', "nav('home')");
-                mainTitle.innerText = 'Menú Principal';
-                playAudio("Elige qué quieres aprender o jugar hoy.");
-            } else if (screenId.startsWith('game')) {
-                btnHome.classList.remove('hidden');
-                btnHome.setAttribute('onclick', "nav('game-menu')");
-                if(screenId === 'game-menu') {
-                    btnHome.setAttribute('onclick', "nav('menu')");
-                    mainTitle.innerText = 'Juegos';
-                    playAudio("Selecciona un juego.");
-                }
-            } else {
-                btnHome.classList.remove('hidden');
-                btnHome.setAttribute('onclick', "nav('menu')");
-                mainTitle.innerText = screenId === 'lesson-2d' ? 'Figuras Planas' : 'Cuerpos 3D';
-            }
+  const synFlash=[
+    ['rápido',['veloz','lento','sucio'],'veloz'],['feliz',['contento','triste','lejano'],'contento'],['esconder',['ocultar','mostrar','romper'],'ocultar'],['mininos',['gatos','piratas','pájaros'],'gatos'],['deliciosa',['sabrosa','vacía','amarga'],'sabrosa'],['enorme',['gigante','pequeño','liviano'],'gigante']
+  ];let sfi=0,sfc=0;
+  function renderSynFlash(reset=false){if(reset){sfi=0;sfc=0}const item=synFlash[sfi],word=document.getElementById('synFlashWord'),choices=document.getElementById('synFlashChoices'),fb=document.getElementById('synFlashFeedback'),next=document.getElementById('synFlashNext');document.getElementById('synFlashRound').textContent=`Ronda ${sfi+1}/${synFlash.length}`;word.textContent=item[0];choices.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{choices.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ ¡Pareja encontrada!';sfc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...choices.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Ese no mantiene el mismo significado.';sound('wrong')}next.classList.remove('hidden')});choices.appendChild(b)})}
+  document.getElementById('synFlashNext').addEventListener('click',()=>{sfi++;sound('click');if(sfi>=synFlash.length){document.getElementById('synFlashWord').textContent=`Resultado: ${sfc}/${synFlash.length}`;document.getElementById('synFlashChoices').innerHTML='';document.getElementById('synFlashFeedback').textContent=sfc>=4?'🌟 ¡Excelente dominio de sinónimos!':'💪 Repasa y vuelve a jugar.';document.getElementById('synFlashNext').classList.add('hidden');if(sfc>=4)markDone('synflash');return}renderSynFlash()});
+  document.getElementById('synFlashReset').addEventListener('click',()=>{sound('reset');renderSynFlash(true)});renderSynFlash(true);
 
-            // Iniciar juegos si es necesario
-            if(screenId === 'game-hunt-play') initHuntGame();
-            if(screenId === 'game-sorter') startSorterGame();
-            if(screenId === 'game-stamp') startStampGame();
-        }
+  const antJudge=[
+    ['rápido ↔ lento',true],['limpio ↔ sucio',true],['feliz ↔ contento',false],['obediente ↔ desobediente',true],['cerca ↔ junto',false],['vacío ↔ lleno',true]
+  ];let aji=0,ajc=0;
+  function renderAntJudge(reset=false){if(reset){aji=0;ajc=0}const item=antJudge[aji],fb=document.getElementById('antJudgeFeedback'),next=document.getElementById('antJudgeNext'),btns=[...document.querySelectorAll('[data-judge]')];document.getElementById('antJudgeRound').textContent=`Caso ${aji+1}/${antJudge.length}`;document.getElementById('antJudgePair').textContent=item[0];fb.textContent='';next.classList.add('hidden');btns.forEach(b=>{b.disabled=false;b.classList.remove('correct','wrong')});}
+  document.querySelectorAll('[data-judge]').forEach(b=>b.addEventListener('click',()=>{const val=b.dataset.judge==='true',item=antJudge[aji],btns=[...document.querySelectorAll('[data-judge]')];btns.forEach(x=>x.disabled=true);if(val===item[1]){b.classList.add('correct');document.getElementById('antJudgeFeedback').textContent='✅ Detective correcto.';ajc++;addScore(4);sound('correct')}else{b.classList.add('wrong');btns.find(x=>(x.dataset.judge==='true')===item[1])?.classList.add('correct');document.getElementById('antJudgeFeedback').textContent='❌ Revisa si los significados realmente son opuestos.';sound('wrong')}document.getElementById('antJudgeNext').classList.remove('hidden')}));
+  document.getElementById('antJudgeNext').addEventListener('click',()=>{aji++;sound('click');if(aji>=antJudge.length){document.getElementById('antJudgePair').textContent=`Resultado: ${ajc}/${antJudge.length}`;document.getElementById('antJudgeFeedback').textContent=ajc>=4?'🌟 ¡Muy buen detective de antónimos!':'🕵️ Repasa las parejas y prueba otra vez.';document.getElementById('antJudgeNext').classList.add('hidden');document.querySelectorAll('[data-judge]').forEach(b=>b.disabled=true);if(ajc>=4)markDone('antjudge');return}renderAntJudge()});
+  document.getElementById('antJudgeReset').addEventListener('click',()=>{sound('reset');renderAntJudge(true)});renderAntJudge(true);
 
-        // Permitir que el primer click habilite el AudioContext (política de navegadores)
-        document.body.addEventListener('click', () => {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-        }, {once:true});
+  const readings=[
+    {id:'tortuga',title:'La Capo-Tortuga y la Liebre fanfarrona',meta:'Gabriel Echeverría · obra dramática · pág. 210',body:`
+      <p><span class="speaker">Liebre fanfarrona:</span> Soy tan veloz, ya lo sé, soy la más rápida, ya lo ven. Ya no tengo contra quién correr, a todos puedo vencer.</p>
+      <p><span class="speaker">Narrador:</span> Y así conocemos a la fanfarrona liebre, que con su modestia la rabia de todos enciende. <i>(Entra la Capo-Tortuga).</i></p>
+      <p><span class="speaker">Capo-Tortuga:</span> ¡Te reto a una carrera!</p>
+      <p><span class="speaker">Liebre fanfarrona:</span> Ja, ja, ja... <i>(riendo a carcajadas)</i> correr contigo no vale la pena, jamás me ganarías, ni aunque estuviera atada con cadenas.</p>
+      <p><span class="speaker">Capo-Tortuga:</span> No te niegues a correr, si no tienes nada que perder.</p>
+      <p><span class="speaker">Liebre fanfarrona:</span> Está bien, si quieres fracasar, yo te voy a ayudar...</p>
+      <p><i>Los animales del bosque presenciaron eufóricos la carrera, saltando y gritando.</i></p>
+      <p><span class="speaker">Narrador:</span> La liebre se durmió en el camino y cuando llegó a la meta vio que la tortuga daba el último paso. Trató de ganar estirando los brazos, pero la carrera perdió. Los animales comenzaron a celebrar y de la liebre se empezaron a burlar.</p>
+      <p><span class="speaker">Capo-Tortuga:</span> <i>(Haciéndoles callar).</i> No está bien burlarse, todos tenemos que saber ganar y perder. Y en vez del triunfo jactarse, hay que aprender a respetarse.</p>
+      <p><span class="speaker">Liebre fanfarrona:</span> Sí, tienes razón. Ahora seguiré buena de corazón porque aprendí que vanagloriarse hará que sin amigos uno pueda quedarse.</p>`},
+    {id:'piratas',title:'Una de piratas',meta:'Carmen Gil · obra dramática · págs. 214–217',body:`
+      <p><i>En el puerto de los Siete Mares, una pandilla de piratas trajinaba afanosamente.</i></p>
+      <p><span class="speaker">Narrador:</span> El pirata Johnny el Rata, un corsario patoso y atolondrado, que se mareaba hasta en una colchoneta de playa, estaba empeñado en enseñar a su loro a recitar un trabalenguas.</p>
+      <p><span class="speaker">Johnny:</span> Vamos, lorito, vamos. Repite lo que te digo: Tres tristes tigres comían trigo en un trigal... ¡Un tigre, dos tigres, tres tigres!</p>
+      <p><span class="speaker">Narrador:</span> Mientras tanto, Cordelia, la abuelita pirata, tejía un pantalón con ocho perneras para el pulpo Tomás, que pillaba un resfriado cada dos por tres.</p>
+      <p><span class="speaker">Cordelia:</span> ¡Qué lata con tanta pata!</p>
+      <p><span class="speaker">Narradora 1:</span> A su lado, el pirata Boquerón se entrenaba en el noble arte de dormir a pierna suelta y lanzaba ronquidos ensordecedores.</p>
+      <p><span class="speaker">Narradora 2:</span> No lejos de él, la bucanera Anastasia, el pirata Otilio y el grumete Salmonete cantaban, como siempre, a voz en grito, desafinando como grajos.</p>
+      <p><i>Entra un mensajero arrastrando un enorme baúl. Aparece por entre los barcos y se detiene frente a Johnny.</i></p>
+      <p><span class="speaker">Mensajero:</span> Busco al pirata Johnny el Rata. ¿Es usted?</p>
+      <p><span class="speaker">Johnny:</span> El mismo que viste y calza.</p>
+      <p><span class="speaker">Mensajero:</span> Traigo un paquete. Bueno, más que un paquete, un baúl. ¡No vea lo que pesa! ¡Ah! Y lleva una nota.</p>
+      <p><span class="speaker">Narradora 2:</span> La escueta nota decía así: <i>“Al pirata Johnny el Rata: Le hago entrega de la herencia de su tatarabuelo, el pirata Baldomero. Atentamente, el notario de Isla Tortuga”.</i></p>
+      <p><i>Johnny lee la nota y abre el baúl quedando patidifuso.</i></p>
+      <p><span class="speaker">Johnny:</span> ¡Caramba! ¡Oro, plata, piedras preciosas! ¡Qué gran tesoro!</p>
+      <p><span class="speaker">Narrador:</span> Aprovechando el despiste de sus compañeros, Johnny se despidió, arrastrando su pesado baúl.</p>
+      <p><span class="speaker">Johnny:</span> Tengo que buscar un buen escondite.</p>
+      <p><span class="speaker">Narradora 1:</span> Y camina que te caminarás, llegó a la cueva del dragón de las tres cabezas.</p>
+      <p><span class="speaker">Johnny:</span> ¿Me permitís que esconda aquí mi tesoro?</p>
+      <p><span class="speaker">Cabeza 1:</span> ¡Ah, no! ¡Ni hablar! Tengo una jaqueca que me trae de cabeza.</p>
+      <p><span class="speaker">Cabeza 2:</span> Yo estoy muy ocupada, dándole vueltas a la cabeza, buscando la solución a una adivinanza.</p>
+      <p><span class="speaker">Cabeza 3:</span> Yo intento descabezar un sueñecito.</p>
+      <p><span class="speaker">Narrador:</span> Johnny no quiso perder más tiempo con aquel dragón impertinente y se dirigió a la cueva de las brujas.</p>
+      <p><span class="speaker">Bruja Federica:</span> No me molestes, pirata pesado, que estoy a punto de preparar una poción para convertir a los niños en bobos.</p>
+      <p><span class="speaker">Bruja Fermina:</span> Y yo estoy requeteconcentrada con mi cursillo de magia por Internet.</p>
+      <p><span class="speaker">Narradora 1:</span> El pirata Johnny decidió entonces buscar una cueva deshabitada. Cuando la encontró, arrastró su tesoro hasta el fondo de la gruta y se sentó a vigilar en la entrada.</p>
+      <p><span class="speaker">Johnny:</span> ¡Ay! Me parece que alguien se acerca por la derecha a robarme mi herencia. ¡Ay! Creo que alguien viene por la izquierda a apoderarse de mi baúl. ¡Ay! Oigo un ruido por detrás. ¡Ay! Me parece haber visto una sombra por allí delante.</p>
+      <p><span class="speaker">Narradora 2:</span> El pobre pirata se pasó varios días con sus noches sin pegar ojo, temeroso de que alguien le quitara su herencia. No comía, no dormía y, por supuesto, no había vuelto a sonreír.</p>
+      <p><span class="speaker">Johnny:</span> ¡Esto no es vida! Con lo feliz que vivía yo en el puerto con mi pandilla, enseñándole a decir trabalenguas a mi loro y jugando al parchís.</p>
+      <p><span class="speaker">Narrador:</span> ¡Claro! Porque lo que no se comparte, no se disfruta. Por eso, Johnny decidió hacer partícipes del tesoro a sus amigos. ¿Y sabéis qué hicieron con él? Crear un hogar para gatos abandonados.</p>
+      <p><span class="speaker">Narradora 1:</span> Y desde entonces viven requetefelices recogiendo mininos desamparados y cuidando de ellos.</p>`},
+    {id:'hermanos',title:'Los tres hermanos ingeniosos no se ponen celosos',meta:'Alejandra Erbiti · obra dramática · págs. 226–229',body:`
+      <p><i>En una casa, están reunidos el Padre y sus tres hijos. Están congelados, inmóviles, mientras habla el Juglar.</i></p>
+      <p><span class="speaker">Juglar:</span> ¡Atención! ¡Atención! Esta es la situación: en una casa como hay tantas, un padre habla cómodamente. Sus hijos oyen atentos, el resto... ¡el resto ya se los cuento!</p>
+      <p><span class="speaker">Padre:</span> Hijos míos, todo este tiempo os he criado y mantenido. Llegó el día de partir, porque, ahora, ya han crecido. ¡Vayan y encuentren fortuna! ¡Sin temor, echen a andar! ¡Y no olviden que su padre sueña verlos regresar!</p>
+      <p><span class="speaker">Juglar:</span> Cierta noche, los hermanos llegan al cruce de los caminos y deciden separarse en busca de sus destinos.</p>
+      <p><span class="speaker">Hombre 1:</span> ¡Salud, caminante! ¿Adónde viajas de noche? ¿Por qué no te echas a mirar la luna?</p>
+      <p><span class="speaker">Hijo 1:</span> Mi padre me dio una orden: “salir a buscar fortuna”.</p>
+      <p><span class="speaker">Hombre 1:</span> Yo puedo enseñarte un oficio que da muchos beneficios.</p>
+      <p><span class="speaker">Hijo 1:</span> ¿Cuál es esa profesión?</p>
+      <p><span class="speaker">Hombre 1:</span> Te enseñaré a ser ladrón.</p>
+      <p><span class="speaker">Hijo 1:</span> ¿Ladrón? ¡Eso es terrible! ¿Y si me atrapan? ¡Terminaré en prisión!</p>
+      <p><span class="speaker">Hombre 1:</span> Aprenderás a robar con tanta gracia que todo cuanto quieras caerá en tus manos como por arte de magia. ¡Nunca te atraparán, si yo soy tu profesor! Pues de todos los ladrones, no existe otro mejor.</p>
+      <p><span class="speaker">Hijo 1:</span> Entonces... ¡Acepto su oferta, señor!</p>
+      <p><span class="speaker">Hombre 2:</span> ¡Hey, muchacho! ¿Quieres conocer tu fortuna?</p>
+      <p><span class="speaker">Hijo 2:</span> Casualmente, ando buscando una.</p>
+      <p><span class="speaker">Hombre 2:</span> ¿Te gustaría aprender astrología?</p>
+      <p><span class="speaker">Hijo 2:</span> ¿Y eso de qué me serviría?</p>
+      <p><span class="speaker">Hombre 2:</span> ¡Es el mejor de los oficios! Te enseñaré a ver el futuro y nada escapará a tu ojo si aprendes a mirar a través de este cristal.</p>
+      <p><span class="speaker">Hijo 2:</span> ¡Me parece un oficio genial!</p>
+      <p><span class="speaker">Hombre 3:</span> ¿Adónde vas, forastero?</p>
+      <p><span class="speaker">Hijo 3:</span> Voy a aprender un oficio que me haga ganar dinero.</p>
+      <p><span class="speaker">Hombre 3:</span> ¿Te gustaría ser sastre?</p>
+      <p><span class="speaker">Hijo 3:</span> ¡No! ¡Para esas cosas soy un desastre!</p>
+      <p><span class="speaker">Hombre 3:</span> ¡Tonterías! Yo puedo enseñarte. Si eres buen aprendiz, te daré una aguja de mágica finura. Podrás zurcir cualquier cosa y nadie verá la costura.</p>
+      <p><span class="speaker">Juglar:</span> Y cuatro años pasaron y los hermanos cumplieron: aprendieron a hacer fortuna y a casa del padre volvieron.</p>
+      <p><span class="speaker">Padre:</span> ¡Cuéntenme! ¿Qué hicieron? ¿Han encontrado su propia fortuna?</p>
+      <p><span class="speaker">Hijo 1:</span> Un ladrón experto me enseñó a robar, pero yo no quería hacer eso. Como aprendí a mover las manos más rápido que la vista, para hacer mi fortuna me convertí en artista. ¡Soy un gran ilusionista!</p>
+      <p><span class="speaker">Hijo 2:</span> Mi estudio de astrología me resultó divertido. Mi maestro dijo que fui su aprendiz preferido. Me regaló este cristal, que sirve para observar. No me dedico a adivinar: veo todo lo que existe... ¡Me convertí en poeta! Las cosas que veo las cuento y me escuchan mis seguidores.</p>
+      <p><span class="speaker">Hijo 3:</span> Me convertí en sastre, el mejor que haya existido. Mi maestro me regaló una aguja maravillosa. Con ella puedo coser o remendar cualquier cosa. Pero los que más me hacen felices son mis preciosos tapices.</p>
+      <p><span class="speaker">Padre:</span> ¡Feliz estoy por ustedes! Todos, de alguna forma, supieron buscar fortuna.</p>`},
+    {id:'justicia',title:'Justicia Espada Acuña Mena',meta:'Biografía · pág. 234',body:`
+      <p><b>Justicia Espada Acuña Mena (1893–1980)</b></p>
+      <p>Destacada en una actividad especialmente masculina, Justicia fue la primera mujer chilena y sudamericana en estudiar la carrera de ingeniería civil.</p>
+      <p>Ingresó a la Universidad de Chile en 1913 y se tituló el año 1919, siendo la única estudiante mujer de la carrera.</p>
+      <p>En sus años como universitaria conoció a Alfredo Gajardo, compañero de carrera con quien se casó y tuvo siete hijos. Se desempeñó laboralmente en su área profesional, trabajando como <b>calculista</b> para la Empresa de los Ferrocarriles del Estado.</p>
+      <p>Desde 1981, Justicia ocupa un lugar en la “Galería de Ingenieros Ilustres” del Colegio de Ingenieros de Chile. El año 1991 se creó el Premio Justicia Acuña Mena, que reconoce a mujeres destacadas en este campo profesional.</p>
+      <p>La experiencia de Justicia es especialmente significativa, ya que manifiesta la irrupción de la mujer en el mundo profesional, <b>abriendo caminos</b> en espacios considerados, en ese entonces, solo para los hombres.</p>`},
+    {id:'gota',title:'La gota que faltaba',meta:'Florencia Esses · cuento · págs. 236–237',body:`
+      <p>Ya habían pasado demasiados días y demasiadas noches desde la última lluvia. Los árboles parecían tristes y las pocas flores que quedaban vivas se empezaron a marchitar. Entonces, el pueblo entero se reunió en la plaza y la mujer más anciana dijo:</p>
+      <p>—Sé cómo hacer para llenar nuestros ríos. Debemos elegir a una persona valiente, capaz de recorrer largas distancias sin detenerse, que soporte el frío y el calor.</p>
+      <p>Todas las miradas apuntaron hacia Fermín, el cartero del pueblo. La anciana le dijo:</p>
+      <p>—Lleva este jarrón hasta la cima de la montaña. Allá sabrás qué hacer.</p>
+      <p>Dentro del jarrón había solo una gota de agua. Fermín miró la gota con un poco de miedo. Él creía saber todo sobre paquetes, sobres y encomiendas, pero este encargo lo había sorprendido.</p>
+      <p>—¡Una gota! Fui capaz de llevar cartas grandes y chiquitas. Pero... una carta transparente y mojada, ¿cómo voy a hacer para que no se caiga? —se preguntaba. Este era el encargo más extraño de su vida como cartero.</p>
+      <p>El primer día caminó abrazado al jarrón, y al atardecer decidió parar hasta el día siguiente. Bajo la luz de la luna repetía la frase de la anciana: “Allá sabrás qué hacer”. Pero ¿cómo voy a darme cuenta si nadie me explica?</p>
+      <p>Fermín comió uno de los sándwiches que se había llevado, acomodó el jarrón en un pozo y se durmió. Al otro día, cuando se despertó, vio que el pozo estaba vacío.</p>
+      <p>—¡El jarrón! —gritó Fermín.</p>
+      <p>—¿Buscas esto? —le preguntó una tortuga que tenía el jarrón sobre su caparazón—. No te preocupes, soy una excelente equilibrista.</p>
+      <p>—¿Una tortuga equilibrista? —dijo Fermín con desconfianza.</p>
+      <p>—Sí, un poco lenta, pero de mi caparazón nunca se cayó nada. Soy capaz de transportar una nuez sin que toque el piso ni una vez.</p>
+      <p>Fermín le contó su misión a la tortuga y juntos caminaron todo el segundo día hasta que se hizo de noche. Después de compartir un sándwich de lechuga, se quedaron profundamente dormidos.</p>
+      <p>Con los primeros rayos del sol, Fermín abrió los ojos. Allí estaba el jarrón, pero no veía por ningún lado a su amiga equilibrista. A un lado encontró una carta en la que decía: “Fermín: discúlpame, pero me tuve que ir. Gracias a ti descubrí mi vocación. A partir de hoy, seré la ‘cartera del bosque’, y voy a llevar todo tipo de encomiendas en perfecto equilibrio sobre mi caparazón, al servicio de quien me necesite. Ojalá nos encontremos algún día”.</p>
+      <p>Fermín sonrió, guardó la carta en su bolsillo, y emprendió el último tramo del viaje. Tardó todo un día más en llegar. Ya le estaban empezando a doler los pies cuando vio la cima de la montaña y sintió que las nubes le acariciaban el pelo. Ahí, vio un lago que coronaba la montaña y entonces, tal como le había dicho la anciana, supo exactamente lo que tenía que hacer.</p>
+      <p>Se acercó a la orilla y volcó la gota en el agua del lago. Se escuchó un <b>PLOP</b> tan fuerte que provocó un trueno, que luego provocó una lluvia. El lago se desbordó y el agua empezó a rodar por la ladera. Los ríos se llenaron, los árboles dejaron de estar tristes y una flor creció en cada rincón.</p>
+      <p>Y así fue que Fermín se transformó en el héroe del pueblo por haber llevado al lago la gota que faltaba.</p>`}
+  ];
+  const readerMenu=document.getElementById('readerMenu'),readingArea=document.getElementById('readingArea');let currentReading='piratas';
+  function renderReading(){readerMenu.innerHTML='';readings.forEach(r=>{const b=document.createElement('button');b.className='reader-choice'+(r.id===currentReading?' active':'');b.type='button';b.textContent=r.title;b.addEventListener('click',()=>{currentReading=r.id;renderReading();renderReadQuiz(true)});readerMenu.appendChild(b)});const r=readings.find(x=>x.id===currentReading);readingArea.innerHTML=`<h3>${r.title}</h3><div class="meta">${r.meta}</div>${r.body}`}
+  renderReading();
 
+  const readQs={
+    tortuga:[['¿Qué aprendió la liebre?',['Que debía presumir más','Que debía respetar y no vanagloriarse','Que nunca debía correr'],'Que debía respetar y no vanagloriarse'],['¿Qué hizo la Capo-Tortuga cuando los animales se burlaron?',['Los hizo callar','Se fue','Se burló también'],'Los hizo callar']],
+    piratas:[['¿Cómo obtuvo Johnny el tesoro?',['Lo encontró en una cueva','Lo heredó del pirata Baldomero','Se lo regaló un dragón'],'Lo heredó del pirata Baldomero'],['¿Por qué Johnny dejó de sentirse feliz al esconder el tesoro?',['Porque temía que se lo robaran y no podía descansar','Porque no le gustaban las piedras preciosas','Porque perdió a su loro'],'Porque temía que se lo robaran y no podía descansar'],['¿Qué hicieron finalmente con el tesoro?',['Compraron un barco','Crearon un hogar para gatos abandonados','Lo enterraron'],'Crearon un hogar para gatos abandonados']],
+    hermanos:[['¿Qué les ordenó el padre a sus hijos?',['Buscar fortuna','Construir una casa','Quedarse con él'],'Buscar fortuna'],['¿En qué se convirtió el Hijo 1?',['Ladrón','Ilusionista','Astrólogo'],'Ilusionista'],['¿Qué aprendió el Hijo 3?',['Sastrería','Navegación','Poesía'],'Sastrería']],
+    justicia:[['¿Por qué se destaca a Justicia Acuña?',['Fue la primera mujer chilena y sudamericana en estudiar ingeniería civil','Fue cantante','Fue astronauta'],'Fue la primera mujer chilena y sudamericana en estudiar ingeniería civil'],['¿Dónde trabajó como calculista?',['En Ferrocarriles del Estado','En un hospital','En una escuela'],'En Ferrocarriles del Estado']],
+    gota:[['¿Qué problema enfrentaba el pueblo?',['Escasez de agua','Exceso de lluvia','Falta de caminos'],'Escasez de agua'],['¿Qué descubrió la tortuga gracias a Fermín?',['Su vocación como cartera del bosque','Un tesoro','Una cueva'],'Su vocación como cartera del bosque'],['¿Qué ocurrió cuando Fermín volcó la gota en el lago?',['Se produjo lluvia y el agua volvió al pueblo','El lago desapareció','La gota se evaporó'],'Se produjo lluvia y el agua volvió al pueblo']]
+  };
+  let rq=0,rc=0;
+  function renderReadQuiz(reset=false){if(reset){rq=0;rc=0}const data=readQs[currentReading],item=data[rq],q=document.getElementById('readQ'),opts=document.getElementById('readOptions'),fb=document.getElementById('readFeedback'),next=document.getElementById('readNext');q.textContent=`Comprensión · ${rq+1}/${data.length}: ${item[0]}`;opts.innerHTML='';fb.textContent='';next.classList.add('hidden');item[1].forEach(t=>{const b=document.createElement('button');b.className='option';b.textContent=t;b.type='button';b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ Muy bien. La respuesta está apoyada por el texto.';rc++;addScore(5);tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Vuelve al texto y busca la pista.';tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}
+  document.getElementById('readNext').addEventListener('click',()=>{const data=readQs[currentReading];rq++;if(rq>=data.length){document.getElementById('readQ').textContent=`Resultado: ${rc}/${data.length} correctas.`;document.getElementById('readOptions').innerHTML='';document.getElementById('readFeedback').textContent=rc>=Math.ceil(data.length*.67)?'🌟 Lectura comprendida. ¡Puedes probar otro texto!':'📖 Relee y vuelve a intentarlo.';document.getElementById('readNext').classList.add('hidden');if(rc>=Math.ceil(data.length*.67))markDone('reading');return}renderReadQuiz()});renderReadQuiz();
 
-        // --- STREAMING_CHUNK:Lógica Lección 2D ---
-        const shapeData2D = {
-            'triangulo': { name: 'Triángulo', lados: 3, vertices: 3, msg: "Tengo 3 lados y 3 vértices. ¡Cuéntalos!" },
-            'cuadrado': { name: 'Cuadrado', lados: 4, vertices: 4, msg: "Tengo 4 lados iguales y 4 vértices." },
-            'rectangulo': { name: 'Rectángulo', lados: 4, vertices: 4, msg: "Tengo 4 lados, dos largos y dos cortos. Y 4 vértices." },
-            'circulo': { name: 'Círculo', lados: 0, vertices: 0, msg: "Soy redondito, no tengo lados rectos ni vértices." }
-        };
+  const whoData=[
+    ['¿Quién recibió una herencia con oro, plata y piedras preciosas?',['Johnny el Rata','Fermín','Justicia Acuña'],'Johnny el Rata'],
+    ['¿Quién fue la primera mujer chilena y sudamericana en estudiar Ingeniería Civil?',['Justicia Acuña','Cordelia','Bruja Federica'],'Justicia Acuña'],
+    ['¿Quién llevó el jarrón hasta la cima de la montaña?',['Fermín','Hijo 1','Capo-Tortuga'],'Fermín'],
+    ['¿Quién enseñó que no está bien burlarse del que pierde?',['Capo-Tortuga','Liebre fanfarrona','Boquerón'],'Capo-Tortuga'],
+    ['¿Quién se convirtió en ilusionista aprovechando lo aprendido?',['Hijo 1','Hijo 2','Hijo 3'],'Hijo 1']
+  ];let wi=0,wc=0;
+  function renderWho(reset=false){if(reset){wi=0;wc=0}const item=whoData[wi],box=document.getElementById('whoChoices'),fb=document.getElementById('whoFeedback'),next=document.getElementById('whoNext');document.getElementById('whoRound').textContent=`Ronda ${wi+1}/${whoData.length}`;document.getElementById('whoQ').textContent=item[0];box.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ ¡Muy bien!';wc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...box.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Busca esa acción en la lectura.';sound('wrong')}next.classList.remove('hidden')});box.appendChild(b)})}
+  document.getElementById('whoNext').addEventListener('click',()=>{wi++;sound('click');if(wi>=whoData.length){document.getElementById('whoQ').textContent=`Resultado: ${wc}/${whoData.length}`;document.getElementById('whoChoices').innerHTML='';document.getElementById('whoFeedback').textContent=wc>=4?'📚 ¡Excelente memoria lectora!':'🔎 Relee las historias y vuelve a probar.';document.getElementById('whoNext').classList.add('hidden');if(wc>=4)markDone('who');return}renderWho()});
+  document.getElementById('whoReset').addEventListener('click',()=>{sound('reset');renderWho(true)});renderWho(true);
 
-        function exploreShape(shapeId) {
-            playPopSound();
-            const data = shapeData2D[shapeId];
-            playAudio(data.name + ". " + data.msg);
-            
-            // Animación visual de la figura
-            const poly = document.getElementById(`poly-${shapeId.substring(0,3)}`);
-            if(poly) {
-                poly.classList.add('active'); // resalta borde
-                setTimeout(() => poly.classList.remove('active'), 2000);
-            }
+  const dropSteps=[
+    {id:1,t:'El pueblo sufre una gran escasez de agua.'},
+    {id:2,t:'Fermín acepta llevar un jarrón hasta la cima de la montaña.'},
+    {id:3,t:'Descubre que en el jarrón queda solo una gota de agua.'},
+    {id:4,t:'Fermín conoce a una tortuga y la ayuda repartiendo cartas.'},
+    {id:5,t:'La tortuga se convierte en la “cartera del bosque” y Fermín sigue su viaje.'},
+    {id:6,t:'Fermín vuelca la gota en el lago y el agua vuelve al pueblo.'}
+  ];let dsi=1;
+  function renderDropSequence(){dsi=1;const box=document.getElementById('dropSequence'),fb=document.getElementById('dropSequenceFeedback');box.innerHTML='';fb.textContent='';shuffle(dropSteps).forEach(it=>{const b=document.createElement('button');b.type='button';b.className='sequence-card';b.textContent=it.t;b.addEventListener('click',()=>{if(b.classList.contains('done'))return;if(it.id===dsi){b.classList.add('done');b.disabled=true;dsi++;addScore(3);sound('correct');if(dsi===dropSteps.length+1){fb.textContent='🌧️ ¡Secuencia completa! Comprendiste cómo avanzan los hechos.';markDone('dropsequence')}}else{b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),350);fb.textContent='🤔 Ese hecho ocurre después. Busca qué pasó antes.';sound('wrong')}});box.appendChild(b)})}
+  document.getElementById('dropSequenceReset').addEventListener('click',()=>{sound('reset');renderDropSequence()});renderDropSequence();
 
-            // Mostrar vértices
-            const vertices = document.querySelectorAll(`.v-${shapeId.substring(0,3)}`);
-            vertices.forEach((v, index) => {
-                setTimeout(() => {
-                    v.classList.add('active');
-                    playTone(800 + (index*100), 'sine', 0.1, 0.05); // Sonidito por vértice
-                    setTimeout(() => v.classList.remove('active'), 1500);
-                }, index * 300); // Aparecen en secuencia
-            });
-        }
+  const orderItems=[
+    {id:1,t:'Dos amigos caminan juntos por el bosque.'},
+    {id:2,t:'Aparece un oso y uno de los amigos se asusta.'},
+    {id:3,t:'Uno finge estar muerto mientras el oso se acerca.'},
+    {id:4,t:'El amigo explica que aprendió a no confiar en quien abandona en el peligro.'}
+  ];let orderStep=1;
+  function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+  function renderOrder(){orderStep=1;const box=document.getElementById('comicOrder');box.innerHTML='';document.getElementById('comicFeedback').textContent='';shuffle(orderItems).forEach(it=>{const b=document.createElement('button');b.type='button';b.className='order-card';b.textContent=it.t;b.addEventListener('click',()=>{if(b.classList.contains('done'))return;if(it.id===orderStep){b.classList.add('done');b.disabled=true;orderStep++;tone(true);addScore(3);if(orderStep===5){document.getElementById('comicFeedback').textContent='✅ ¡Secuencia correcta! Una historieta se entiende porque las viñetas siguen un orden.';markDone('comic')}}else{b.classList.add('selected');setTimeout(()=>b.classList.remove('selected'),350);document.getElementById('comicFeedback').textContent='🤔 Ese no es el siguiente momento. Piensa qué ocurrió antes.';tone(false)}});box.appendChild(b)})}
+  document.getElementById('resetOrder').addEventListener('click',()=>{sound('reset');renderOrder()});renderOrder();
+  const comicParts=[
+    ['“¡Cuidado, un oso!” dentro de una burbuja','Globo de diálogo'],['“Dos amigos caminaban por el bosque” en una caja rectangular','Narrador'],['Un cuadro que muestra un momento de la historia','Viñeta'],['Una nube que muestra lo que un personaje piensa','Globo de pensamiento'],['Las palabras que dice directamente un personaje','Globo de diálogo']
+  ];let cpi=0,cpc=0;const comicPartOpts=['Viñeta','Globo de diálogo','Globo de pensamiento','Narrador'];
+  function renderComicPart(reset=false){if(reset){cpi=0;cpc=0}const item=comicParts[cpi],box=document.getElementById('comicPartChoices'),fb=document.getElementById('comicPartFeedback'),next=document.getElementById('comicPartNext');document.getElementById('comicPartRound').textContent=`Ronda ${cpi+1}/${comicParts.length}`;document.getElementById('comicPartPrompt').textContent=item[0];box.innerHTML='';fb.textContent='';next.classList.add('hidden');comicPartOpts.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[1]){b.classList.add('correct');fb.textContent='✅ ¡Identificado!';cpc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...box.children].find(x=>x.textContent===item[1])?.classList.add('correct');fb.textContent='❌ Observa la función de cada elemento.';sound('wrong')}next.classList.remove('hidden')});box.appendChild(b)})}
+  document.getElementById('comicPartNext').addEventListener('click',()=>{cpi++;sound('click');if(cpi>=comicParts.length){document.getElementById('comicPartPrompt').textContent=`Resultado: ${cpc}/${comicParts.length}`;document.getElementById('comicPartChoices').innerHTML='';document.getElementById('comicPartFeedback').textContent=cpc>=4?'🎉 ¡Ya reconoces los elementos del cómic!':'💬 Revisa viñeta, globos y narrador.';document.getElementById('comicPartNext').classList.add('hidden');if(cpc>=4)markDone('comicparts');return}renderComicPart()});
+  document.getElementById('comicPartReset').addEventListener('click',()=>{sound('reset');renderComicPart(true)});renderComicPart(true);
+  document.getElementById('buildComic').addEventListener('click',()=>{const sc=document.getElementById('comicScene').value,n=document.getElementById('comicNarrator').value.trim()||'Comienza la historia...',d=document.getElementById('comicDialog').value.trim()||'¡Hola!';sound('build');document.getElementById('comicOutput').classList.add('confetti');setTimeout(()=>document.getElementById('comicOutput').classList.remove('confetti'),400);document.getElementById('comicOutput').innerHTML=[1,2,3].map((x,i)=>`<div class="panel-comic"><div class="narrator-box">${i===0?n:(i===1?'La situación cambia...':'Finalmente...')}</div><div class="bubble">${i===0?d:(i===1?'¿Qué haremos ahora?':'¡Lo logramos!')}</div><div class="scene">${sc}</div></div>`).join('');addScore(5)});
 
-        // --- STREAMING_CHUNK:Lógica Lección 3D ---
-        function explore3D(name, description) {
-            playPopSound();
-            playAudio(description);
-            // La animación ya se maneja por CSS active/hover, pero podríamos añadir partículas o rotación en el futuro.
-        }
+  const pairs=[['rápido','veloz'],['feliz','contento'],['ocultar','esconder'],['gatos','mininos']];let first=null,lock=false,matched=0;
+  function renderMemory(){matched=0;first=null;lock=false;const cards=shuffle(pairs.flatMap((p,i)=>p.map(t=>({t,p:i}))));const g=document.getElementById('memoryGrid');g.innerHTML='';document.getElementById('memoryFeedback').textContent='';cards.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='memory-card';b.textContent='❓';b.dataset.word=c.t;b.dataset.pair=c.p;b.addEventListener('click',()=>{if(lock||b.classList.contains('matched')||b===first)return;b.classList.add('open');b.textContent=c.t;sound('flip');if(!first){first=b;return}if(first.dataset.pair===b.dataset.pair){first.classList.add('matched');b.classList.add('matched');matched++;first=null;addScore(4);tone(true);if(matched===pairs.length){document.getElementById('memoryFeedback').textContent='🌟 ¡Memorama completo!';markDone('memory')}}else{lock=true;tone(false);setTimeout(()=>{first.classList.remove('open');first.textContent='❓';b.classList.remove('open');b.textContent='❓';first=null;lock=false},650)}});g.appendChild(b)})}
+  document.getElementById('resetMemory').addEventListener('click',()=>{sound('reset');renderMemory()});renderMemory();
 
+  const skillQs=[
+    ['“¿Cómo obtuvo Johnny su tesoro?” ¿Qué habilidad usas si la respuesta aparece explícita?','Localizar'],
+    ['“¿Por qué Johnny dejó de ser feliz?” exige explicar una causa a partir de lo leído.','Interpretar'],
+    ['“¿Cómo crees que se sintió Fermín al no ver el jarrón?” requiere concluir usando pistas.','Inferir'],
+    ['“¿Qué opinas de la decisión del Hijo 1?” requiere dar una valoración fundamentada.','Opinar']
+  ];let si=0;
+  function renderSkill(){const item=skillQs[si],q=document.getElementById('skillQ'),opts=document.getElementById('skillOptions'),fb=document.getElementById('skillFeedback'),next=document.getElementById('skillNext');q.textContent=item[0];opts.innerHTML='';fb.textContent='';next.classList.add('hidden');['Localizar','Interpretar','Inferir','Opinar'].forEach(t=>{const b=document.createElement('button');b.type='button';b.className='option';b.textContent=t;b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[1]){b.classList.add('correct');fb.textContent='✅ Correcto.';addScore(4);tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[1])?.classList.add('correct');fb.textContent='❌ Revisa la pista de la pregunta.';tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}
+  document.getElementById('skillNext').addEventListener('click',()=>{si++;if(si>=skillQs.length){si=0;markDone('skills')}renderSkill()});renderSkill();
 
-        // --- STREAMING_CHUNK:Lógica Minijuego 1: Caza de Figuras ---
-        // Genera un escenario SVG aleatorio
-        let huntTargetShape = '';
-        let huntTotalFound = 0;
-        let huntTotalTarget = 0;
+  const contextData=[
+    ['La liebre era muy rápida. ¿Qué palabra puede reemplazar “rápida” sin cambiar el sentido?',['veloz','lenta','sucia'],'veloz'],
+    ['El baúl estaba lleno. ¿Qué palabra expresa lo contrario de “lleno”?',['vacío','enorme','cerrado'],'vacío'],
+    ['Johnny quiso esconder el tesoro. ¿Qué palabra significa algo parecido a “esconder”?',['ocultar','mostrar','regalar'],'ocultar'],
+    ['Los gatos estaban limpios. ¿Qué palabra expresa lo contrario?',['sucios','felices','pequeños'],'sucios'],
+    ['Fermín estaba contento al ayudar. ¿Qué palabra mantiene el sentido?',['feliz','triste','enojado'],'feliz']
+  ];let cxi=0,cxc=0;
+  function renderContext(reset=false){if(reset){cxi=0;cxc=0}const item=contextData[cxi],box=document.getElementById('contextChoices'),fb=document.getElementById('contextFeedback'),next=document.getElementById('contextNext');document.getElementById('contextRound').textContent=`Ronda ${cxi+1}/${contextData.length}`;document.getElementById('contextQ').textContent=item[0];box.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ ¡La oración mantiene el sentido correcto!';cxc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...box.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Lee la oración completa y prueba el significado.';sound('wrong')}next.classList.remove('hidden')});box.appendChild(b)})}
+  document.getElementById('contextNext').addEventListener('click',()=>{cxi++;sound('click');if(cxi>=contextData.length){document.getElementById('contextQ').textContent=`Resultado: ${cxc}/${contextData.length}`;document.getElementById('contextChoices').innerHTML='';document.getElementById('contextFeedback').textContent=cxc>=4?'🎯 ¡Excelente uso de palabras en contexto!':'📘 Repasa sinónimos y antónimos.';document.getElementById('contextNext').classList.add('hidden');if(cxc>=4)markDone('context');return}renderContext()});
+  document.getElementById('contextReset').addEventListener('click',()=>{sound('reset');renderContext(true)});renderContext(true);
 
-        const huntShapes = [
-            { type: 'circulo', color: '#f59e0b', tag: '<circle cx="{x}" cy="{y}" r="{size}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="circulo" />', w:1, h:1 },
-            { type: 'cuadrado', color: '#ef4444', tag: '<rect x="{x}" y="{y}" width="{size}" height="{size}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="cuadrado" />', w:1, h:1 },
-            { type: 'triangulo', color: '#3b82f6', tag: '<polygon points="{x},{y_top} {x_right},{y_bottom} {x_left},{y_bottom}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="triangulo" />', w:1, h:1 },
-            { type: 'rectangulo', color: '#10b981', tag: '<rect x="{x}" y="{y}" width="{size2}" height="{size}" fill="{color}" class="hunt-item shape-interactive cursor-pointer" data-type="rectangulo" />', w:2, h:1 }
-        ];
-
-        function initHuntGame() {
-            mainTitle.innerText = "Caza de Figuras";
-            const canvas = document.getElementById('hunt-canvas');
-            canvas.innerHTML = '';
-            huntTotalFound = 0;
-            
-            // Elegir objetivo al azar
-            const targetDef = huntShapes[Math.floor(Math.random() * huntShapes.length)];
-            huntTargetShape = targetDef.type;
-            
-            // Tipos para el prompt
-            const pluralNames = { 'circulo': 'CÍRCULOS', 'cuadrado': 'CUADRADOS', 'triangulo': 'TRIÁNGULOS', 'rectangulo': 'RECTÁNGULOS' };
-            const instText = `Toca todos los ${pluralNames[huntTargetShape]}`;
-            document.getElementById('hunt-instruction').innerText = instText;
-            playAudio(instText);
-
-            huntTotalTarget = 0;
-            let svgContent = '';
-
-            // Generar figuras aleatorias asegurando que haya del tipo objetivo
-            for(let i=0; i<15; i++) {
-                let shapeDef = huntShapes[Math.floor(Math.random() * huntShapes.length)];
-                
-                // Forzar al menos 3-5 del objetivo
-                if(i < 4) shapeDef = targetDef;
-                
-                if(shapeDef.type === huntTargetShape) huntTotalTarget++;
-
-                const x = 20 + Math.random() * 320;
-                const y = 20 + Math.random() * 320;
-                const size = 30 + Math.random() * 30; // Radio o lado base
-                
-                let svgStr = shapeDef.tag.replace('{color}', shapeDef.color);
-                
-                if(shapeDef.type === 'circulo') {
-                    svgStr = svgStr.replace('{x}', x+size).replace('{y}', y+size).replace('{size}', size/1.5);
-                } else if(shapeDef.type === 'cuadrado') {
-                    svgStr = svgStr.replace('{x}', x).replace('{y}', y).replace(/\{size\}/g, size);
-                } else if(shapeDef.type === 'rectangulo') {
-                    svgStr = svgStr.replace('{x}', x).replace('{y}', y).replace('{size2}', size*1.5).replace('{size}', size*0.8);
-                } else if(shapeDef.type === 'triangulo') {
-                    svgStr = svgStr.replace('{x}', x+(size/2)).replace('{y_top}', y).replace('{x_right}', x+size).replace(/\{y_bottom\}/g, y+size).replace('{x_left}', x);
-                }
-                
-                svgContent += svgStr;
-            }
-            
-            canvas.innerHTML = svgContent;
-            updateHuntCounter();
-
-            // Agregar Listeners
-            const items = document.querySelectorAll('.hunt-item');
-            items.forEach(item => {
-                // Rotación aleatoria inicial para variedad
-                const rot = Math.random() * 360;
-                // Necesitamos envolver o aplicar transform origin, simplifiquemos dejándolas derechas para 1ro básico.
-                
-                item.addEventListener('click', function() {
-                    const type = this.getAttribute('data-type');
-                    if(this.classList.contains('found')) return;
-
-                    if(type === huntTargetShape) {
-                        playPopSound();
-                        this.classList.add('found');
-                        this.setAttribute('opacity', '0.3');
-                        this.setAttribute('stroke', 'black');
-                        this.setAttribute('stroke-width', '4');
-                        this.setAttribute('stroke-dasharray', '5,5');
-                        
-                        // Estrella animada sobre la figura
-                        const bbox = this.getBBox();
-                        const cx = bbox.x + bbox.width/2;
-                        const cy = bbox.y + bbox.height/2;
-                        const star = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                        star.setAttribute('x', cx - 15);
-                        star.setAttribute('y', cy + 10);
-                        star.setAttribute('font-size', '30');
-                        star.textContent = '⭐';
-                        star.style.animation = "float 1s ease-out";
-                        canvas.appendChild(star);
-
-                        huntTotalFound++;
-                        updateHuntCounter();
-                        
-                        if(huntTotalFound === huntTotalTarget) {
-                            setTimeout(() => showSuccess(() => initHuntGame()), 500);
-                        }
-                    } else {
-                        playErrorSound();
-                        this.classList.add('animate-shake');
-                        setTimeout(() => this.classList.remove('animate-shake'), 400);
-                    }
-                });
-            });
-        }
-
-        function updateHuntCounter() {
-            document.getElementById('hunt-counter').innerText = `${huntTotalFound}/${huntTotalTarget}`;
-        }
-
-
-        // --- STREAMING_CHUNK:Lógica Minijuego 2: Sorter ---
-        const sorterLevels = [
-            { emoji: '🧊', answer: 'Cubo', audio: 'Un cubo de hielo. ¿A qué cuerpo se parece?' },
-            { emoji: '🥫', answer: 'Cilindro', audio: 'Una lata de sopa. ¿A qué cuerpo se parece?' },
-            { emoji: '⛺', answer: 'Prisma/Pirámide', displayObj: 'Carpa', answer: 'Pirámide', audio: 'Una carpa de campamento. ¿A qué cuerpo se parece?' }, // Simplificado
-            { emoji: '⚽', answer: 'Esfera', audio: 'Una pelota. ¿A qué cuerpo se parece?' },
-            { emoji: '🎲', answer: 'Cubo', audio: 'Un dado. ¿A qué cuerpo se parece?' },
-            { emoji: '🎉', answer: 'Cono', audio: 'Un gorro de fiesta. ¿A qué cuerpo se parece?' },
-            { emoji: '📦', answer: 'Paralelepípedo', audio: 'Una caja de cartón larga. ¿A qué cuerpo se parece?' }
-        ];
-        const all3DShapes = ['Cubo', 'Cilindro', 'Esfera', 'Cono', 'Paralelepípedo', 'Pirámide'];
-        let currentSorterLevel = 0;
-
-        function startSorterGame() {
-            mainTitle.innerText = "Clasificador";
-            // Shuffle levels
-            sorterLevels.sort(() => Math.random() - 0.5);
-            currentSorterLevel = 0;
-            loadSorterLevel();
-        }
-
-        function loadSorterLevel() {
-            if(currentSorterLevel >= sorterLevels.length) {
-                // Fin del juego
-                showSuccess(() => nav('game-menu'));
-                playAudio("¡Terminaste todas las clasificaciones! Eres un genio.");
-                return;
-            }
-
-            const levelData = sorterLevels[currentSorterLevel];
-            
-            // Animar entrada del objeto
-            const objContainer = document.getElementById('sorter-object');
-            objContainer.innerText = levelData.emoji;
-            objContainer.classList.remove('animate-float');
-            void objContainer.offsetWidth; // trigger reflow
-            objContainer.style.transform = "scale(0)";
-            setTimeout(() => objContainer.style.transform = "scale(1)", 50);
-            objContainer.classList.add('transition-transform', 'duration-500', 'ease-out');
-            setTimeout(() => objContainer.classList.add('animate-float'), 500);
-
-            playAudio(levelData.audio);
-
-            // Generar opciones (Respuesta correcta + 3 aleatorias)
-            let options = [levelData.answer];
-            while(options.length < 4) {
-                const randomShape = all3DShapes[Math.floor(Math.random() * all3DShapes.length)];
-                if(!options.includes(randomShape)) options.push(randomShape);
-            }
-            options.sort(() => Math.random() - 0.5); // Mezclar
-
-            const optionsContainer = document.getElementById('sorter-options');
-            optionsContainer.innerHTML = '';
-            
-            // Mapeo simple de nombres a pequeños SVGs/emojis decorativos para los botones
-            const shapeIcons = { 'Cubo': '🧊', 'Cilindro': '🛢️', 'Esfera': '🔴', 'Cono': '🔺', 'Paralelepípedo': '🧱', 'Pirámide': '⛺' };
-
-            options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "bg-white border-b-4 border-gray-300 p-4 rounded-2xl shadow-sm text-lg sm:text-xl font-bold text-gray-700 hover:bg-pink-50 hover:border-pink-300 active:scale-95 transition-all flex flex-col items-center justify-center gap-2";
-                btn.innerHTML = `<span class="text-3xl">${shapeIcons[opt] || '🟦'}</span> <span>${opt}</span>`;
-                
-                btn.onclick = () => {
-                    if(opt === levelData.answer) {
-                        playSuccessSound();
-                        btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
-                        btn.innerHTML += '<span class="absolute top-2 right-2 text-2xl animate-bounce">✅</span>';
-                        setTimeout(() => {
-                            currentSorterLevel++;
-                            loadSorterLevel();
-                        }, 1000);
-                    } else {
-                        playErrorSound();
-                        btn.classList.add('bg-red-50', 'border-red-300', 'animate-shake');
-                        setTimeout(() => btn.classList.remove('bg-red-50', 'border-red-300', 'animate-shake'), 400);
-                    }
-                };
-                optionsContainer.appendChild(btn);
-            });
-        }
-
-
-        // --- STREAMING_CHUNK:Lógica Minijuego 3: Fábrica de Huellas ---
-        const stampLevels = [
-            { 
-                shape3D: 'Cilindro', 
-                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><ellipse cx="50" cy="20" rx="40" ry="15" fill="#93c5fd"/><path d="M10 20 L10 90 A40 15 0 0 0 90 90 L90 20 Z" fill="#3b82f6"/><ellipse cx="50" cy="90" rx="40" ry="15" fill="#1d4ed8"/></svg>', 
-                answer2D: 'circulo' 
-            },
-            { 
-                shape3D: 'Cubo', 
-                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><polygon points="50,10 90,30 50,50 10,30" fill="#fca5a5"/><polygon points="10,30 50,50 50,90 10,70" fill="#ef4444"/><polygon points="90,30 50,50 50,90 90,70" fill="#b91c1c"/></svg>', 
-                answer2D: 'cuadrado' 
-            },
-            { 
-                shape3D: 'Cono', 
-                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><path d="M50 10 L10 90 Q50 110 90 90 Z" fill="#10b981"/><ellipse cx="50" cy="90" rx="40" ry="10" fill="#047857"/></svg>', 
-                answer2D: 'circulo' 
-            },
-            { 
-                shape3D: 'Pirámide de base cuadrada', 
-                svg: '<svg width="100" height="120" viewBox="0 0 100 120"><polygon points="50,10 20,90 80,90" fill="#fbbf24"/><polygon points="50,10 80,90 95,70" fill="#d97706"/></svg>', 
-                answer2D: 'cuadrado' 
-            },
-            { 
-                shape3D: 'Paralelepípedo', 
-                svg: '<svg width="120" height="100" viewBox="0 0 120 100"><polygon points="40,10 110,10 90,30 20,30" fill="#c4b5fd"/><polygon points="20,30 90,30 90,80 20,80" fill="#8b5cf6"/><polygon points="90,30 110,10 110,60 90,80" fill="#7c3aed"/></svg>', 
-                answer2D: 'rectangulo' 
-            }
-        ];
-        let currentStampLevel = 0;
-
-        function startStampGame() {
-            mainTitle.innerText = "Huellas";
-            stampLevels.sort(() => Math.random() - 0.5);
-            currentStampLevel = 0;
-            loadStampLevel();
-        }
-
-        function loadStampLevel() {
-            if(currentStampLevel >= stampLevels.length) {
-                showSuccess(() => nav('game-menu'));
-                playAudio("¡Pintaste todas las huellas! Eres un artista de las matemáticas.");
-                return;
-            }
-
-            const levelData = stampLevels[currentStampLevel];
-            
-            const container = document.getElementById('stamp-3d-container');
-            container.innerHTML = levelData.svg;
-            
-            const q = `Si apoyas este ${levelData.shape3D} en pintura y lo pones en el papel... ¿Qué figura dejará marcada?`;
-            // Reducir texto visual, mantener audio completo
-            document.getElementById('stamp-question').innerText = `¿Qué huella deja el ${levelData.shape3D}?`;
-            playAudio(q);
-
-            // Resetea botones
-            document.querySelectorAll('.stamp-option').forEach(btn => {
-                btn.className = "stamp-option bg-white p-4 rounded-xl shadow-md border-b-4 border-gray-300 hover:bg-blue-50 active:scale-95 transition-all cursor-pointer";
-                
-                // Limpiar eventos anteriores (clonando el nodo es la forma más limpia)
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-                
-                newBtn.addEventListener('click', function() {
-                    const selected = this.getAttribute('data-shape');
-                    if(selected === levelData.answer2D) {
-                        playSuccessSound();
-                        this.classList.add('bg-green-100', 'border-green-500', 'scale-110');
-                        
-                        // Pequeña animación: Mostrar la huella debajo del 3D
-                        const stampVisual = document.createElement('div');
-                        stampVisual.innerHTML = this.innerHTML; // Copia el SVG del botón
-                        stampVisual.className = "absolute bottom-[-20px] left-1/2 transform -translate-x-1/2 opacity-0 -z-10";
-                        stampVisual.style.filter = "grayscale(1) brightness(0.5)"; // Color de "sombra"
-                        container.style.position = "relative";
-                        container.appendChild(stampVisual);
-                        
-                        // Animar estampa
-                        container.style.transform = "translateY(20px)";
-                        setTimeout(() => {
-                            container.style.transform = "translateY(0)";
-                            stampVisual.style.opacity = "1";
-                            stampVisual.style.bottom = "-40px";
-                        }, 200);
-
-                        setTimeout(() => {
-                            currentStampLevel++;
-                            loadStampLevel();
-                        }, 1500);
-                    } else {
-                        playErrorSound();
-                        this.classList.add('bg-red-50', 'border-red-300', 'animate-shake');
-                        setTimeout(() => this.classList.remove('bg-red-50', 'border-red-300', 'animate-shake'), 400);
-                    }
-                });
-            });
-        }
-
-
-        // --- STREAMING_CHUNK:Utilidades Globales (Confetti y Overlay) ---
-        function showSuccess(nextCallback) {
-            playSuccessSound();
-            fireConfetti();
-            const overlay = document.getElementById('success-overlay');
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-            
-            const btnNext = document.getElementById('btn-next');
-            btnNext.onclick = () => {
-                overlay.classList.add('hidden');
-                overlay.classList.remove('flex');
-                if(nextCallback) nextCallback();
-            };
-        }
-
-        // Sistema de Confetti Simple en Canvas 2D
-        function fireConfetti() {
-            const canvas = document.getElementById('confetti-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            const pieces = [];
-            const colors = ['#fde047', '#3b82f6', '#ef4444', '#10b981', '#a855f7', '#f97316'];
-            
-            for(let i=0; i<100; i++) {
-                pieces.push({
-                    x: canvas.width / 2,
-                    y: canvas.height / 2 + (Math.random() * 100),
-                    vx: (Math.random() - 0.5) * 20,
-                    vy: (Math.random() - 1) * 20 - 5,
-                    size: Math.random() * 10 + 5,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    rot: Math.random() * 360,
-                    rotSpeed: (Math.random() - 0.5) * 10
-                });
-            }
-
-            let animationId;
-            function render() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                let active = false;
-                
-                pieces.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.5; // Gravedad
-                    p.rot += p.rotSpeed;
-                    
-                    if(p.y < canvas.height) active = true;
-                    
-                    ctx.save();
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.rot * Math.PI / 180);
-                    ctx.fillStyle = p.color;
-                    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
-                    ctx.restore();
-                });
-                
-                if(active) animationId = requestAnimationFrame(render);
-                else ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-            render();
-        }
-
-    </script>
+  const finalData=[
+    ['Sinónimo de “veloz”',['rápido','lento','vacío'],'rápido'],['Antónimo de “limpio”',['sucio','claro','ordenado'],'sucio'],
+    ['En una historieta, cada cuadro ilustrado se llama…',['párrafo','viñeta','capítulo'],'viñeta'],['¿Para qué sirve un globo de diálogo?',['Para mostrar lo que dice un personaje','Para poner el título','Para numerar páginas'],'Para mostrar lo que dice un personaje'],
+    ['Johnny el Rata recibió su tesoro por…',['herencia','una carrera','un concurso'],'herencia'],['¿Qué hizo Johnny con el tesoro al final?',['Lo compartió para crear un hogar de gatos','Lo perdió','Lo vendió'],'Lo compartió para crear un hogar de gatos'],
+    ['El problema inicial de “La gota que faltaba” es…',['la escasez de agua','un exceso de nieve','un barco perdido'],'la escasez de agua'],['La tortuga descubre su vocación de…',['cartera del bosque','pirata','ingeniera'],'cartera del bosque'],
+    ['Justicia Acuña se destacó por estudiar…',['ingeniería civil','medicina','música'],'ingeniería civil'],['El Hijo 1 transformó lo aprendido y se convirtió en…',['ilusionista','ladrón','marinero'],'ilusionista']
+  ];let fi=0,fc=0;
+  function renderFinal(){const item=finalData[fi],q=document.getElementById('finalQ'),opts=document.getElementById('finalOptions'),fb=document.getElementById('finalFeedback'),next=document.getElementById('finalNext');document.getElementById('finalResult').classList.add('hidden');document.querySelector('#final .exercise').classList.remove('hidden');q.textContent=`${fi+1}/10 · ${item[0]}`;opts.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='option';b.textContent=t;b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fc++;addScore(5);fb.textContent='✅ Correcto';tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Revisa el contenido';tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}
+  function finishFinal(){document.querySelector('#final .exercise').classList.add('hidden');const r=document.getElementById('finalResult');r.classList.remove('hidden');const pass=fc>=8;document.getElementById('finalStars').textContent=fc===10?'⭐⭐⭐':fc>=8?'⭐⭐⭐':fc>=6?'⭐⭐':'⭐';document.getElementById('finalTitle').textContent=pass?'¡Misión cumplida!':'¡Buen intento!';document.getElementById('finalText').textContent=`Obtuviste ${fc} de 10 respuestas correctas. `+(pass?'Dominaste los contenidos principales de la unidad.':'Repasa sinónimos, antónimos, cómic y vuelve a leer los textos.');document.getElementById('finalBadge').textContent=pass?'🏅 Explorador/a del Lenguaje':'📘 En entrenamiento';if(pass)markDone('final')}
+  document.getElementById('finalNext').addEventListener('click',()=>{fi++;if(fi>=finalData.length){finishFinal();return}renderFinal()});document.getElementById('restartFinal').addEventListener('click',()=>{sound('reset');fi=0;fc=0;renderFinal()});renderFinal();
+  updateProgress();
+})();
+</script>
 </body>
 </html>
