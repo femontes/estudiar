@@ -1,471 +1,56 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Misión Lenguaje · 4° Básico</title>
-  <style>
-    :root{
-      --bg:#f6fbff;--ink:#17324d;--muted:#5c7085;--card:#ffffff;--line:#dbe8f4;
-      --blue:#2d7ff9;--cyan:#28b8d8;--yellow:#ffd45b;--orange:#ff9b54;--pink:#ff76a6;
-      --green:#39b980;--purple:#7d67e8;--red:#e95363;--shadow:0 14px 36px rgba(44,78,110,.12)
-    }
-    *{box-sizing:border-box} html{scroll-behavior:smooth}
-    body{margin:0;font-family:Inter,ui-rounded,"Segoe UI",Arial,sans-serif;background:
-      radial-gradient(circle at 10% 0%,#e2f8ff 0,transparent 30%),
-      radial-gradient(circle at 100% 20%,#fff1d5 0,transparent 28%),var(--bg);color:var(--ink)}
-    button,input,textarea,select{font:inherit}
-    button{cursor:pointer}
-    .shell{max-width:1180px;margin:auto;padding:20px}
-    .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#2379ef,#6557dc);color:white;border-radius:28px;padding:28px;box-shadow:var(--shadow)}
-    .hero:after{content:"";position:absolute;right:-55px;top:-65px;width:240px;height:240px;border:34px solid rgba(255,255,255,.12);border-radius:50%}
-    .hero-grid{display:grid;grid-template-columns:1.6fr .7fr;gap:20px;align-items:center}
-    .eyebrow{font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.78rem;opacity:.86}
-    h1{font-size:clamp(2rem,5vw,4rem);line-height:.98;margin:.35rem 0 .75rem;max-width:750px}
-    .hero p{font-size:1.08rem;line-height:1.6;max-width:760px;margin:0}
-    .mascot{font-size:7rem;text-align:center;filter:drop-shadow(0 12px 8px rgba(0,0,0,.16));animation:float 3.5s ease-in-out infinite}
-    @keyframes float{50%{transform:translateY(-10px) rotate(2deg)}}
-    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
-    .pill{border:0;border-radius:999px;padding:10px 14px;background:rgba(255,255,255,.14);color:white;font-weight:800;backdrop-filter:blur(6px)}
-    .pill.active,.pill:hover{background:white;color:#3352b7}
-    .progress-wrap{margin-top:16px;background:rgba(255,255,255,.22);height:12px;border-radius:999px;overflow:hidden}
-    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--yellow),#fff);transition:.35s width}
-    .scoreline{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-weight:800;font-size:.92rem}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:18px}
-    .panel{grid-column:span 12;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:var(--shadow)}
-    .panel h2{margin:0 0 8px;font-size:1.65rem}.panel h3{margin-top:0}
-    .lead{color:var(--muted);line-height:1.6;margin-top:0}
-    .section{display:none}.section.active{display:block;animation:fade .25s ease}.section.parrotized{position:relative;overflow:hidden;padding-top:92px}
-    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .mini{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fbfdff}
-    .mini .icon{font-size:2rem}.mini strong{display:block;margin:8px 0 4px}.mini p{margin:0;color:var(--muted);line-height:1.45}
-    .callout{border-left:6px solid var(--blue);background:#edf6ff;border-radius:16px;padding:16px 18px;line-height:1.6;margin:16px 0}
-    .callout.yellow{border-color:#f1b900;background:#fff8df}.callout.green{border-color:var(--green);background:#ebfbf4}.callout.pink{border-color:var(--pink);background:#fff0f6}
-    .example-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:10px 0}
-    .word{padding:14px 16px;border-radius:16px;text-align:center;font-weight:900;background:#eef5ff;border:2px solid #d8e8ff}
-    .arrow{font-weight:900;color:var(--muted)}
-    .exercise{border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:16px;background:#fff}
-    .question{font-weight:850;margin-bottom:12px;line-height:1.45}
-    .options{display:grid;gap:10px}.option{border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;text-align:left;color:var(--ink);font-weight:750;transition:.18s}
-    .option:hover{border-color:#afcdec;transform:translateY(-1px)}.option.correct{border-color:var(--green);background:#e9fbf3}.option.wrong{border-color:var(--red);background:#fff0f2}
-    .feedback{min-height:24px;margin-top:10px;font-weight:800}
-    .btn{border:0;border-radius:14px;padding:12px 16px;font-weight:850;background:var(--blue);color:white;box-shadow:0 8px 18px rgba(45,127,249,.2)}
-    .btn.secondary{background:#eef4fb;color:var(--ink);box-shadow:none;border:1px solid var(--line)}
-    .btn.green{background:var(--green)}.btn.orange{background:var(--orange)}.btn.purple{background:var(--purple)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    .reader-layout{display:grid;grid-template-columns:300px 1fr;gap:18px}
-    .reader-menu{display:grid;gap:10px;align-content:start}.reader-choice{padding:12px;border-radius:14px;border:1px solid var(--line);background:#fff;text-align:left;font-weight:800;color:var(--ink)}
-    .reader-choice.active{border-color:var(--purple);background:#f2efff;color:#4d3db3}
-    .reading{background:#fffdf7;border:1px solid #f1e6c9;border-radius:20px;padding:22px;line-height:1.72;max-height:670px;overflow:auto}
-    .reading h3{font-size:1.5rem;margin-bottom:4px}.reading .meta{color:#8b7855;font-weight:750;margin-bottom:16px}.reading p{margin:.7em 0}.reading .speaker{font-weight:900;color:#5a3e82}
-    .comic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.panel-comic{border:3px solid #17283c;border-radius:12px;padding:14px;background:#fff;min-height:150px;position:relative;overflow:hidden}
-    .panel-comic .scene{font-size:3.2rem;text-align:center;margin-top:22px}.bubble{display:inline-block;background:white;border:2px solid #17283c;border-radius:24px;padding:8px 12px;position:relative;font-weight:800;max-width:80%}.narrator-box{background:#fff0a8;border:2px solid #6e5f1d;padding:7px 10px;font-weight:800;margin-bottom:8px}
-    .order-list{display:grid;gap:10px}.order-card{border:2px solid var(--line);border-radius:14px;padding:12px;background:#fff;text-align:left;font-weight:750}.order-card.selected{border-color:var(--orange);background:#fff5ec}.order-card.done{border-color:var(--green);background:#eefcf6}
-    .memory{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.memory-card{min-height:74px;border:0;border-radius:14px;background:#273c5a;color:white;font-weight:900;padding:10px;transition:.2s;box-shadow:0 6px 12px rgba(0,0,0,.08)}.memory-card.open,.memory-card.matched{background:#fff;color:var(--ink);border:2px solid var(--line)}.memory-card.matched{border-color:var(--green);background:#edfbf5}
-    .builder{display:grid;grid-template-columns:1fr 1fr;gap:18px}.field{display:grid;gap:6px;margin-bottom:12px}.field label{font-weight:850}.field input,.field textarea,.field select{width:100%;border:2px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;color:var(--ink)}.field textarea{min-height:88px;resize:vertical}
-    .builder-output{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.builder-output .panel-comic{min-height:190px}
-    .final-box{background:linear-gradient(135deg,#fff9d6,#eaf8ff);border:2px dashed #9fc1db;border-radius:22px;padding:20px;text-align:center}
-    .stars{font-size:2rem;letter-spacing:4px}.badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:900}
-    .hidden{display:none!important}.small{font-size:.9rem;color:var(--muted)}
-    .topic-map{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}.topic{padding:18px 82px 18px 18px;border-radius:18px;color:white;font-weight:900;min-height:108px;display:flex;align-items:flex-end;position:relative;overflow:hidden;isolation:isolate}.topic:before{position:absolute;right:14px;top:12px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:2.1rem;line-height:1;opacity:.22;pointer-events:none;z-index:0}.topic>*{position:relative;z-index:1}.topic:nth-child(1){background:linear-gradient(135deg,#2d7ff9,#23b5d3)}.topic:nth-child(1):before{content:"🔁"}.topic:nth-child(2){background:linear-gradient(135deg,#ff8a54,#ffb14e)}.topic:nth-child(2):before{content:"↔️"}.topic:nth-child(3){background:linear-gradient(135deg,#7d67e8,#ad69d8)}.topic:nth-child(3):before{content:"💬"}.topic:nth-child(4){background:linear-gradient(135deg,#39b980,#64c97a)}.topic:nth-child(4):before{content:"📚"}
-    .parrot-buddy{position:absolute;top:16px;right:18px;display:flex;align-items:flex-start;justify-content:flex-end;min-width:145px;min-height:84px;pointer-events:none;z-index:3}.parrot-float{position:absolute;right:0;top:0;width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,247,255,.8));border:1px solid rgba(215,231,247,.95);box-shadow:0 12px 24px rgba(29,63,93,.14);animation:parrotDrift 4.2s ease-in-out infinite}.parrot-emoji{font-size:2.55rem;line-height:1;filter:drop-shadow(0 5px 4px rgba(0,0,0,.12));transform-origin:50% 72%;animation:parrotBob 1.8s ease-in-out infinite}.parrot-spark{position:absolute;right:-2px;top:-6px;font-size:1rem;animation:twinkle 1.7s ease-in-out infinite}.feather-cluster{position:absolute;inset:0}.feather{position:absolute;width:15px;height:31px;border-radius:75% 0 75% 75%;transform-origin:center bottom;opacity:.82;box-shadow:0 4px 10px rgba(24,54,84,.12);animation:featherFloat 4.6s ease-in-out infinite}.feather:after{content:"";position:absolute;left:6px;top:3px;bottom:4px;width:2px;background:rgba(255,255,255,.72);border-radius:999px}.feather.f1{right:90px;top:50px;transform:rotate(-28deg);background:linear-gradient(180deg,#4ad7e1,#2d7ff9);animation-delay:.1s}.feather.f2{right:118px;top:26px;transform:rotate(18deg);background:linear-gradient(180deg,#ffd45b,#ff9b54);animation-delay:.6s}.feather.f3{right:58px;top:66px;transform:rotate(30deg);background:linear-gradient(180deg,#7d67e8,#ad69d8);animation-delay:1.2s}.feather.f4{right:136px;top:62px;width:13px;height:27px;transform:rotate(-8deg);background:linear-gradient(180deg,#39b980,#8be0a5);animation-delay:1.6s}@keyframes parrotDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(-10px,5px)}}@keyframes parrotBob{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(6deg) translateY(-6px)}}@keyframes featherFloat{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-7px) rotate(calc(var(--r,0deg) + 4deg))}}@keyframes twinkle{0%,100%{transform:scale(.9);opacity:.65}50%{transform:scale(1.18);opacity:1}}
-    .footer-note{text-align:center;color:var(--muted);font-size:.88rem;padding:18px 0 8px}
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Misión Fracciones · 4° básico</title><style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+:root{font-family:Nunito,Arial,sans-serif;color:#172949;background:#f3f6fc;font-size:18px}*{box-sizing:border-box}body{margin:0}button,a,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:13px;padding:12px 20px;background:#eaf0fa;color:#172949;font-weight:800;transition:transform .15s,background .15s}button:hover{transform:translateY(-2px);background:#dce5f7}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:4px solid #f6b629;outline-offset:3px}button:disabled{cursor:default;transform:none;opacity:.65}header{height:98px;background:white;border-bottom:1px solid #e0e7f2;display:flex;align-items:center;gap:24px;padding:18px 4vw}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#2556dc;font-size:48px;font-weight:900;line-height:1}.brand span{font-size:19px;letter-spacing:1px}.grade{font-size:14px;font-weight:900;letter-spacing:1.5px;color:#687892;margin-left:auto}#sound{font-size:15px;border:1px solid #dce3ee;background:white}.layout{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1450px;margin:auto;min-height:calc(100vh - 98px)}aside{padding:35px 24px;border-right:1px solid #dce4f0}.eyebrow{font-size:12px;font-weight:900;letter-spacing:1.7px;color:#65758e}nav{display:grid;gap:9px;margin:24px 0}nav button{text-align:left;background:transparent;font-size:17px;padding:15px 13px}nav button.active{background:#2556dc;color:white;box-shadow:0 6px 15px #2556dc25}.tip{background:#fff3c9;border-radius:18px;padding:20px;margin-top:36px;font-size:15px}.tip p{line-height:1.6}.rule{font-size:29px;font-weight:900}.source{font-size:13px;color:#65758e;line-height:1.6;margin-top:30px}main{padding:34px 42px;min-width:0}h1{font-size:clamp(30px,3vw,43px);line-height:1.15;margin:12px 0}h2{font-size:25px;margin:10px 0 16px}h3{margin:8px 0;font-size:19px}p{line-height:1.6}.muted{color:#63728b}.tag{display:inline-block;padding:6px 11px;border-radius:7px;background:#e5ecff;color:#2556dc;font-size:13px;letter-spacing:.7px;font-weight:900}.heading{margin-bottom:26px}.panel{background:white;border:1px solid #e0e6f0;border-radius:24px;padding:28px;margin-bottom:22px;box-shadow:0 6px 0 #e6ebf5}.blue{background:#2556dc;color:white;border:0}.blue .muted{color:#e2eaff}.split{display:grid;grid-template-columns:1.35fr 1fr;gap:22px}.fraction{display:inline-flex;vertical-align:middle;flex-direction:column;text-align:center;font-weight:900;line-height:1.2;margin:0 8px;min-width:28px}.fraction span:first-child{border-bottom:2px solid;padding-bottom:3px}.fraction span:last-child{padding-top:3px}.equation{font-size:32px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;padding:25px 8px}.bar{display:grid;gap:5px;margin:25px 0;grid-template-columns:repeat(var(--d),minmax(0,1fr))}.cell{min-width:0;border-radius:8px;background:#e9eef7;border:2px solid #c6d2e7;min-height:64px;padding:0;color:#243c6a}.cell.a{background:#3565eb;border-color:#2556dc;color:white}.cell.b{background:#f6bd35;border-color:#e7a719;color:#553b00}.cell.removed{background:#ffd9da;border-color:#ef9aa2;color:#a62a39}.blue .cell{border-color:white}.legend{display:flex;flex-wrap:wrap;gap:20px;font-size:15px}.dot{display:inline-block;width:13px;height:13px;background:#3565eb;border-radius:4px;margin-right:7px}.dot.gold{background:#f6bd35}.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:24px}.primary{background:#2556dc;color:white;box-shadow:0 4px 0 #183eac}.primary:hover{background:#1747c9}.yellow{background:#ffd368;color:#172949;box-shadow:0 4px 0 #d7a83b}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.game{background:white;border:1px solid #dce4f0;border-radius:20px;padding:25px;text-align:left;min-height:170px}.game .icon{font-size:32px}.game p{font-size:16px;font-weight:600;color:#64738c}.steps{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.steps button{font-size:15px}.steps button.selected{background:#172949;color:white}.feedback{padding:18px;border-radius:14px;background:#eef3ff;margin-top:20px;line-height:1.6;border-left:5px solid #2556dc}.feedback.ok{background:#e4f6ef;border-color:#189365}.feedback.no{background:#fff1da;border-color:#de9812}.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}.choices button{background:white;border:2px solid #cdd8ed;min-height:74px;font-size:24px}.choices button.correct{background:#def6e9;border-color:#259c69}.choices button.wrong{background:#fff0d6;border-color:#d79524}input{width:90px;padding:12px;border:2px solid #bfcee5;border-radius:10px;text-align:center;font-size:24px}select{border:1px solid #c6d2e7;border-radius:10px;background:white;padding:12px;max-width:100%}.progress{height:10px;border-radius:8px;background:#dae4f6;overflow:hidden;margin:15px 0}.progress i{display:block;height:100%;background:#2556dc;transition:width .3s}.small{font-size:14px}.badge{font-size:70px}.score{font-size:55px;font-weight:900;color:#2556dc}.match{display:grid;grid-template-columns:1fr 1fr;gap:14px}.match button{min-height:64px}.match .selected{background:#ffd368}.match .matched{background:#d9f5e8;color:#176c4c}.pop{animation:pop .35s ease}.checkrow{display:flex;gap:12px;align-items:center;margin:14px 0}.checkrow input{width:auto}#toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#172949;color:white;border-radius:20px;padding:12px 24px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:5}#toast.show{opacity:1}@keyframes pop{50%{transform:scale(1.03)}}@media(max-width:900px){.layout{grid-template-columns:1fr}aside{padding:15px 20px;border:0}.tip,.source,aside>.eyebrow{display:none}nav{display:flex;overflow:auto;margin:0;gap:5px}nav button{white-space:nowrap;font-size:15px}main{padding:20px}.split{grid-template-columns:1fr}header{height:85px;padding:16px}.grade{display:none}#sound{margin-left:auto}.cell{min-height:48px}.cards{gap:12px}.panel{padding:22px}}@media(max-width:480px){.cards{grid-template-columns:1fr}.choices{gap:9px}.bar{gap:3px}.cell{border-radius:4px}.brand span{font-size:15px}.brand{font-size:35px}#sound{font-size:13px;padding:10px}.equation{font-size:26px}.fraction{margin:0 5px}main{padding:15px}.panel{padding:18px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
-    .game-title{display:flex;align-items:center;gap:10px;margin:28px 0 6px}.game-title .game-icon{font-size:1.7rem}
-    .game-board{border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:12px;background:linear-gradient(180deg,#fff,#fbfdff)}
-    .round-line{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}.round-chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 11px;background:#eef5ff;color:#365578;font-size:.86rem;font-weight:900}
-    .big-word{text-align:center;font-size:clamp(1.7rem,5vw,2.7rem);font-weight:950;padding:18px;border-radius:18px;background:#f4f8fc;margin:8px 0 16px}
-    .choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choice-tile{min-height:64px;border:2px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);font-weight:900;padding:12px;transition:.18s}.choice-tile.correct{border-color:var(--green);background:#e9fbf3}.choice-tile.wrong{border-color:var(--red);background:#fff0f2}
-    .tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tf-btn{min-height:58px;border:2px solid var(--line);border-radius:16px;background:#fff;font-weight:950;color:var(--ink)}.tf-btn.correct{border-color:var(--green);background:#e9fbf3}.tf-btn.wrong{border-color:var(--red);background:#fff0f2}
-    .sequence-grid{display:grid;gap:10px}.sequence-card{border:2px solid var(--line);border-radius:15px;padding:13px;background:#fff;text-align:left;font-weight:800;color:var(--ink)}.sequence-card.done{border-color:var(--green);background:#edfbf5}.sequence-card.bad{border-color:var(--orange);background:#fff4e9}
-    .sound-note{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.14);font-size:.85rem;font-weight:800}
-    .confetti{animation:pop .35s ease}@keyframes pop{50%{transform:scale(1.045)}}
-    @media(max-width:850px){.hero-grid{grid-template-columns:1fr}.mascot{font-size:5rem}.cards,.topic-map{grid-template-columns:repeat(2,1fr)}.reader-layout,.builder{grid-template-columns:1fr}.reader-menu{grid-template-columns:1fr 1fr}.builder-output{grid-template-columns:1fr}.memory{grid-template-columns:repeat(3,1fr)}.topic{padding-right:74px}.topic:before{right:12px;top:12px;font-size:1.9rem;width:40px;height:40px}.section.parrotized{padding-top:86px}.parrot-buddy{right:14px;top:14px;min-width:128px;min-height:72px}.parrot-float{width:64px;height:64px}.parrot-emoji{font-size:2.15rem}.feather.f1{right:80px;top:44px}.feather.f2{right:102px;top:22px}.feather.f3{right:50px;top:58px}.feather.f4{right:118px;top:56px}}
-    @media(max-width:560px){.choice-grid{grid-template-columns:1fr}.tf-grid{grid-template-columns:1fr}.shell{padding:12px}.hero,.panel{padding:18px;border-radius:20px}.cards,.topic-map,.comic-grid{grid-template-columns:1fr}.reader-menu{grid-template-columns:1fr}.memory{grid-template-columns:repeat(2,1fr)}.example-row{grid-template-columns:1fr}.arrow{text-align:center}.topbar{display:grid;grid-template-columns:1fr 1fr}.pill{padding:10px}.mascot{display:none}.topic{min-height:96px;padding-right:70px}.topic:before{right:12px;top:10px;font-size:1.8rem;width:38px;height:38px}.section.parrotized{padding-top:80px}.parrot-buddy{right:12px;top:10px;min-width:112px;min-height:64px}.parrot-float{width:56px;height:56px}.parrot-emoji{font-size:1.95rem}.parrot-spark{font-size:.9rem;right:-2px;top:-4px}.feather{opacity:.72}.feather.f1{right:70px;top:38px;width:13px;height:26px}.feather.f2{right:88px;top:18px;width:12px;height:24px}.feather.f3{right:42px;top:48px;width:13px;height:26px}.feather.f4{right:102px;top:50px;width:11px;height:22px}}
-    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-  </style>
-</head>
-<body>
-<div class="shell" id="app">
-  <header class="hero">
-    <div class="hero-grid">
-      <div>
-        <div class="eyebrow">Lenguaje · 4° básico · Unidad 3</div>
-        <h1>Misión Lenguaje: palabras, cómics y lecturas</h1>
-        <p>Estudia <b>sinónimos y antónimos</b>, aprende cómo funciona una <b>historieta</b> y practica <b>comprensión lectora</b> con textos de la unidad. Gana puntos, estrellas y supera el desafío final.</p>
-      </div>
-      <div class="mascot" aria-hidden="true">🦜📚</div>
-    </div>
-    <nav class="topbar" aria-label="Secciones">
-      <button class="pill active" data-section="inicio">🏠 Inicio</button>
-      <button class="pill" data-section="sinonimos">🔁 Sinónimos</button>
-      <button class="pill" data-section="antonimos">↔️ Antónimos</button>
-      <button class="pill" data-section="comic">💬 Cómic</button>
-      <button class="pill" data-section="lecturas">📚 Lecturas</button>
-      <button class="pill" data-section="juegos">🎮 Juegos</button>
-      <button class="pill" data-section="final">🏆 Desafío final</button>
-      <button class="pill" id="soundToggle" aria-pressed="true">🔊 Sonidos ON</button>
-    </nav>
-    <div class="progress-wrap" aria-label="Progreso"><div class="progress" id="progress"></div></div>
-    <div class="scoreline"><span>⭐ Puntos: <span id="score">0</span></span><span>✅ Actividades superadas: <span id="completed">0</span>/<span id="totalActivities">13</span></span><span>🦜 El lorito reacciona con sonidos al acertar o equivocarse</span></div>
-  </header>
+</style></head><body><header><a href="#" class="brand">✳ <span>MISIÓN<br>FRACCIONES</span></a><span class="grade">MATEMÁTICA · 4° BÁSICO</span><button id="sound" aria-pressed="false">♫ Sonido: apagado</button></header><div class="layout"><aside><p class="eyebrow">TU RUTA DE APRENDIZAJE</p><nav id="nav"></nav><div class="tip"><b>Tu superpoder</b><p>Las partes siguen siendo del mismo tamaño. ¡El denominador se queda!</p><div class="rule">⅛ + ⅛ = ²⁄₈</div></div><p class="source">Unidad 3 · Tema 2<br>Basado en tu material, pp. 202–215.</p></aside><main id="app"></main></div><div id="toast" role="status" aria-live="polite"></div><script>
+const $=s=>document.querySelector(s),app=$('#app');let sound=false,ctx,section=0,lesson=0,stage=0,game=0,round=0,selected=new Set(),locked=false,points=0,exam=false,answers=[],questions=[];
+const f=(n,d)=>`<span class="fraction" aria-label="${n} sobre ${d}"><span>${n}</span><span>${d}</span></span>`;
+function tone(ok=true){if(!sound)return;try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();ctx.resume();[0,1,2].forEach((x)=>{let o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=(ok?[523,659,784]:[330,294,262])[x];g.gain.setValueAtTime(.07,ctx.currentTime+x*.1);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+x*.1+.16);o.start(ctx.currentTime+x*.1);o.stop(ctx.currentTime+x*.1+.17)})}catch(e){}}
+$('#sound').onclick=()=>{sound=!sound;$('#sound').textContent=`♫ Sonido: ${sound?'encendido':'apagado'}`;$('#sound').setAttribute('aria-pressed',sound);tone()};
+function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),2200)}
+const tabs=['✦ Aprende','▦ Laboratorio','◆ Juegos','✓ Practica tu prueba'];function nav(n){section=n;$('#nav').innerHTML=tabs.map((t,i)=>`<button class="${n===i?'active':''}" ${n===i?'aria-current="page"':''} onclick="nav(${i})">${t}</button>`).join('');if(n===0)learn();if(n===1)lab();if(n===2)games();if(n===3)examStart()}
+function heading(tag,title,desc){return `<div class="heading"><span class="tag">${tag}</span><h1>${title}</h1><p class="muted">${desc}</p></div>`}
+function bar(d,a,b=0,remove=false,interactive=false){return `<div class="bar" style="--d:${d}" role="group" aria-label="Entero dividido en ${d} partes iguales">${Array.from({length:d},(_,i)=>`<${interactive?'button':'div'} class="cell ${i<a?'a':i<a+b?(remove?'removed':'b'):''}" ${interactive?`onclick="paint(${i})" aria-label="Parte ${i+1}" aria-pressed="false"`:''}>${i>=a&&i<a+b&&remove?'×':''}</${interactive?'button':'div'}>`).join('')}</div>`}
+const lessons=[{title:'Primero: ¿qué es una fracción?',page:'Repaso · pp. 202–203',desc:'Una fracción nos dice cuántas partes iguales tomamos de un entero.',d:6,a:2,b:0,steps:['Divide el entero en 6 partes iguales. El 6 es el denominador: indica el total de partes.','Toma 2 partes. El 2 es el numerador: indica cuántas partes elegimos.','Magdalena pintó 6 cuadros y regalará 2. Regala 2/6 del total y conserva 4/6. Cada cuadro representa 1/6.'],eq:'2/6',note:'Para representar una fracción, todas las partes deben tener el mismo tamaño.'},
+{title:'Sumar es juntar partes',page:'El mural · p. 204',desc:'Los estudiantes pintaron 3/10 del mural de verde y 4/10 de azul. ¿Qué parte pintaron en total?',d:10,a:3,b:4,steps:['El mural está dividido en 10 partes iguales. Ya hay 3 partes pintadas.','Agrega otras 4 partes. Ahora cuenta todas las partes pintadas: 3 + 4 = 7.','El resultado es 7/10. El denominador sigue siendo 10: no cambiamos la división del mural.'],eq:'3/10 + 4/10 = 7/10',note:'Sumamos los numeradores y conservamos el denominador.'},
+{title:'Probemos con doce partes',page:'Ejemplo 1 · p. 205',desc:'Representa y resuelve 3/12 + 5/12.',d:12,a:3,b:5,steps:['Dibuja un entero y divídelo en 12 partes iguales. Pinta 3.','Pinta 5 partes más, sin pintar sobre las anteriores.','Hay 8 partes pintadas de 12: 3/12 + 5/12 = 8/12.'],eq:'3/12 + 5/12 = 8/12',note:'¡Cuidado! No es 8/24. Las partes siguen siendo doceavos.'},
+{title:'Restar es quitar partes',page:'Las frutillas de Francisca · p. 209',desc:'Francisca compró 7/10 de un kilogramo de frutillas y ocupó 3/10 de kilogramo. ¿Cuánto le quedó?',d:10,a:4,b:3,remove:true,steps:['Representa lo que había: 7 de las 10 partes del kilogramo.','Tacha las 3 partes que usó. Quedan 4 partes sin tachar.','Resta los numeradores: 7 − 3 = 4. Le quedaron 4/10 de kilogramo.'],eq:'7/10 − 3/10 = 4/10',note:'Restamos los numeradores y conservamos el denominador.'},
+{title:'¿Cuánto falta para el entero?',page:'El libro de Mauricio · p. 209',desc:'Mauricio leyó 3/8 de un libro el lunes y 2/8 el martes. ¿Qué parte le falta leer?',d:8,a:3,b:2,steps:['Junta lo que ya leyó: 3/8 + 2/8 = 5/8.','El libro completo representa 8/8. Las 3 partes vacías son lo que falta.','Resta al entero: 8/8 − 5/8 = 3/8. Le faltan 3/8 del libro.'],eq:'8/8 − 5/8 = 3/8',note:'Un entero puede escribirse como 8/8, 10/10 o 12/12, según su división.'},
+{title:'Resuelve como un detective',page:'Las bolsas de Tatiana · p. 212',desc:'Tatiana regaló 2/8 de sus bolsas y vendió 3/8. ¿Qué fracción del total le queda?',d:8,a:2,b:3,steps:['Comprende: regaló 2/8 y vendió 3/8. Buscamos lo que queda, no lo que salió.','Planifica y resuelve: 2/8 + 3/8 = 5/8. Después: 8/8 − 5/8 = 3/8.','Comprueba: 3/8 que quedan + 5/8 que salieron = 8/8. Respuesta: le quedan 3/8 de las bolsas.'],eq:'8/8 − (2/8 + 3/8) = 3/8',note:'Comprende → planifica → resuelve → comprueba.'},
+{title:'Un problema de dos pasos',page:'Matilde y José · p. 213',desc:'Matilde compró 3/5 kg de manzanas. José compró 1/5 kg menos que ella. ¿Cuánto compraron entre ambos?',d:5,a:3,b:2,steps:['Primero calcula cuánto compró José: 3/5 − 1/5 = 2/5 kg. «Menos que Matilde» no significa que compró solo 1/5.','Ahora suma lo de ambos: Matilde compró 3/5 kg y José 2/5 kg.','3/5 + 2/5 = 5/5 = 1. Entre ambos compraron 1 kilogramo.'],eq:'3/5 + 2/5 = 5/5 = 1',note:'Lee la pregunta final: aquí necesitas una resta y luego una suma.'}];
+function eq(s){return s.replace(/(\d+)\/(\d+)/g,(_,n,d)=>f(n,d))}
+function learn(){let l=lessons[lesson];app.innerHTML=heading('MISIÓN 01 · APRENDE','Las fracciones, parte por parte','Mira, prueba y descubre. Aquí puedes avanzar a tu ritmo.')+`<div class="steps">${lessons.map((l,i)=>`<button class="${i===lesson?'selected':''}" onclick="lesson=${i};stage=0;learn()">${i+1}. ${['Fracciones','Sumar','Doceavos','Restar','El entero','Tatiana','Dos pasos'][i]}</button>`).join('')}</div><div class="split"><section class="panel"><span class="tag">${l.page}</span><h2>${l.title}</h2><p>${l.desc}</p>${bar(l.d,l.remove&&stage===0?l.a+l.b:l.a,stage===0?0:l.b,l.remove)}<div class="legend"><span><i class="dot"></i>${l.remove?'Lo que queda':'Primera cantidad'}</span>${stage>0&&l.b?`<span><i class="dot gold"></i>${l.remove?'× Lo que se usó':'Segunda cantidad'}</span>`:''}</div><div class="equation">${stage===2?eq(l.eq):f(l.remove&&stage===0?l.a+l.b:l.a,l.d)}</div></section><section class="panel blue"><span class="small">PASO ${stage+1} DE 3</span><h2>${['Observa','Piensa','¡Comprueba!'][stage]}</h2><p style="font-size:22px">${l.steps[stage]}</p><div class="actions"><button class="yellow" onclick="advanceLesson()">${stage<2?'Siguiente paso →':'¡Lo entendí! →'}</button>${stage>0?'<button onclick="stage--;learn()">Atrás</button>':''}</div></section></div><div class="feedback"><b>Recuerda:</b> ${l.note}</div>`}
+function advanceLesson(){tone();if(stage<2)stage++;else if(lesson<lessons.length-1){lesson++;stage=0}else{nav(1);return}learn()}
+let ld=8,la=3,lb=2,lop='+';function lab(){app.innerHTML=heading('MISIÓN 02 · EXPERIMENTA','Tu laboratorio de fracciones','Cambia las cantidades y observa qué ocurre con las partes.')+`<div class="panel"><div class="actions"><label>Partes del entero <select onchange="ld=+this.value;la=Math.min(la,ld);lb=Math.min(lb,lop==='+'?ld-la:la);lab()">${[3,4,5,6,8,10,12].map(d=>`<option ${ld===d?'selected':''}>${d}</option>`).join('')}</select></label><label>Operación <select onchange="lop=this.value;lb=Math.min(lb,lop==='+'?ld-la:la);lab()"><option ${lop==='+'?'selected':''}>+</option><option ${lop==='−'?'selected':''}>−</option></select></label></div><div class="equation"><label><input aria-label="Primer numerador" type="number" min="0" max="${ld}" value="${la}" onchange="la=Math.max(0,Math.min(ld,Math.floor(+this.value)));lb=Math.min(lb,lop==='+'?ld-la:la);lab()"> / ${ld}</label> ${lop} <label><input aria-label="Segundo numerador" type="number" min="0" max="${lop==='+'?ld-la:la}" value="${lb}" onchange="lb=Math.max(0,Math.min(lop==='+'?ld-la:la,Math.floor(+this.value)));lab()"> / ${ld}</label> = ${f(lop==='+'?la+lb:la-lb,ld)}</div>${bar(ld,lop==='+'?la:la-lb,lb,lop==='−')}<div class="legend"><span><i class="dot"></i>${lop==='+'?'Primera cantidad':'Quedan'}</span><span><i class="dot gold"></i>${lop==='+'?'Se agregan':'× Se quitan'}</span></div><div class="feedback">${la} ${lop} ${lb} = <b>${lop==='+'?la+lb:la-lb}</b>. El denominador sigue siendo <b>${ld}</b>, porque el entero sigue dividido en ${ld} partes iguales.</div><p class="small muted">En este laboratorio trabajamos con cantidades entre cero y un entero. Prueba obtener ${ld}/${ld} o 0/${ld}.</p></div>`}
+function games(){app.innerHTML=heading('MISIÓN 03 · JUEGA','¡A entrenar tu superpoder!','Cuatro juegos distintos. Sin reloj: lo importante es comprender.')+`<div class="cards">${[['▦','Pinta la respuesta','Resuelve y toca las partes que representan el resultado.'],['⌕','Detective de errores','Descubre quién tiene razón y por qué.'],['?','La fracción escondida','Encuentra la pieza que falta en la operación.'],['↔','Une las parejas','Relaciona cada operación con su resultado.']].map((a,i)=>`<button class="game" onclick="startGame(${i})"><span class="icon">${a[0]}</span><h2>${a[1]}</h2><p>${a[2]}</p><span class="tag">Jugar →</span></button>`).join('')}</div>`}
+const paints=[[3,5,12,'+'],[5,2,8,'+'],[7,3,10,'−'],[4,2,5,'−'],[2,1,3,'+']];const hidden=[[7,6,12,1],[5,3,8,2],[6,4,6,2],[10,7,12,3],[7,4,10,3]];const detectives=[{q:'Claudio dice que 11/12 − 5/12 = 7/12. Daniela dice que es 6/12. ¿Quién tiene razón?',o:['Claudio','Daniela'],a:1,e:'Daniela: 11 − 5 = 6 y el denominador sigue siendo 12. (p. 211)'},{q:'Al sumar 3/7 + 2/7, Tomás obtiene 5/14. ¿Está bien?',o:['Sí, se suman todos','No, es 5/7'],a:1,e:'Solo sumamos los numeradores: 3 + 2 = 5. Las partes siguen siendo séptimos.'},{q:'2/10 + 1/10 + 7/10 representa…',o:['Un entero','Tres enteros'],a:0,e:'2 + 1 + 7 = 10. Entonces 10/10 = 1: todo el curso participa en talleres. (p. 205)'},{q:'Mauricio leyó 3/8 y después 2/8. Ana dice que le faltan 5/8. ¿Es correcto?',o:['Sí','No, le faltan 3/8'],a:1,e:'5/8 es lo que ya leyó. Para hallar lo que falta: 8/8 − 5/8 = 3/8. (p. 209)'}];
+function startGame(g){game=g;round=0;points=0;selected=new Set();locked=false;renderGame()}
+function gameHead(name,total){return `<button onclick="games()">← Todos los juegos</button>`+heading('JUEGO · '+(round+1)+' DE '+total,name,`Aciertos: ${points}. Cada intento te ayuda a aprender.`)}
+function renderGame(){locked=false;selected=new Set();if(game===3){matchGame();return}let total=game===1?4:5;if(round>=total){app.innerHTML=heading('¡RECORRIDO COMPLETO!','Buen entrenamiento',`Conseguiste ${points} de ${total} aciertos al primer intento.`)+`<div class="panel"><div class="badge">✦</div><p>Vuelve a jugar para reforzar lo aprendido o prueba un desafío diferente.</p><div class="actions"><button class="primary" onclick="startGame(${game})">Jugar otra vez</button><button onclick="games()">Elegir otro juego</button></div></div>`;tone();return}if(game===0){let[a,b,d,op]=paints[round];app.innerHTML=gameHead('Pinta la respuesta',5)+`<div class="panel"><p>Resuelve la operación y toca la cantidad de partes del resultado.</p><div class="equation">${f(a,d)} ${op} ${f(b,d)} = ?</div>${bar(d,0,0,false,true)}<p id="paintcount">Pintaste 0 de ${d} partes.</p><button class="primary" onclick="checkPaint()">Comprobar</button><div id="feedback" aria-live="polite"></div></div>`}if(game===1){let q=detectives[round];app.innerHTML=gameHead('Detective de errores',4)+`<div class="panel"><h2>${q.q}</h2><div class="choices">${q.o.map((o,i)=>`<button onclick="detect(${i})">${o}</button>`).join('')}</div><div id="feedback" aria-live="polite"></div></div>`}if(game===2){let[a,b,d,c]=hidden[round];app.innerHTML=gameHead('La fracción escondida',5)+`<div class="panel"><p>¿Qué numerador falta? Conserva el denominador.</p><div class="equation">${f(a,d)} − <span class="fraction"><span><input id="missing" type="number" min="0" max="${d}" aria-label="Numerador que falta"></span><span>${d}</span></span> = ${f(c,d)}</div><button class="primary" onclick="checkHidden()">Descubrir</button><div id="feedback" aria-live="polite"></div></div>`}}
+function paint(i){if(locked)return;selected.has(i)?selected.delete(i):selected.add(i);let el=document.querySelectorAll('.cell')[i];el.classList.toggle('a');el.setAttribute('aria-pressed',selected.has(i));$('#paintcount').textContent=`Pintaste ${selected.size} de ${paints[round][2]} partes.`}
+function result(ok,explanation){locked=true;if(ok)points++;tone(ok);$('#feedback').innerHTML=`<div class="feedback ${ok?'ok pop':'no'}"><b>${ok?'¡Muy bien!':'Vamos a entenderlo.'}</b> ${explanation}</div><div class="actions"><button class="primary" onclick="round++;renderGame()">Siguiente →</button></div>`}
+function checkPaint(){if(locked)return;let[a,b,d,op]=paints[round],r=op==='+'?a+b:a-b;result(selected.size===r,`${a} ${op} ${b} = ${r}. Debes pintar ${r} de las ${d} partes: ${r}/${d}.`)}
+function detect(i){if(locked)return;let q=detectives[round];result(i===q.a,q.e)}function checkHidden(){if(locked)return;if($('#missing').value===''){toast('Escribe un numerador primero');return}let[a,b,d,c]=hidden[round];result(+$('#missing').value===b,`${a} − ${b} = ${c}. La fracción escondida es ${b}/${d}. Comprueba: ${c}/${d} + ${b}/${d} = ${a}/${d}.`)}
+let matchPick=null,matched=new Set();const pairs=[['3/7 + 2/7','5/7'],['10/12 − 7/12','3/12'],['5/8 − 4/8','1/8'],['3/5 + 2/5','5/5'],['7/10 + 2/10','9/10']];function matchGame(){matched=new Set();matchPick=null;app.innerHTML=`<button onclick="games()">← Todos los juegos</button>`+heading('JUEGO DE PAREJAS','Cada operación tiene su pareja','Toca una operación y después su resultado. Puedes volver a intentarlo.')+`<div class="panel"><div class="match">${pairs.map((p,i)=>`<button id="left${i}" onclick="matchLeft(${i})">${p[0]}</button><button id="right${[2,4,0,1,3][i]}" onclick="matchRight(${[2,4,0,1,3][i]})">${pairs[[2,4,0,1,3][i]][1]}</button>`).join('')}</div><div id="feedback" aria-live="polite" class="feedback">0 de 5 parejas encontradas.</div></div>`}function matchLeft(i){if(matched.has(i))return;document.querySelectorAll('.match .selected').forEach(el=>el.classList.remove('selected'));matchPick=i;$('#left'+i).classList.add('selected')}
+function matchRight(i){if(matched.has(i))return;if(matchPick===null){toast('Elige primero una operación');return}if(i===matchPick){matched.add(i);$('#left'+i).className='matched';$('#right'+i).className='matched';$('#left'+i).disabled=true;$('#right'+i).disabled=true;matchPick=null;tone();$('#feedback').innerHTML=matched.size===5?'¡Encontraste todas! <button onclick="games()">Elegir otro juego</button>':`${matched.size} de 5 parejas encontradas.`}else{tone(false);$('#feedback').textContent='Todavía no. Calcula los numeradores y conserva el denominador. Inténtalo otra vez.'}}
+const bank=[
+{q:'¿Qué indica el denominador de una fracción?',o:['Las partes que tomo','El total de partes iguales','La cantidad que sumo'],a:1,e:'El denominador indica en cuántas partes iguales se divide el entero.',t:'Conceptos'},
+{q:'Resuelve: 5/12 + 4/12.',o:['9/24','1/12','9/12'],a:2,e:'5 + 4 = 9. Conserva el 12: el resultado es 9/12. (p. 206)',t:'Sumas'},
+{q:'Alberto dedica 2/8 del día a estudiar y 3/8 a dormir. ¿Qué fracción dedica a ambas actividades?',o:['5/8','5/16','1/8'],a:0,e:'Junta ambas actividades: 2/8 + 3/8 = 5/8 del día. (p. 206)',t:'Problemas'},
+{q:'Marcela destina 16/100 del museo al arte barroco y 7/100 al arte moderno. ¿Cuánto destina a ambos?',o:['9/100','23/200','23/100'],a:2,e:'16 + 7 = 23. Destina 23/100 del museo. (p. 207)',t:'Sumas'},
+{q:'Resuelve: 9/12 − 6/12.',o:['3/0','3/12','15/12'],a:1,e:'9 − 6 = 3. El denominador no se resta: 3/12. (p. 210)',t:'Restas'},
+{q:'Completa: 7/12 − ? = 1/12.',o:['6/12','8/12','1/12'],a:0,e:'7 − 6 = 1. Falta 6/12. Puedes comprobar: 1/12 + 6/12 = 7/12. (p. 210)',t:'Restas'},
+{q:'En una campaña, 3/8 del curso donó pastas, 1/8 azúcar y 2/8 arroz. Si cada estudiante donó un solo tipo, ¿qué fracción no participó?',o:['6/8','2/8','3/8'],a:1,e:'Participó 3/8 + 1/8 + 2/8 = 6/8. No participó 8/8 − 6/8 = 2/8. (p. 211)',t:'Problemas'},
+{q:'Matilde compró 3/5 kg de manzanas. José compró 1/5 kg menos que ella. ¿Cuánto compraron entre ambos?',o:['4/5 kg','2/5 kg','1 kg'],a:2,e:'José compró 3/5 − 1/5 = 2/5 kg. Juntos: 3/5 + 2/5 = 5/5 = 1 kg. (p. 213)',t:'Problemas'},
+{q:'En la sala de música, 4/12 se usa para ensayar. Se quita 1/12 del total de la sala a ese sector. ¿Cuánto queda para ensayar?',o:['3/12','5/12','3/11'],a:0,e:'4/12 − 1/12 = 3/12 del total de la sala. (p. 215)',t:'Restas'},
+{q:'En el círculo cromático hay 3/12 de colores primarios y 6/12 de terciarios. ¿Qué fracción representan juntos?',o:['9/24','3/12','9/12'],a:2,e:'3/12 + 6/12 = 9/12 del círculo. (p. 214)',t:'Sumas'},
+{q:'¿Cuál de estas fracciones representa un entero?',o:['1/8','8/8','0/8'],a:1,e:'8/8 representa todas las ocho partes del entero.',t:'Conceptos'},
+{q:'Un dibujo tiene 8 partes iguales y 5 están pintadas. ¿Qué fracción falta pintar?',o:['3/8','5/8','8/5'],a:0,e:'El entero es 8/8. Falta 8/8 − 5/8 = 3/8.',t:'Conceptos'}];
+function examStart(){exam=false;app.innerHTML=heading('MISIÓN 04 · PREPÁRATE','Ensaya antes de la prueba','Una práctica para descubrir lo que ya dominas y lo que puedes reforzar.')+`<div class="panel"><span class="tag">12 PREGUNTAS · SIN LÍMITE DE TIEMPO</span><h2>¡Tú puedes hacerlo!</h2><p>Encontrarás sumas, restas, fracciones que faltan y problemas del material. Elige una respuesta en cada pregunta. Al terminar verás tu resultado y la explicación de cada ejercicio.</p><div class="feedback"><b>Antes de responder:</b> lee qué te preguntan, identifica los datos y decide si debes juntar, quitar o completar un entero.</div><p class="small muted">Es una práctica de estudio basada en el PDF; no es la prueba oficial del colegio.</p><button class="primary" onclick="beginExam()">Comenzar práctica →</button></div>`}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function beginExam(){exam=true;questions=shuffle(bank).map(q=>{let opts=q.o.map((v,i)=>({v,correct:i===q.a}));opts=shuffle(opts);return {...q,o:opts.map(o=>o.v),a:opts.findIndex(o=>o.correct)}});answers=Array(questions.length).fill(null);round=0;examQuestion()}
+function examQuestion(){let q=questions[round];app.innerHTML=heading('PRÁCTICA · PREGUNTA '+(round+1)+' DE '+questions.length,'Piensa con calma','Puedes retroceder y revisar tus respuestas antes de finalizar.')+`<div class="progress" role="progressbar" aria-valuenow="${round+1}" aria-valuemin="0" aria-valuemax="${questions.length}" aria-label="Avance de la práctica"><i style="width:${(round+1)/questions.length*100}%"></i></div><div class="panel"><h2>${q.q}</h2><div class="choices">${q.o.map((o,i)=>`<button style="${answers[round]===i?'border-color:#2556dc;background:#e7eeff':''}" aria-pressed="${answers[round]===i}" onclick="answers[round]=${i};examQuestion()">${o}</button>`).join('')}</div><div class="actions">${round>0?'<button onclick="round--;examQuestion()">← Anterior</button>':''}<button class="primary" ${answers[round]===null?'disabled':''} onclick="${round<questions.length-1?'round++;examQuestion()':'examResult()'}">${round<questions.length-1?'Siguiente →':'Ver mi resultado'}</button></div></div>`}
+function examResult(){exam=false;let score=questions.filter((q,i)=>answers[i]===q.a).length,weak=[...new Set(questions.filter((q,i)=>answers[i]!==q.a).map(q=>q.t))];tone(score>=8);app.innerHTML=heading('PRÁCTICA TERMINADA',score===12?'¡Dominaste las fracciones!':'Cada intento te hace avanzar','Ahora revisa las explicaciones para aprender de tus respuestas.')+`<div class="panel"><div class="score">${score} <span class="muted" style="font-size:24px">/ 12 aciertos</span></div><p>${weak.length?'Te conviene repasar: <b>'+weak.join(', ')+'</b>.':'¡Muy bien! Explica con tus palabras por qué conservamos el denominador.'}</p><div class="actions"><button class="primary" onclick="beginExam()">Practicar otra vez</button><button onclick="lesson=0;stage=0;nav(0)">Repasar las lecciones</button></div></div>${questions.map((q,i)=>`<div class="panel"><span class="tag">${answers[i]===q.a?'✓ CORRECTA':'↻ PARA REPASAR'} · ${q.t}</span><h3>${i+1}. ${q.q}</h3><p>Tu respuesta: <b>${q.o[answers[i]]}</b></p><div class="feedback ${answers[i]===q.a?'ok':'no'}">${q.e}</div></div>`).join('')}`}
+nav(0);
 
-  <main class="grid">
-    <section class="panel section active" id="inicio">
-      <h2>¿Qué vamos a aprender?</h2>
-      <p class="lead">La unidad trabaja la lectura de obras dramáticas, el vocabulario preciso mediante sinónimos y antónimos, la creación de historietas y la comprensión de textos narrativos y biográficos.</p>
-      <div class="topic-map">
-        <div class="topic">Sinónimos: palabras con significado parecido.</div>
-        <div class="topic">Antónimos: palabras de significado contrario.</div>
-        <div class="topic">Cómic: viñetas, globos, narrador y secuencia.</div>
-        <div class="topic">Lectura: localizar, interpretar, inferir y opinar.</div>
-      </div>
-      <div class="callout yellow"><b>Meta de estudio:</b> no se trata solo de memorizar. La idea es reconocer qué significa una palabra dentro de una oración, entender cómo avanza una historia y justificar respuestas usando información del texto.</div>
-      <div class="cards">
-        <div class="mini"><div class="icon">👀</div><strong>Localizar</strong><p>Encontrar información que aparece de manera explícita.</p></div>
-        <div class="mini"><div class="icon">🧠</div><strong>Interpretar</strong><p>Explicar ideas, motivos o consecuencias usando pistas del texto.</p></div>
-        <div class="mini"><div class="icon">🔎</div><strong>Inferir</strong><p>Concluir algo que no está dicho de forma directa.</p></div>
-      </div>
-      <div class="actions"><button class="btn" data-go="sinonimos">Comenzar por sinónimos →</button><button class="btn secondary" data-go="lecturas">Ir a las lecturas</button></div>
-    </section>
-
-    <section class="panel section" id="sinonimos">
-      <h2>🔁 Sinónimos</h2>
-      <p class="lead">Un <b>sinónimo</b> es una palabra que tiene un significado similar o parecido a otra.</p>
-      <div class="callout"><b>Ejemplo de la unidad:</b> si describimos a un perro como <i>rápido</i>, también podríamos decir <i>veloz</i>. Ambas palabras expresan una idea parecida.</div>
-      <div class="example-row"><div class="word">rápido</div><div class="arrow">≈</div><div class="word">veloz</div></div>
-      <div class="example-row"><div class="word">deliciosa</div><div class="arrow">≈</div><div class="word">sabrosa</div></div>
-      <div class="example-row"><div class="word">mininos</div><div class="arrow">≈</div><div class="word">gatos</div></div>
-      <div class="callout green"><b>Truco:</b> un sinónimo debe mantener el sentido de la oración. No basta con que “suene parecido”.</div>
-      <div class="exercise" id="synQuiz"><div class="question" id="synQ"></div><div class="options" id="synOptions"></div><div class="feedback" id="synFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="synNext">Siguiente</button></div></div>
-      <div class="game-title"><span class="game-icon">⚡</span><div><h3 style="margin:0">Juego: Pareja relámpago</h3><div class="small">Encuentra el sinónimo antes de pasar a la siguiente ronda.</div></div></div>
-      <div class="game-board" id="synFlashBoard"><div class="round-line"><span class="round-chip" id="synFlashRound">Ronda 1</span><span class="round-chip">+4 puntos por acierto</span></div><div class="big-word" id="synFlashWord"></div><div class="choice-grid" id="synFlashChoices"></div><div class="feedback" id="synFlashFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="synFlashNext">Otra palabra</button><button class="btn secondary" id="synFlashReset">Reiniciar juego</button></div></div>
-    </section>
-
-    <section class="panel section" id="antonimos">
-      <h2>↔️ Antónimos</h2>
-      <p class="lead">Un <b>antónimo</b> expresa una idea opuesta o contraria a otra palabra.</p>
-      <div class="example-row"><div class="word">rápido</div><div class="arrow">≠</div><div class="word">lento</div></div>
-      <div class="example-row"><div class="word">limpio</div><div class="arrow">≠</div><div class="word">sucio</div></div>
-      <div class="example-row"><div class="word">obediente</div><div class="arrow">≠</div><div class="word">desobediente</div></div>
-      <div class="callout pink"><b>Ojo:</b> al cambiar una palabra por su antónimo, muchas veces cambia el sentido completo de una oración. Por eso hay que leerla nuevamente y comprobar si tiene lógica.</div>
-      <div class="exercise" id="antQuiz"><div class="question" id="antQ"></div><div class="options" id="antOptions"></div><div class="feedback" id="antFeedback" aria-live="polite"></div><div class="actions"><button class="btn orange hidden" id="antNext">Siguiente</button></div></div>
-      <div class="game-title"><span class="game-icon">🕵️</span><div><h3 style="margin:0">Juego: Detective de contrarios</h3><div class="small">Decide si cada pareja realmente está formada por antónimos.</div></div></div>
-      <div class="game-board"><div class="round-line"><span class="round-chip" id="antJudgeRound">Caso 1</span><span class="round-chip">Verdadero o falso</span></div><div class="big-word" id="antJudgePair"></div><div class="tf-grid" id="antJudgeChoices"><button type="button" class="tf-btn" data-judge="true">✅ Sí, son antónimos</button><button type="button" class="tf-btn" data-judge="false">❌ No son antónimos</button></div><div class="feedback" id="antJudgeFeedback" aria-live="polite"></div><div class="actions"><button class="btn orange hidden" id="antJudgeNext">Siguiente caso</button><button class="btn secondary" id="antJudgeReset">Reiniciar juego</button></div></div>
-    </section>
-
-    <section class="panel section" id="comic">
-      <h2>💬 ¿Cómo funciona una historieta?</h2>
-      <p class="lead">Las historietas o cómics son narraciones que presentan personajes, acciones y diálogos en una secuencia de cuadros ilustrados llamados <b>viñetas</b>.</p>
-      <div class="cards">
-        <div class="mini"><div class="icon">🖼️</div><strong>Viñeta</strong><p>Muestra un momento de la situación que viven los personajes.</p></div>
-        <div class="mini"><div class="icon">💬</div><strong>Globo de diálogo</strong><p>Expresa lo que dice un personaje.</p></div>
-        <div class="mini"><div class="icon">💭</div><strong>Globo de pensamiento</strong><p>Da a conocer sus ideas o pensamientos.</p></div>
-      </div>
-      <div class="callout yellow"><b>Narrador:</b> sus intervenciones suelen aparecer en una casilla rectangular, generalmente en la parte superior de la viñeta.</div>
-      <h3>Ejemplo visual</h3>
-      <div class="comic-grid">
-        <div class="panel-comic"><div class="narrator-box">Dos amigos caminaban alegremente por el bosque.</div><div class="bubble">¡Qué entretenido paseo!</div><div class="scene">🧒🌲🧒</div></div>
-        <div class="panel-comic"><div class="bubble">¡Cuidado, un oso!</div><div class="scene">🧒🐻😨</div></div>
-      </div>
-      <h3 style="margin-top:22px">Juego: ordena la secuencia</h3>
-      <p class="small">Haz clic en los acontecimientos en el orden correcto. Está basado en la historieta de <i>Los dos amigos y el oso</i>.</p>
-      <div class="order-list" id="comicOrder"></div><div class="feedback" id="comicFeedback" aria-live="polite"></div><div class="actions"><button class="btn purple" id="resetOrder">Reiniciar</button></div>
-      <div class="game-title"><span class="game-icon">🎯</span><div><h3 style="margin:0">Juego: ¿Qué elemento del cómic es?</h3><div class="small">Reconoce viñeta, diálogo, pensamiento y narrador.</div></div></div>
-      <div class="game-board"><div class="round-line"><span class="round-chip" id="comicPartRound">Ronda 1</span><span class="round-chip">Mira la pista</span></div><div class="big-word" id="comicPartPrompt"></div><div class="choice-grid" id="comicPartChoices"></div><div class="feedback" id="comicPartFeedback" aria-live="polite"></div><div class="actions"><button class="btn purple hidden" id="comicPartNext">Siguiente pista</button><button class="btn secondary" id="comicPartReset">Reiniciar juego</button></div></div>
-      <h3 style="margin-top:24px">Crea tu mini cómic</h3>
-      <div class="builder">
-        <div>
-          <div class="field"><label for="comicScene">Escenario</label><select id="comicScene"><option value="🏫👧🧒">Escuela</option><option value="🌳🧒🐻">Bosque</option><option value="🏴‍☠️🦜💰">Piratas</option><option value="🏔️💧🐢">Montaña</option></select></div>
-          <div class="field"><label for="comicNarrator">Casilla del narrador</label><input id="comicNarrator" value="Una mañana comenzó una aventura..." /></div>
-          <div class="field"><label for="comicDialog">Diálogo</label><input id="comicDialog" value="¡Tenemos que encontrar una solución!" /></div>
-          <div class="actions"><button class="btn" id="buildComic">Crear 3 viñetas</button></div>
-        </div>
-        <div class="builder-output" id="comicOutput" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <section class="panel section" id="lecturas">
-      <h2>📚 Biblioteca de la unidad</h2>
-      <p class="lead">Aquí puedes leer los textos centrales del PDF y luego responder preguntas de comprensión.</p>
-      <div class="reader-layout">
-        <div class="reader-menu" id="readerMenu"></div>
-        <article class="reading" id="readingArea"></article>
-      </div>
-      <div class="exercise" id="readQuiz"><div class="question" id="readQ"></div><div class="options" id="readOptions"></div><div class="feedback" id="readFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="readNext">Siguiente pregunta</button></div></div>
-      <div class="game-title"><span class="game-icon">👤</span><div><h3 style="margin:0">Juego: ¿Quién hizo qué?</h3><div class="small">Relaciona personajes y acciones de las lecturas de la unidad.</div></div></div>
-      <div class="game-board"><div class="round-line"><span class="round-chip" id="whoRound">Ronda 1</span><span class="round-chip">Comprensión rápida</span></div><div class="question" id="whoQ"></div><div class="choice-grid" id="whoChoices"></div><div class="feedback" id="whoFeedback" aria-live="polite"></div><div class="actions"><button class="btn green hidden" id="whoNext">Siguiente</button><button class="btn secondary" id="whoReset">Reiniciar</button></div></div>
-      <div class="game-title"><span class="game-icon">🧩</span><div><h3 style="margin:0">Juego: Ordena “La gota que faltaba”</h3><div class="small">Haz clic en los hechos desde el comienzo hasta el final.</div></div></div>
-      <div class="game-board"><div class="sequence-grid" id="dropSequence"></div><div class="feedback" id="dropSequenceFeedback" aria-live="polite"></div><div class="actions"><button class="btn secondary" id="dropSequenceReset">Mezclar otra vez</button></div></div>
-    </section>
-
-    <section class="panel section" id="juegos">
-      <h2>🎮 Zona de juegos</h2>
-      <h3>Memorama de sinónimos</h3><p class="lead">Encuentra las parejas de palabras que tienen significado parecido.</p>
-      <div class="memory" id="memoryGrid"></div><div class="feedback" id="memoryFeedback" aria-live="polite"></div>
-      <div class="actions"><button class="btn secondary" id="resetMemory">Mezclar de nuevo</button></div>
-      <h3 style="margin-top:28px">Semáforo de comprensión</h3>
-      <p class="small">Decide qué tipo de habilidad estás usando.</p>
-      <div class="exercise"><div class="question" id="skillQ"></div><div class="options" id="skillOptions"></div><div class="feedback" id="skillFeedback"></div><div class="actions"><button class="btn hidden" id="skillNext">Siguiente</button></div></div>
-      <div class="game-title"><span class="game-icon">🎲</span><div><h3 style="margin:0">Juego: Palabra en contexto</h3><div class="small">Decide si necesitas un sinónimo o un antónimo para completar la oración.</div></div></div>
-      <div class="game-board"><div class="round-line"><span class="round-chip" id="contextRound">Ronda 1</span><span class="round-chip">Mixto</span></div><div class="question" id="contextQ"></div><div class="choice-grid" id="contextChoices"></div><div class="feedback" id="contextFeedback" aria-live="polite"></div><div class="actions"><button class="btn hidden" id="contextNext">Siguiente</button><button class="btn secondary" id="contextReset">Reiniciar</button></div></div>
-    </section>
-
-    <section class="panel section" id="final">
-      <h2>🏆 Desafío final</h2>
-      <p class="lead">Diez preguntas mezcladas. Necesitas al menos 8 correctas para obtener la medalla “Explorador/a del Lenguaje”.</p>
-      <div class="exercise"><div class="question" id="finalQ"></div><div class="options" id="finalOptions"></div><div class="feedback" id="finalFeedback"></div><div class="actions"><button class="btn hidden" id="finalNext">Siguiente</button></div></div>
-      <div class="final-box hidden" id="finalResult"><div class="stars" id="finalStars">⭐⭐⭐</div><h3 id="finalTitle"></h3><p id="finalText"></p><span class="badge" id="finalBadge">🏅</span><div class="actions" style="justify-content:center"><button class="btn" id="restartFinal">Intentar otra vez</button></div></div>
-    </section>
-  </main>
-  <div class="footer-note">Material de estudio elaborado a partir de las páginas 210–239 de la Unidad 3 del texto adjunto.</div>
-</div>
-<script>
-(() => {
-  const root=document.getElementById('app');
-  const TOTAL_ACTIVITIES=13;
-  let score=0, completed=new Set(), soundOn=true, audioCtx=null;
-  const scoreEl=document.getElementById('score'), completedEl=document.getElementById('completed'), progress=document.getElementById('progress');
-  document.getElementById('totalActivities').textContent=TOTAL_ACTIVITIES;
-  function updateProgress(){scoreEl.textContent=score;completedEl.textContent=completed.size;progress.style.width=Math.min(100,(completed.size/TOTAL_ACTIVITIES)*100)+'%'}
-  function addScore(n=10){score+=n;updateProgress()}
-  function markDone(id){if(!completed.has(id)){completed.add(id);addScore(20);sound('complete')}updateProgress()}
-  function getAudio(){if(!soundOn)return null;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;if(!audioCtx)audioCtx=new A();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(e){return null}}
-  function beep(freq=440,dur=.08,type='sine',vol=.045,delay=0){const c=getAudio();if(!c)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+delay;o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.03)}
-  function parrotCall(mood='happy'){if(mood==='happy'){beep(1180,.05,'triangle',.03,0);beep(1420,.045,'triangle',.028,.045);beep(1260,.06,'triangle',.03,.09);beep(1660,.07,'sine',.022,.16)}else if(mood==='oops'){beep(620,.08,'square',.028,0);beep(470,.1,'square',.028,.07);beep(350,.12,'sawtooth',.022,.15)}else if(mood==='celebrate'){beep(1180,.05,'triangle',.03,0);beep(1420,.045,'triangle',.03,.045);beep(1260,.05,'triangle',.03,.09);beep(1560,.05,'triangle',.03,.135);beep(1880,.12,'sine',.025,.2)}}
-  function sound(kind='click'){if(!soundOn)return;if(kind==='correct'){parrotCall('happy');beep(784,.08,'sine',.018,.2)}else if(kind==='wrong'){parrotCall('oops')}else if(kind==='complete'){parrotCall('celebrate');beep(1047,.18,'triangle',.04,.28)}else if(kind==='flip'){beep(360,.055,'sine',.028)}else if(kind==='build'){beep(440,.06,'triangle',.035);beep(554,.06,'triangle',.035,.06);beep(659,.13,'triangle',.04,.12)}else if(kind==='reset'){beep(300,.05,'sine',.025);beep(250,.08,'sine',.025,.05)}else{beep(420,.045,'sine',.022)}}
-  function tone(ok=true){sound(ok?'correct':'wrong')}
-  document.getElementById('soundToggle').addEventListener('click',e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?'🔊 Sonidos ON':'🔇 Sonidos OFF';e.currentTarget.setAttribute('aria-pressed',soundOn);if(soundOn)sound('correct')})
-  function showSection(id){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('.pill[data-section]').forEach(b=>b.classList.toggle('active',b.dataset.section===id));root.scrollIntoView({behavior:'smooth',block:'start'})}
-  function addSectionParrots(){document.querySelectorAll('.panel.section').forEach((section,i)=>{if(section.querySelector('.parrot-buddy'))return;section.classList.add('parrotized');const buddy=document.createElement('div');buddy.className='parrot-buddy';buddy.setAttribute('aria-hidden','true');buddy.innerHTML=`<div class="feather-cluster"><span class="feather f1" style="--r:-28deg"></span><span class="feather f2" style="--r:18deg"></span><span class="feather f3" style="--r:30deg"></span><span class="feather f4" style="--r:-8deg"></span></div><div class="parrot-float"><span class="parrot-emoji">🦜</span><span class="parrot-spark">✨</span></div>`;section.prepend(buddy)})}
-  addSectionParrots();
-  document.querySelectorAll('[data-section]').forEach(b=>b.addEventListener('click',()=>{sound('click');showSection(b.dataset.section)}));
-  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{sound('click');showSection(b.dataset.go)}));
-
-  const syn=[
-    ['¿Cuál es un sinónimo de “rápido”?',['lento','veloz','pesado'],'veloz','“Veloz” expresa una idea parecida a “rápido”.'],
-    ['En la obra “Una de piratas”, “mininos” se refiere a…',['gatos','barcos','tesoros'],'gatos','“Mininos” es otra manera de nombrar a los gatos.'],
-    ['¿Qué palabra puede reemplazar “deliciosa” sin cambiar el sentido?',['sabrosa','amarga','vacía'],'sabrosa','“Sabrosa” mantiene una idea similar.'],
-    ['¿Cuál se parece más a “afanosamente”?',['con esfuerzo y dedicación','sin hacer nada','muy lentamente'],'con esfuerzo y dedicación','En el texto, los piratas trabajaban con dedicación.'],
-    ['¿Sinónimo de “contento”?',['feliz','enojado','cansado'],'feliz','“Feliz” y “contento” pueden expresar un estado similar.'],
-    ['¿Cuál puede reemplazar “esconder” en una oración?',['ocultar','mostrar','abrir'],'ocultar','“Ocultar” conserva la idea de no dejar algo a la vista.']
-  ];
-  const ant=[
-    ['¿Cuál es el antónimo de “rápido”?',['veloz','lento','ágil'],'lento','“Lento” expresa la idea contraria a “rápido”.'],
-    ['¿Cuál es el antónimo de “limpio”?',['ordenado','sucio','claro'],'sucio','“Sucio” es el contrario de “limpio”.'],
-    ['¿Cuál es el antónimo de “obediente”?',['desobediente','amable','atento'],'desobediente','La palabra expresa la conducta opuesta.'],
-    ['¿Cuál es el antónimo de “feliz”?',['triste','contento','alegre'],'triste','“Triste” se opone a “feliz”.'],
-    ['¿Cuál es el antónimo de “cerca”?',['pronto','lejos','junto'],'lejos','“Lejos” se opone a “cerca”.'],
-    ['¿Cuál es el antónimo de “vacío”?',['lleno','hondo','grande'],'lleno','“Lleno” indica lo contrario de “vacío”.']
-  ];
-  function setupQuiz(data,prefix,doneId){let i=0,correct=0;const q=document.getElementById(prefix+'Q'),opts=document.getElementById(prefix+'Options'),fb=document.getElementById(prefix+'Feedback'),next=document.getElementById(prefix+'Next');function render(){const item=data[i];q.textContent=`Pregunta ${i+1} de ${data.length}: ${item[0]}`;opts.innerHTML='';fb.textContent='';next.classList.add('hidden');item[1].forEach(t=>{const b=document.createElement('button');b.className='option';b.type='button';b.textContent=t;b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ '+item[3];correct++;addScore(5);tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ '+item[3];tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}next.addEventListener('click',()=>{i++;if(i>=data.length){q.textContent=`¡Listo! Tuviste ${correct} de ${data.length} correctas.`;opts.innerHTML='';fb.textContent=correct>=Math.ceil(data.length*.7)?'🌟 Muy bien. Comprendiste la idea principal.':'💪 Repasa los ejemplos y vuelve a intentarlo.';next.classList.add('hidden');if(correct>=Math.ceil(data.length*.7))markDone(doneId);return}render()});render()}
-  setupQuiz(syn,'syn','syn');setupQuiz(ant,'ant','ant');
-
-  const synFlash=[
-    ['rápido',['veloz','lento','sucio'],'veloz'],['feliz',['contento','triste','lejano'],'contento'],['esconder',['ocultar','mostrar','romper'],'ocultar'],['mininos',['gatos','piratas','pájaros'],'gatos'],['deliciosa',['sabrosa','vacía','amarga'],'sabrosa'],['enorme',['gigante','pequeño','liviano'],'gigante']
-  ];let sfi=0,sfc=0;
-  function renderSynFlash(reset=false){if(reset){sfi=0;sfc=0}const item=synFlash[sfi],word=document.getElementById('synFlashWord'),choices=document.getElementById('synFlashChoices'),fb=document.getElementById('synFlashFeedback'),next=document.getElementById('synFlashNext');document.getElementById('synFlashRound').textContent=`Ronda ${sfi+1}/${synFlash.length}`;word.textContent=item[0];choices.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{choices.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ ¡Pareja encontrada!';sfc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...choices.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Ese no mantiene el mismo significado.';sound('wrong')}next.classList.remove('hidden')});choices.appendChild(b)})}
-  document.getElementById('synFlashNext').addEventListener('click',()=>{sfi++;sound('click');if(sfi>=synFlash.length){document.getElementById('synFlashWord').textContent=`Resultado: ${sfc}/${synFlash.length}`;document.getElementById('synFlashChoices').innerHTML='';document.getElementById('synFlashFeedback').textContent=sfc>=4?'🌟 ¡Excelente dominio de sinónimos!':'💪 Repasa y vuelve a jugar.';document.getElementById('synFlashNext').classList.add('hidden');if(sfc>=4)markDone('synflash');return}renderSynFlash()});
-  document.getElementById('synFlashReset').addEventListener('click',()=>{sound('reset');renderSynFlash(true)});renderSynFlash(true);
-
-  const antJudge=[
-    ['rápido ↔ lento',true],['limpio ↔ sucio',true],['feliz ↔ contento',false],['obediente ↔ desobediente',true],['cerca ↔ junto',false],['vacío ↔ lleno',true]
-  ];let aji=0,ajc=0;
-  function renderAntJudge(reset=false){if(reset){aji=0;ajc=0}const item=antJudge[aji],fb=document.getElementById('antJudgeFeedback'),next=document.getElementById('antJudgeNext'),btns=[...document.querySelectorAll('[data-judge]')];document.getElementById('antJudgeRound').textContent=`Caso ${aji+1}/${antJudge.length}`;document.getElementById('antJudgePair').textContent=item[0];fb.textContent='';next.classList.add('hidden');btns.forEach(b=>{b.disabled=false;b.classList.remove('correct','wrong')});}
-  document.querySelectorAll('[data-judge]').forEach(b=>b.addEventListener('click',()=>{const val=b.dataset.judge==='true',item=antJudge[aji],btns=[...document.querySelectorAll('[data-judge]')];btns.forEach(x=>x.disabled=true);if(val===item[1]){b.classList.add('correct');document.getElementById('antJudgeFeedback').textContent='✅ Detective correcto.';ajc++;addScore(4);sound('correct')}else{b.classList.add('wrong');btns.find(x=>(x.dataset.judge==='true')===item[1])?.classList.add('correct');document.getElementById('antJudgeFeedback').textContent='❌ Revisa si los significados realmente son opuestos.';sound('wrong')}document.getElementById('antJudgeNext').classList.remove('hidden')}));
-  document.getElementById('antJudgeNext').addEventListener('click',()=>{aji++;sound('click');if(aji>=antJudge.length){document.getElementById('antJudgePair').textContent=`Resultado: ${ajc}/${antJudge.length}`;document.getElementById('antJudgeFeedback').textContent=ajc>=4?'🌟 ¡Muy buen detective de antónimos!':'🕵️ Repasa las parejas y prueba otra vez.';document.getElementById('antJudgeNext').classList.add('hidden');document.querySelectorAll('[data-judge]').forEach(b=>b.disabled=true);if(ajc>=4)markDone('antjudge');return}renderAntJudge()});
-  document.getElementById('antJudgeReset').addEventListener('click',()=>{sound('reset');renderAntJudge(true)});renderAntJudge(true);
-
-  const readings=[
-    {id:'tortuga',title:'La Capo-Tortuga y la Liebre fanfarrona',meta:'Gabriel Echeverría · obra dramática · pág. 210',body:`
-      <p><span class="speaker">Liebre fanfarrona:</span> Soy tan veloz, ya lo sé, soy la más rápida, ya lo ven. Ya no tengo contra quién correr, a todos puedo vencer.</p>
-      <p><span class="speaker">Narrador:</span> Y así conocemos a la fanfarrona liebre, que con su modestia la rabia de todos enciende. <i>(Entra la Capo-Tortuga).</i></p>
-      <p><span class="speaker">Capo-Tortuga:</span> ¡Te reto a una carrera!</p>
-      <p><span class="speaker">Liebre fanfarrona:</span> Ja, ja, ja... <i>(riendo a carcajadas)</i> correr contigo no vale la pena, jamás me ganarías, ni aunque estuviera atada con cadenas.</p>
-      <p><span class="speaker">Capo-Tortuga:</span> No te niegues a correr, si no tienes nada que perder.</p>
-      <p><span class="speaker">Liebre fanfarrona:</span> Está bien, si quieres fracasar, yo te voy a ayudar...</p>
-      <p><i>Los animales del bosque presenciaron eufóricos la carrera, saltando y gritando.</i></p>
-      <p><span class="speaker">Narrador:</span> La liebre se durmió en el camino y cuando llegó a la meta vio que la tortuga daba el último paso. Trató de ganar estirando los brazos, pero la carrera perdió. Los animales comenzaron a celebrar y de la liebre se empezaron a burlar.</p>
-      <p><span class="speaker">Capo-Tortuga:</span> <i>(Haciéndoles callar).</i> No está bien burlarse, todos tenemos que saber ganar y perder. Y en vez del triunfo jactarse, hay que aprender a respetarse.</p>
-      <p><span class="speaker">Liebre fanfarrona:</span> Sí, tienes razón. Ahora seguiré buena de corazón porque aprendí que vanagloriarse hará que sin amigos uno pueda quedarse.</p>`},
-    {id:'piratas',title:'Una de piratas',meta:'Carmen Gil · obra dramática · págs. 214–217',body:`
-      <p><i>En el puerto de los Siete Mares, una pandilla de piratas trajinaba afanosamente.</i></p>
-      <p><span class="speaker">Narrador:</span> El pirata Johnny el Rata, un corsario patoso y atolondrado, que se mareaba hasta en una colchoneta de playa, estaba empeñado en enseñar a su loro a recitar un trabalenguas.</p>
-      <p><span class="speaker">Johnny:</span> Vamos, lorito, vamos. Repite lo que te digo: Tres tristes tigres comían trigo en un trigal... ¡Un tigre, dos tigres, tres tigres!</p>
-      <p><span class="speaker">Narrador:</span> Mientras tanto, Cordelia, la abuelita pirata, tejía un pantalón con ocho perneras para el pulpo Tomás, que pillaba un resfriado cada dos por tres.</p>
-      <p><span class="speaker">Cordelia:</span> ¡Qué lata con tanta pata!</p>
-      <p><span class="speaker">Narradora 1:</span> A su lado, el pirata Boquerón se entrenaba en el noble arte de dormir a pierna suelta y lanzaba ronquidos ensordecedores.</p>
-      <p><span class="speaker">Narradora 2:</span> No lejos de él, la bucanera Anastasia, el pirata Otilio y el grumete Salmonete cantaban, como siempre, a voz en grito, desafinando como grajos.</p>
-      <p><i>Entra un mensajero arrastrando un enorme baúl. Aparece por entre los barcos y se detiene frente a Johnny.</i></p>
-      <p><span class="speaker">Mensajero:</span> Busco al pirata Johnny el Rata. ¿Es usted?</p>
-      <p><span class="speaker">Johnny:</span> El mismo que viste y calza.</p>
-      <p><span class="speaker">Mensajero:</span> Traigo un paquete. Bueno, más que un paquete, un baúl. ¡No vea lo que pesa! ¡Ah! Y lleva una nota.</p>
-      <p><span class="speaker">Narradora 2:</span> La escueta nota decía así: <i>“Al pirata Johnny el Rata: Le hago entrega de la herencia de su tatarabuelo, el pirata Baldomero. Atentamente, el notario de Isla Tortuga”.</i></p>
-      <p><i>Johnny lee la nota y abre el baúl quedando patidifuso.</i></p>
-      <p><span class="speaker">Johnny:</span> ¡Caramba! ¡Oro, plata, piedras preciosas! ¡Qué gran tesoro!</p>
-      <p><span class="speaker">Narrador:</span> Aprovechando el despiste de sus compañeros, Johnny se despidió, arrastrando su pesado baúl.</p>
-      <p><span class="speaker">Johnny:</span> Tengo que buscar un buen escondite.</p>
-      <p><span class="speaker">Narradora 1:</span> Y camina que te caminarás, llegó a la cueva del dragón de las tres cabezas.</p>
-      <p><span class="speaker">Johnny:</span> ¿Me permitís que esconda aquí mi tesoro?</p>
-      <p><span class="speaker">Cabeza 1:</span> ¡Ah, no! ¡Ni hablar! Tengo una jaqueca que me trae de cabeza.</p>
-      <p><span class="speaker">Cabeza 2:</span> Yo estoy muy ocupada, dándole vueltas a la cabeza, buscando la solución a una adivinanza.</p>
-      <p><span class="speaker">Cabeza 3:</span> Yo intento descabezar un sueñecito.</p>
-      <p><span class="speaker">Narrador:</span> Johnny no quiso perder más tiempo con aquel dragón impertinente y se dirigió a la cueva de las brujas.</p>
-      <p><span class="speaker">Bruja Federica:</span> No me molestes, pirata pesado, que estoy a punto de preparar una poción para convertir a los niños en bobos.</p>
-      <p><span class="speaker">Bruja Fermina:</span> Y yo estoy requeteconcentrada con mi cursillo de magia por Internet.</p>
-      <p><span class="speaker">Narradora 1:</span> El pirata Johnny decidió entonces buscar una cueva deshabitada. Cuando la encontró, arrastró su tesoro hasta el fondo de la gruta y se sentó a vigilar en la entrada.</p>
-      <p><span class="speaker">Johnny:</span> ¡Ay! Me parece que alguien se acerca por la derecha a robarme mi herencia. ¡Ay! Creo que alguien viene por la izquierda a apoderarse de mi baúl. ¡Ay! Oigo un ruido por detrás. ¡Ay! Me parece haber visto una sombra por allí delante.</p>
-      <p><span class="speaker">Narradora 2:</span> El pobre pirata se pasó varios días con sus noches sin pegar ojo, temeroso de que alguien le quitara su herencia. No comía, no dormía y, por supuesto, no había vuelto a sonreír.</p>
-      <p><span class="speaker">Johnny:</span> ¡Esto no es vida! Con lo feliz que vivía yo en el puerto con mi pandilla, enseñándole a decir trabalenguas a mi loro y jugando al parchís.</p>
-      <p><span class="speaker">Narrador:</span> ¡Claro! Porque lo que no se comparte, no se disfruta. Por eso, Johnny decidió hacer partícipes del tesoro a sus amigos. ¿Y sabéis qué hicieron con él? Crear un hogar para gatos abandonados.</p>
-      <p><span class="speaker">Narradora 1:</span> Y desde entonces viven requetefelices recogiendo mininos desamparados y cuidando de ellos.</p>`},
-    {id:'hermanos',title:'Los tres hermanos ingeniosos no se ponen celosos',meta:'Alejandra Erbiti · obra dramática · págs. 226–229',body:`
-      <p><i>En una casa, están reunidos el Padre y sus tres hijos. Están congelados, inmóviles, mientras habla el Juglar.</i></p>
-      <p><span class="speaker">Juglar:</span> ¡Atención! ¡Atención! Esta es la situación: en una casa como hay tantas, un padre habla cómodamente. Sus hijos oyen atentos, el resto... ¡el resto ya se los cuento!</p>
-      <p><span class="speaker">Padre:</span> Hijos míos, todo este tiempo os he criado y mantenido. Llegó el día de partir, porque, ahora, ya han crecido. ¡Vayan y encuentren fortuna! ¡Sin temor, echen a andar! ¡Y no olviden que su padre sueña verlos regresar!</p>
-      <p><span class="speaker">Juglar:</span> Cierta noche, los hermanos llegan al cruce de los caminos y deciden separarse en busca de sus destinos.</p>
-      <p><span class="speaker">Hombre 1:</span> ¡Salud, caminante! ¿Adónde viajas de noche? ¿Por qué no te echas a mirar la luna?</p>
-      <p><span class="speaker">Hijo 1:</span> Mi padre me dio una orden: “salir a buscar fortuna”.</p>
-      <p><span class="speaker">Hombre 1:</span> Yo puedo enseñarte un oficio que da muchos beneficios.</p>
-      <p><span class="speaker">Hijo 1:</span> ¿Cuál es esa profesión?</p>
-      <p><span class="speaker">Hombre 1:</span> Te enseñaré a ser ladrón.</p>
-      <p><span class="speaker">Hijo 1:</span> ¿Ladrón? ¡Eso es terrible! ¿Y si me atrapan? ¡Terminaré en prisión!</p>
-      <p><span class="speaker">Hombre 1:</span> Aprenderás a robar con tanta gracia que todo cuanto quieras caerá en tus manos como por arte de magia. ¡Nunca te atraparán, si yo soy tu profesor! Pues de todos los ladrones, no existe otro mejor.</p>
-      <p><span class="speaker">Hijo 1:</span> Entonces... ¡Acepto su oferta, señor!</p>
-      <p><span class="speaker">Hombre 2:</span> ¡Hey, muchacho! ¿Quieres conocer tu fortuna?</p>
-      <p><span class="speaker">Hijo 2:</span> Casualmente, ando buscando una.</p>
-      <p><span class="speaker">Hombre 2:</span> ¿Te gustaría aprender astrología?</p>
-      <p><span class="speaker">Hijo 2:</span> ¿Y eso de qué me serviría?</p>
-      <p><span class="speaker">Hombre 2:</span> ¡Es el mejor de los oficios! Te enseñaré a ver el futuro y nada escapará a tu ojo si aprendes a mirar a través de este cristal.</p>
-      <p><span class="speaker">Hijo 2:</span> ¡Me parece un oficio genial!</p>
-      <p><span class="speaker">Hombre 3:</span> ¿Adónde vas, forastero?</p>
-      <p><span class="speaker">Hijo 3:</span> Voy a aprender un oficio que me haga ganar dinero.</p>
-      <p><span class="speaker">Hombre 3:</span> ¿Te gustaría ser sastre?</p>
-      <p><span class="speaker">Hijo 3:</span> ¡No! ¡Para esas cosas soy un desastre!</p>
-      <p><span class="speaker">Hombre 3:</span> ¡Tonterías! Yo puedo enseñarte. Si eres buen aprendiz, te daré una aguja de mágica finura. Podrás zurcir cualquier cosa y nadie verá la costura.</p>
-      <p><span class="speaker">Juglar:</span> Y cuatro años pasaron y los hermanos cumplieron: aprendieron a hacer fortuna y a casa del padre volvieron.</p>
-      <p><span class="speaker">Padre:</span> ¡Cuéntenme! ¿Qué hicieron? ¿Han encontrado su propia fortuna?</p>
-      <p><span class="speaker">Hijo 1:</span> Un ladrón experto me enseñó a robar, pero yo no quería hacer eso. Como aprendí a mover las manos más rápido que la vista, para hacer mi fortuna me convertí en artista. ¡Soy un gran ilusionista!</p>
-      <p><span class="speaker">Hijo 2:</span> Mi estudio de astrología me resultó divertido. Mi maestro dijo que fui su aprendiz preferido. Me regaló este cristal, que sirve para observar. No me dedico a adivinar: veo todo lo que existe... ¡Me convertí en poeta! Las cosas que veo las cuento y me escuchan mis seguidores.</p>
-      <p><span class="speaker">Hijo 3:</span> Me convertí en sastre, el mejor que haya existido. Mi maestro me regaló una aguja maravillosa. Con ella puedo coser o remendar cualquier cosa. Pero los que más me hacen felices son mis preciosos tapices.</p>
-      <p><span class="speaker">Padre:</span> ¡Feliz estoy por ustedes! Todos, de alguna forma, supieron buscar fortuna.</p>`},
-    {id:'justicia',title:'Justicia Espada Acuña Mena',meta:'Biografía · pág. 234',body:`
-      <p><b>Justicia Espada Acuña Mena (1893–1980)</b></p>
-      <p>Destacada en una actividad especialmente masculina, Justicia fue la primera mujer chilena y sudamericana en estudiar la carrera de ingeniería civil.</p>
-      <p>Ingresó a la Universidad de Chile en 1913 y se tituló el año 1919, siendo la única estudiante mujer de la carrera.</p>
-      <p>En sus años como universitaria conoció a Alfredo Gajardo, compañero de carrera con quien se casó y tuvo siete hijos. Se desempeñó laboralmente en su área profesional, trabajando como <b>calculista</b> para la Empresa de los Ferrocarriles del Estado.</p>
-      <p>Desde 1981, Justicia ocupa un lugar en la “Galería de Ingenieros Ilustres” del Colegio de Ingenieros de Chile. El año 1991 se creó el Premio Justicia Acuña Mena, que reconoce a mujeres destacadas en este campo profesional.</p>
-      <p>La experiencia de Justicia es especialmente significativa, ya que manifiesta la irrupción de la mujer en el mundo profesional, <b>abriendo caminos</b> en espacios considerados, en ese entonces, solo para los hombres.</p>`},
-    {id:'gota',title:'La gota que faltaba',meta:'Florencia Esses · cuento · págs. 236–237',body:`
-      <p>Ya habían pasado demasiados días y demasiadas noches desde la última lluvia. Los árboles parecían tristes y las pocas flores que quedaban vivas se empezaron a marchitar. Entonces, el pueblo entero se reunió en la plaza y la mujer más anciana dijo:</p>
-      <p>—Sé cómo hacer para llenar nuestros ríos. Debemos elegir a una persona valiente, capaz de recorrer largas distancias sin detenerse, que soporte el frío y el calor.</p>
-      <p>Todas las miradas apuntaron hacia Fermín, el cartero del pueblo. La anciana le dijo:</p>
-      <p>—Lleva este jarrón hasta la cima de la montaña. Allá sabrás qué hacer.</p>
-      <p>Dentro del jarrón había solo una gota de agua. Fermín miró la gota con un poco de miedo. Él creía saber todo sobre paquetes, sobres y encomiendas, pero este encargo lo había sorprendido.</p>
-      <p>—¡Una gota! Fui capaz de llevar cartas grandes y chiquitas. Pero... una carta transparente y mojada, ¿cómo voy a hacer para que no se caiga? —se preguntaba. Este era el encargo más extraño de su vida como cartero.</p>
-      <p>El primer día caminó abrazado al jarrón, y al atardecer decidió parar hasta el día siguiente. Bajo la luz de la luna repetía la frase de la anciana: “Allá sabrás qué hacer”. Pero ¿cómo voy a darme cuenta si nadie me explica?</p>
-      <p>Fermín comió uno de los sándwiches que se había llevado, acomodó el jarrón en un pozo y se durmió. Al otro día, cuando se despertó, vio que el pozo estaba vacío.</p>
-      <p>—¡El jarrón! —gritó Fermín.</p>
-      <p>—¿Buscas esto? —le preguntó una tortuga que tenía el jarrón sobre su caparazón—. No te preocupes, soy una excelente equilibrista.</p>
-      <p>—¿Una tortuga equilibrista? —dijo Fermín con desconfianza.</p>
-      <p>—Sí, un poco lenta, pero de mi caparazón nunca se cayó nada. Soy capaz de transportar una nuez sin que toque el piso ni una vez.</p>
-      <p>Fermín le contó su misión a la tortuga y juntos caminaron todo el segundo día hasta que se hizo de noche. Después de compartir un sándwich de lechuga, se quedaron profundamente dormidos.</p>
-      <p>Con los primeros rayos del sol, Fermín abrió los ojos. Allí estaba el jarrón, pero no veía por ningún lado a su amiga equilibrista. A un lado encontró una carta en la que decía: “Fermín: discúlpame, pero me tuve que ir. Gracias a ti descubrí mi vocación. A partir de hoy, seré la ‘cartera del bosque’, y voy a llevar todo tipo de encomiendas en perfecto equilibrio sobre mi caparazón, al servicio de quien me necesite. Ojalá nos encontremos algún día”.</p>
-      <p>Fermín sonrió, guardó la carta en su bolsillo, y emprendió el último tramo del viaje. Tardó todo un día más en llegar. Ya le estaban empezando a doler los pies cuando vio la cima de la montaña y sintió que las nubes le acariciaban el pelo. Ahí, vio un lago que coronaba la montaña y entonces, tal como le había dicho la anciana, supo exactamente lo que tenía que hacer.</p>
-      <p>Se acercó a la orilla y volcó la gota en el agua del lago. Se escuchó un <b>PLOP</b> tan fuerte que provocó un trueno, que luego provocó una lluvia. El lago se desbordó y el agua empezó a rodar por la ladera. Los ríos se llenaron, los árboles dejaron de estar tristes y una flor creció en cada rincón.</p>
-      <p>Y así fue que Fermín se transformó en el héroe del pueblo por haber llevado al lago la gota que faltaba.</p>`}
-  ];
-  const readerMenu=document.getElementById('readerMenu'),readingArea=document.getElementById('readingArea');let currentReading='piratas';
-  function renderReading(){readerMenu.innerHTML='';readings.forEach(r=>{const b=document.createElement('button');b.className='reader-choice'+(r.id===currentReading?' active':'');b.type='button';b.textContent=r.title;b.addEventListener('click',()=>{currentReading=r.id;renderReading();renderReadQuiz(true)});readerMenu.appendChild(b)});const r=readings.find(x=>x.id===currentReading);readingArea.innerHTML=`<h3>${r.title}</h3><div class="meta">${r.meta}</div>${r.body}`}
-  renderReading();
-
-  const readQs={
-    tortuga:[['¿Qué aprendió la liebre?',['Que debía presumir más','Que debía respetar y no vanagloriarse','Que nunca debía correr'],'Que debía respetar y no vanagloriarse'],['¿Qué hizo la Capo-Tortuga cuando los animales se burlaron?',['Los hizo callar','Se fue','Se burló también'],'Los hizo callar']],
-    piratas:[['¿Cómo obtuvo Johnny el tesoro?',['Lo encontró en una cueva','Lo heredó del pirata Baldomero','Se lo regaló un dragón'],'Lo heredó del pirata Baldomero'],['¿Por qué Johnny dejó de sentirse feliz al esconder el tesoro?',['Porque temía que se lo robaran y no podía descansar','Porque no le gustaban las piedras preciosas','Porque perdió a su loro'],'Porque temía que se lo robaran y no podía descansar'],['¿Qué hicieron finalmente con el tesoro?',['Compraron un barco','Crearon un hogar para gatos abandonados','Lo enterraron'],'Crearon un hogar para gatos abandonados']],
-    hermanos:[['¿Qué les ordenó el padre a sus hijos?',['Buscar fortuna','Construir una casa','Quedarse con él'],'Buscar fortuna'],['¿En qué se convirtió el Hijo 1?',['Ladrón','Ilusionista','Astrólogo'],'Ilusionista'],['¿Qué aprendió el Hijo 3?',['Sastrería','Navegación','Poesía'],'Sastrería']],
-    justicia:[['¿Por qué se destaca a Justicia Acuña?',['Fue la primera mujer chilena y sudamericana en estudiar ingeniería civil','Fue cantante','Fue astronauta'],'Fue la primera mujer chilena y sudamericana en estudiar ingeniería civil'],['¿Dónde trabajó como calculista?',['En Ferrocarriles del Estado','En un hospital','En una escuela'],'En Ferrocarriles del Estado']],
-    gota:[['¿Qué problema enfrentaba el pueblo?',['Escasez de agua','Exceso de lluvia','Falta de caminos'],'Escasez de agua'],['¿Qué descubrió la tortuga gracias a Fermín?',['Su vocación como cartera del bosque','Un tesoro','Una cueva'],'Su vocación como cartera del bosque'],['¿Qué ocurrió cuando Fermín volcó la gota en el lago?',['Se produjo lluvia y el agua volvió al pueblo','El lago desapareció','La gota se evaporó'],'Se produjo lluvia y el agua volvió al pueblo']]
-  };
-  let rq=0,rc=0;
-  function renderReadQuiz(reset=false){if(reset){rq=0;rc=0}const data=readQs[currentReading],item=data[rq],q=document.getElementById('readQ'),opts=document.getElementById('readOptions'),fb=document.getElementById('readFeedback'),next=document.getElementById('readNext');q.textContent=`Comprensión · ${rq+1}/${data.length}: ${item[0]}`;opts.innerHTML='';fb.textContent='';next.classList.add('hidden');item[1].forEach(t=>{const b=document.createElement('button');b.className='option';b.textContent=t;b.type='button';b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ Muy bien. La respuesta está apoyada por el texto.';rc++;addScore(5);tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Vuelve al texto y busca la pista.';tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}
-  document.getElementById('readNext').addEventListener('click',()=>{const data=readQs[currentReading];rq++;if(rq>=data.length){document.getElementById('readQ').textContent=`Resultado: ${rc}/${data.length} correctas.`;document.getElementById('readOptions').innerHTML='';document.getElementById('readFeedback').textContent=rc>=Math.ceil(data.length*.67)?'🌟 Lectura comprendida. ¡Puedes probar otro texto!':'📖 Relee y vuelve a intentarlo.';document.getElementById('readNext').classList.add('hidden');if(rc>=Math.ceil(data.length*.67))markDone('reading');return}renderReadQuiz()});renderReadQuiz();
-
-  const whoData=[
-    ['¿Quién recibió una herencia con oro, plata y piedras preciosas?',['Johnny el Rata','Fermín','Justicia Acuña'],'Johnny el Rata'],
-    ['¿Quién fue la primera mujer chilena y sudamericana en estudiar Ingeniería Civil?',['Justicia Acuña','Cordelia','Bruja Federica'],'Justicia Acuña'],
-    ['¿Quién llevó el jarrón hasta la cima de la montaña?',['Fermín','Hijo 1','Capo-Tortuga'],'Fermín'],
-    ['¿Quién enseñó que no está bien burlarse del que pierde?',['Capo-Tortuga','Liebre fanfarrona','Boquerón'],'Capo-Tortuga'],
-    ['¿Quién se convirtió en ilusionista aprovechando lo aprendido?',['Hijo 1','Hijo 2','Hijo 3'],'Hijo 1']
-  ];let wi=0,wc=0;
-  function renderWho(reset=false){if(reset){wi=0;wc=0}const item=whoData[wi],box=document.getElementById('whoChoices'),fb=document.getElementById('whoFeedback'),next=document.getElementById('whoNext');document.getElementById('whoRound').textContent=`Ronda ${wi+1}/${whoData.length}`;document.getElementById('whoQ').textContent=item[0];box.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ ¡Muy bien!';wc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...box.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Busca esa acción en la lectura.';sound('wrong')}next.classList.remove('hidden')});box.appendChild(b)})}
-  document.getElementById('whoNext').addEventListener('click',()=>{wi++;sound('click');if(wi>=whoData.length){document.getElementById('whoQ').textContent=`Resultado: ${wc}/${whoData.length}`;document.getElementById('whoChoices').innerHTML='';document.getElementById('whoFeedback').textContent=wc>=4?'📚 ¡Excelente memoria lectora!':'🔎 Relee las historias y vuelve a probar.';document.getElementById('whoNext').classList.add('hidden');if(wc>=4)markDone('who');return}renderWho()});
-  document.getElementById('whoReset').addEventListener('click',()=>{sound('reset');renderWho(true)});renderWho(true);
-
-  const dropSteps=[
-    {id:1,t:'El pueblo sufre una gran escasez de agua.'},
-    {id:2,t:'Fermín acepta llevar un jarrón hasta la cima de la montaña.'},
-    {id:3,t:'Descubre que en el jarrón queda solo una gota de agua.'},
-    {id:4,t:'Fermín conoce a una tortuga y la ayuda repartiendo cartas.'},
-    {id:5,t:'La tortuga se convierte en la “cartera del bosque” y Fermín sigue su viaje.'},
-    {id:6,t:'Fermín vuelca la gota en el lago y el agua vuelve al pueblo.'}
-  ];let dsi=1;
-  function renderDropSequence(){dsi=1;const box=document.getElementById('dropSequence'),fb=document.getElementById('dropSequenceFeedback');box.innerHTML='';fb.textContent='';shuffle(dropSteps).forEach(it=>{const b=document.createElement('button');b.type='button';b.className='sequence-card';b.textContent=it.t;b.addEventListener('click',()=>{if(b.classList.contains('done'))return;if(it.id===dsi){b.classList.add('done');b.disabled=true;dsi++;addScore(3);sound('correct');if(dsi===dropSteps.length+1){fb.textContent='🌧️ ¡Secuencia completa! Comprendiste cómo avanzan los hechos.';markDone('dropsequence')}}else{b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),350);fb.textContent='🤔 Ese hecho ocurre después. Busca qué pasó antes.';sound('wrong')}});box.appendChild(b)})}
-  document.getElementById('dropSequenceReset').addEventListener('click',()=>{sound('reset');renderDropSequence()});renderDropSequence();
-
-  const orderItems=[
-    {id:1,t:'Dos amigos caminan juntos por el bosque.'},
-    {id:2,t:'Aparece un oso y uno de los amigos se asusta.'},
-    {id:3,t:'Uno finge estar muerto mientras el oso se acerca.'},
-    {id:4,t:'El amigo explica que aprendió a no confiar en quien abandona en el peligro.'}
-  ];let orderStep=1;
-  function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
-  function renderOrder(){orderStep=1;const box=document.getElementById('comicOrder');box.innerHTML='';document.getElementById('comicFeedback').textContent='';shuffle(orderItems).forEach(it=>{const b=document.createElement('button');b.type='button';b.className='order-card';b.textContent=it.t;b.addEventListener('click',()=>{if(b.classList.contains('done'))return;if(it.id===orderStep){b.classList.add('done');b.disabled=true;orderStep++;tone(true);addScore(3);if(orderStep===5){document.getElementById('comicFeedback').textContent='✅ ¡Secuencia correcta! Una historieta se entiende porque las viñetas siguen un orden.';markDone('comic')}}else{b.classList.add('selected');setTimeout(()=>b.classList.remove('selected'),350);document.getElementById('comicFeedback').textContent='🤔 Ese no es el siguiente momento. Piensa qué ocurrió antes.';tone(false)}});box.appendChild(b)})}
-  document.getElementById('resetOrder').addEventListener('click',()=>{sound('reset');renderOrder()});renderOrder();
-  const comicParts=[
-    ['“¡Cuidado, un oso!” dentro de una burbuja','Globo de diálogo'],['“Dos amigos caminaban por el bosque” en una caja rectangular','Narrador'],['Un cuadro que muestra un momento de la historia','Viñeta'],['Una nube que muestra lo que un personaje piensa','Globo de pensamiento'],['Las palabras que dice directamente un personaje','Globo de diálogo']
-  ];let cpi=0,cpc=0;const comicPartOpts=['Viñeta','Globo de diálogo','Globo de pensamiento','Narrador'];
-  function renderComicPart(reset=false){if(reset){cpi=0;cpc=0}const item=comicParts[cpi],box=document.getElementById('comicPartChoices'),fb=document.getElementById('comicPartFeedback'),next=document.getElementById('comicPartNext');document.getElementById('comicPartRound').textContent=`Ronda ${cpi+1}/${comicParts.length}`;document.getElementById('comicPartPrompt').textContent=item[0];box.innerHTML='';fb.textContent='';next.classList.add('hidden');comicPartOpts.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[1]){b.classList.add('correct');fb.textContent='✅ ¡Identificado!';cpc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...box.children].find(x=>x.textContent===item[1])?.classList.add('correct');fb.textContent='❌ Observa la función de cada elemento.';sound('wrong')}next.classList.remove('hidden')});box.appendChild(b)})}
-  document.getElementById('comicPartNext').addEventListener('click',()=>{cpi++;sound('click');if(cpi>=comicParts.length){document.getElementById('comicPartPrompt').textContent=`Resultado: ${cpc}/${comicParts.length}`;document.getElementById('comicPartChoices').innerHTML='';document.getElementById('comicPartFeedback').textContent=cpc>=4?'🎉 ¡Ya reconoces los elementos del cómic!':'💬 Revisa viñeta, globos y narrador.';document.getElementById('comicPartNext').classList.add('hidden');if(cpc>=4)markDone('comicparts');return}renderComicPart()});
-  document.getElementById('comicPartReset').addEventListener('click',()=>{sound('reset');renderComicPart(true)});renderComicPart(true);
-  document.getElementById('buildComic').addEventListener('click',()=>{const sc=document.getElementById('comicScene').value,n=document.getElementById('comicNarrator').value.trim()||'Comienza la historia...',d=document.getElementById('comicDialog').value.trim()||'¡Hola!';sound('build');document.getElementById('comicOutput').classList.add('confetti');setTimeout(()=>document.getElementById('comicOutput').classList.remove('confetti'),400);document.getElementById('comicOutput').innerHTML=[1,2,3].map((x,i)=>`<div class="panel-comic"><div class="narrator-box">${i===0?n:(i===1?'La situación cambia...':'Finalmente...')}</div><div class="bubble">${i===0?d:(i===1?'¿Qué haremos ahora?':'¡Lo logramos!')}</div><div class="scene">${sc}</div></div>`).join('');addScore(5)});
-
-  const pairs=[['rápido','veloz'],['feliz','contento'],['ocultar','esconder'],['gatos','mininos']];let first=null,lock=false,matched=0;
-  function renderMemory(){matched=0;first=null;lock=false;const cards=shuffle(pairs.flatMap((p,i)=>p.map(t=>({t,p:i}))));const g=document.getElementById('memoryGrid');g.innerHTML='';document.getElementById('memoryFeedback').textContent='';cards.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='memory-card';b.textContent='❓';b.dataset.word=c.t;b.dataset.pair=c.p;b.addEventListener('click',()=>{if(lock||b.classList.contains('matched')||b===first)return;b.classList.add('open');b.textContent=c.t;sound('flip');if(!first){first=b;return}if(first.dataset.pair===b.dataset.pair){first.classList.add('matched');b.classList.add('matched');matched++;first=null;addScore(4);tone(true);if(matched===pairs.length){document.getElementById('memoryFeedback').textContent='🌟 ¡Memorama completo!';markDone('memory')}}else{lock=true;tone(false);setTimeout(()=>{first.classList.remove('open');first.textContent='❓';b.classList.remove('open');b.textContent='❓';first=null;lock=false},650)}});g.appendChild(b)})}
-  document.getElementById('resetMemory').addEventListener('click',()=>{sound('reset');renderMemory()});renderMemory();
-
-  const skillQs=[
-    ['“¿Cómo obtuvo Johnny su tesoro?” ¿Qué habilidad usas si la respuesta aparece explícita?','Localizar'],
-    ['“¿Por qué Johnny dejó de ser feliz?” exige explicar una causa a partir de lo leído.','Interpretar'],
-    ['“¿Cómo crees que se sintió Fermín al no ver el jarrón?” requiere concluir usando pistas.','Inferir'],
-    ['“¿Qué opinas de la decisión del Hijo 1?” requiere dar una valoración fundamentada.','Opinar']
-  ];let si=0;
-  function renderSkill(){const item=skillQs[si],q=document.getElementById('skillQ'),opts=document.getElementById('skillOptions'),fb=document.getElementById('skillFeedback'),next=document.getElementById('skillNext');q.textContent=item[0];opts.innerHTML='';fb.textContent='';next.classList.add('hidden');['Localizar','Interpretar','Inferir','Opinar'].forEach(t=>{const b=document.createElement('button');b.type='button';b.className='option';b.textContent=t;b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[1]){b.classList.add('correct');fb.textContent='✅ Correcto.';addScore(4);tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[1])?.classList.add('correct');fb.textContent='❌ Revisa la pista de la pregunta.';tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}
-  document.getElementById('skillNext').addEventListener('click',()=>{si++;if(si>=skillQs.length){si=0;markDone('skills')}renderSkill()});renderSkill();
-
-  const contextData=[
-    ['La liebre era muy rápida. ¿Qué palabra puede reemplazar “rápida” sin cambiar el sentido?',['veloz','lenta','sucia'],'veloz'],
-    ['El baúl estaba lleno. ¿Qué palabra expresa lo contrario de “lleno”?',['vacío','enorme','cerrado'],'vacío'],
-    ['Johnny quiso esconder el tesoro. ¿Qué palabra significa algo parecido a “esconder”?',['ocultar','mostrar','regalar'],'ocultar'],
-    ['Los gatos estaban limpios. ¿Qué palabra expresa lo contrario?',['sucios','felices','pequeños'],'sucios'],
-    ['Fermín estaba contento al ayudar. ¿Qué palabra mantiene el sentido?',['feliz','triste','enojado'],'feliz']
-  ];let cxi=0,cxc=0;
-  function renderContext(reset=false){if(reset){cxi=0;cxc=0}const item=contextData[cxi],box=document.getElementById('contextChoices'),fb=document.getElementById('contextFeedback'),next=document.getElementById('contextNext');document.getElementById('contextRound').textContent=`Ronda ${cxi+1}/${contextData.length}`;document.getElementById('contextQ').textContent=item[0];box.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='choice-tile';b.textContent=t;b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fb.textContent='✅ ¡La oración mantiene el sentido correcto!';cxc++;addScore(4);sound('correct')}else{b.classList.add('wrong');[...box.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Lee la oración completa y prueba el significado.';sound('wrong')}next.classList.remove('hidden')});box.appendChild(b)})}
-  document.getElementById('contextNext').addEventListener('click',()=>{cxi++;sound('click');if(cxi>=contextData.length){document.getElementById('contextQ').textContent=`Resultado: ${cxc}/${contextData.length}`;document.getElementById('contextChoices').innerHTML='';document.getElementById('contextFeedback').textContent=cxc>=4?'🎯 ¡Excelente uso de palabras en contexto!':'📘 Repasa sinónimos y antónimos.';document.getElementById('contextNext').classList.add('hidden');if(cxc>=4)markDone('context');return}renderContext()});
-  document.getElementById('contextReset').addEventListener('click',()=>{sound('reset');renderContext(true)});renderContext(true);
-
-  const finalData=[
-    ['Sinónimo de “veloz”',['rápido','lento','vacío'],'rápido'],['Antónimo de “limpio”',['sucio','claro','ordenado'],'sucio'],
-    ['En una historieta, cada cuadro ilustrado se llama…',['párrafo','viñeta','capítulo'],'viñeta'],['¿Para qué sirve un globo de diálogo?',['Para mostrar lo que dice un personaje','Para poner el título','Para numerar páginas'],'Para mostrar lo que dice un personaje'],
-    ['Johnny el Rata recibió su tesoro por…',['herencia','una carrera','un concurso'],'herencia'],['¿Qué hizo Johnny con el tesoro al final?',['Lo compartió para crear un hogar de gatos','Lo perdió','Lo vendió'],'Lo compartió para crear un hogar de gatos'],
-    ['El problema inicial de “La gota que faltaba” es…',['la escasez de agua','un exceso de nieve','un barco perdido'],'la escasez de agua'],['La tortuga descubre su vocación de…',['cartera del bosque','pirata','ingeniera'],'cartera del bosque'],
-    ['Justicia Acuña se destacó por estudiar…',['ingeniería civil','medicina','música'],'ingeniería civil'],['El Hijo 1 transformó lo aprendido y se convirtió en…',['ilusionista','ladrón','marinero'],'ilusionista']
-  ];let fi=0,fc=0;
-  function renderFinal(){const item=finalData[fi],q=document.getElementById('finalQ'),opts=document.getElementById('finalOptions'),fb=document.getElementById('finalFeedback'),next=document.getElementById('finalNext');document.getElementById('finalResult').classList.add('hidden');document.querySelector('#final .exercise').classList.remove('hidden');q.textContent=`${fi+1}/10 · ${item[0]}`;opts.innerHTML='';fb.textContent='';next.classList.add('hidden');shuffle(item[1]).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='option';b.textContent=t;b.addEventListener('click',()=>{opts.querySelectorAll('button').forEach(x=>x.disabled=true);if(t===item[2]){b.classList.add('correct');fc++;addScore(5);fb.textContent='✅ Correcto';tone(true)}else{b.classList.add('wrong');[...opts.children].find(x=>x.textContent===item[2])?.classList.add('correct');fb.textContent='❌ Revisa el contenido';tone(false)}next.classList.remove('hidden')});opts.appendChild(b)})}
-  function finishFinal(){document.querySelector('#final .exercise').classList.add('hidden');const r=document.getElementById('finalResult');r.classList.remove('hidden');const pass=fc>=8;document.getElementById('finalStars').textContent=fc===10?'⭐⭐⭐':fc>=8?'⭐⭐⭐':fc>=6?'⭐⭐':'⭐';document.getElementById('finalTitle').textContent=pass?'¡Misión cumplida!':'¡Buen intento!';document.getElementById('finalText').textContent=`Obtuviste ${fc} de 10 respuestas correctas. `+(pass?'Dominaste los contenidos principales de la unidad.':'Repasa sinónimos, antónimos, cómic y vuelve a leer los textos.');document.getElementById('finalBadge').textContent=pass?'🏅 Explorador/a del Lenguaje':'📘 En entrenamiento';if(pass)markDone('final')}
-  document.getElementById('finalNext').addEventListener('click',()=>{fi++;if(fi>=finalData.length){finishFinal();return}renderFinal()});document.getElementById('restartFinal').addEventListener('click',()=>{sound('reset');fi=0;fc=0;renderFinal()});renderFinal();
-  updateProgress();
-})();
-</script>
-</body>
-</html>
+</script></body></html>
